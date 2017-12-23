@@ -312,36 +312,26 @@ public:
 
 
 
+		// -------------------------- Button --------------------------
 
-// -------------------------- Top Bar --------------------------
+
+		// -------------------------- Top Bar --------------------------
 
 		void Draw_Top_Bar();
-
-		void Set_Top_Bar_Page_Number(byte Top_Bar_Page_Number);
-		byte Get_Top_Bar_Page_Number();
-		void Set_Top_Bar_Page_Number_Down();
-		void Set_Top_Bar_Page_Number_Up();
-
-		void Set_Top_Bar_Size(byte Top_Bar_Size);
-		byte Get_Top_Bar_Size();
-
-		void Set_Top_Bar_Button_Spacing(byte Top_Bar_Button_Spacing);
-		byte Get_Top_Bar_Button_Spacing();
 
 		void Set_Top_Bar_Text(String Top_Bar_Text);
 		String Get_Top_Bar_Text();
 
-		void Set_Top_Bar_Color(word Color);
-		word Get_Top_Bar_Color();
+		int Top_Bar_Size;
+		int Top_Bar_Button_Size;
 
-		void Set_Top_Bar_Button_Color(word Color);
-		word Get_Top_Bar_Button_Color();
+		word Top_Bar_Color;
+		word Top_Bar_Button_Color;
+		word Top_Bar_Edge_Color;
+		word Top_Bar_Text_Color;
 
-	  void Set_Top_Bar_Edge_Color(word Color);
-	  word Get_Top_Bar_Edge_Color();
+		volatile byte Top_Bar_Page_Number = 1;
 
-	  void Set_Top_Bar_Text_Color(word Color);
-	  word Get_Top_Bar_Text_Color();
 
 
 	private:
@@ -364,19 +354,13 @@ public:
 
     byte _Button_Matrix_Spacing;
 
-// -------------------------- Top Bar --------------------------
+		// -------------------------- Top Bar --------------------------
 
-		int _Top_Bar_Size;
-		int _Top_Bar_Button_Size;
 		int _Top_Bar_Button_Spacing;
+
 		String _Top_Bar_Text_Array[15];
-		volatile byte _Top_Bar_Page_Number = 1;
 		byte _Top_Bar_Page_Number_Last;
 
-		word _Top_Bar_Color;
-		word _Top_Bar_Button_Color;
-		word _Top_Bar_Edge_Color;
-    word _Top_Bar_Text_Color;
 
 };
 

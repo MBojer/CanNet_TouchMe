@@ -1551,7 +1551,7 @@ void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte But
 		Draw_Button(
 	    Button_Text,
 	    _Button_Matrix_Spacing * Button_Number_X + _Button_Size_X * (Button_Number_X - 1),
-	    _Top_Bar_Size + _Button_Matrix_Spacing * Button_Number_Y + _Button_Size_Y * (Button_Number_Y - 1)
+	    Top_Bar_Size + _Button_Matrix_Spacing * Button_Number_Y + _Button_Size_Y * (Button_Number_Y - 1)
 		);
 	}
 
@@ -1561,7 +1561,7 @@ void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte But
 			// X
 	    _Button_Matrix_Spacing * Button_Number_X + _Button_Size_2_X * (Button_Number_X - 1),
 			// Y
-	    _Top_Bar_Size + _Button_Matrix_Spacing * Button_Number_Y + _Button_Size_2_Y * (Button_Number_Y - 1),
+	    Top_Bar_Size + _Button_Matrix_Spacing * Button_Number_Y + _Button_Size_2_Y * (Button_Number_Y - 1),
 			true
 		);
 	}
@@ -1596,35 +1596,31 @@ void UTFT::Draw_Top_Bar() {
 
 
 	//-------------------------------------------------- Drws the top bar --------------------------------------------------
-	Set_Button_Color(_Top_Bar_Color);
-	Set_Button_Back_Color(_Top_Bar_Color);
 
-	Set_Button_Edge_Size(0);
+	Set_Button_Size(getDisplayXSize() - 1, Top_Bar_Size);
 
-	Set_Button_Size(getDisplayXSize() - 1, _Top_Bar_Size);
-
-	Draw_Button(_Top_Bar_Text_Array[_Top_Bar_Page_Number - 1], 0, 0);
+	Draw_Button(_Top_Bar_Text_Array[Top_Bar_Page_Number - 1], 0, 0);
 
 	//-------------------------------------------------- Drws Page up / Page down --------------------------------------------------
 
-	if (_Top_Bar_Page_Number < 9) {
-		Set_Button_Size_2(5 * getFontXsize(), Get_Top_Bar_Size());
+	if (Top_Bar_Page_Number < 9) {
+		Set_Button_Size_2(5 * getFontXsize(), Top_Bar_Size);
 	}
 
 	else {
-		Set_Button_Size_2(6 * getFontXsize(), Get_Top_Bar_Size());
+		Set_Button_Size_2(6 * getFontXsize(), Top_Bar_Size);
 	}
 
 	Set_Button_Edge_Size(4);
 
-	if (_Top_Bar_Page_Number != 1) {
-		String Page_Number_Text = "<< " + String(_Top_Bar_Page_Number - 1);
+	if (Top_Bar_Page_Number != 1) {
+		String Page_Number_Text = "<< " + String(Top_Bar_Page_Number - 1);
 
 		Draw_Button(Page_Number_Text, 0, 0, true); // _Button_Size_2
 	}
 
-	if (_Top_Bar_Page_Number != _Top_Bar_Page_Number_Last) {
-		String Page_Number_Text = String(_Top_Bar_Page_Number + 1) + " >>";
+	if (Top_Bar_Page_Number != _Top_Bar_Page_Number_Last) {
+		String Page_Number_Text = String(Top_Bar_Page_Number + 1) + " >>";
 
 		Draw_Button(Page_Number_Text, getDisplayXSize() - 1 - Get_Button_Size_2_X(), 0, true); // _Button_Size_2
 	}
@@ -1666,101 +1662,3 @@ String UTFT::Get_Top_Bar_Text() {
 	return Return_String;
 
 } // END MARKER - Get_Top_Bar_Text
-
-
-void UTFT::Set_Top_Bar_Page_Number(byte Top_Bar_Page_Number) {
-
-	_Top_Bar_Page_Number = Top_Bar_Page_Number;
-
-} // END MARKER - Set_Top_Bar_Page_Number
-
-void UTFT::Set_Top_Bar_Page_Number_Down() {
-
-	_Top_Bar_Page_Number = _Top_Bar_Page_Number - 1;
-
-} // END MARKER - Set_Top_Bar_Page_Number_Down
-
-void UTFT::Set_Top_Bar_Page_Number_Up() {
-
-	_Top_Bar_Page_Number = _Top_Bar_Page_Number + 1;
-
-} // END MARKER - Set_Top_Bar_Page_Number_Up
-
-byte UTFT::Get_Top_Bar_Page_Number() {
-
-	return _Top_Bar_Page_Number;
-
-} // END MARKER - Get_Top_Bar_Page_Number
-
-
-void UTFT::Set_Top_Bar_Color(word Color) {
-
-	_Top_Bar_Color = Color;
-
-} // END MARKER - Set_Top_Bar_Color
-
-word UTFT::Get_Top_Bar_Color() {
-
-	return _Top_Bar_Color;
-
-} // END MARKER - Get_Top_Bar_Color
-
-
-void UTFT::Set_Top_Bar_Button_Color(word Color) {
-
-	_Top_Bar_Button_Color = Color;
-
-} // END MARKER - Set_Top_Bar_Button_Color
-
-word UTFT::Get_Top_Bar_Button_Color() {
-
-	return _Top_Bar_Button_Color;
-
-} // END MARKER - Get_Top_Bar_Button_Color
-
-
-void UTFT::Set_Top_Bar_Edge_Color(word Color) {
-
-	_Top_Bar_Edge_Color = Color;
-
-} // END MARKER - Set_Top_Bar_Edge_Color
-
-word UTFT::Get_Top_Bar_Edge_Color() {
-
-	return _Top_Bar_Edge_Color;
-
-} // END MARKER - Get_Top_Bar_Edge_Color
-
-
-void UTFT::Set_Top_Bar_Text_Color(word Color) {
-
-	_Top_Bar_Text_Color = Color;
-
-} // END MARKER - Set_Top_Bar_Text_Color
-
-word UTFT::Get_Top_Bar_Text_Color() {
-
-	return _Top_Bar_Text_Color;
-
-} // END MARKER - Get_Top_Bar_Text_Color
-
-void UTFT::Set_Top_Bar_Size(byte Top_Bar_Size) {
-
-  _Top_Bar_Size = Top_Bar_Size;
-
-} // END MARKER - Draw_Button_Matrix_Top_Bar_Size
-
-byte UTFT::Get_Top_Bar_Size() {
-	return _Top_Bar_Size;
-}
-
-
-void UTFT::Set_Top_Bar_Button_Spacing(byte Top_Bar_Button_Spacing) {
-	_Top_Bar_Button_Spacing = Top_Bar_Button_Spacing;
-}
-
-byte UTFT::Get_Top_Bar_Button_Spacing() {
-
-  return _Top_Bar_Button_Spacing;
-
-} // END MARKER - Draw_Button_Matrix_Top_Bar_Size

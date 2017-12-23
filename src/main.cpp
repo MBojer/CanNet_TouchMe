@@ -292,16 +292,16 @@ void Top_Bar_Touch() {
   if (myTouch.Get_Top_Bar_Button_Number(Touch_Input_X, Touch_Input_Y) != 0) {
 
     if (myTouch.Get_Top_Bar_Button_Number() == 1) {
-      myGLCD.Set_Top_Bar_Page_Number_Down();
+      myGLCD.Top_Bar_Page_Number = myGLCD.Top_Bar_Page_Number - 1;
       Serial.print("Top Bar - Page Down to: "); // REMOVE ME
     }
 
     else if (myTouch.Get_Top_Bar_Button_Number() == 2) {
-      myGLCD.Set_Top_Bar_Page_Number_Up();
+      myGLCD.Top_Bar_Page_Number = myGLCD.Top_Bar_Page_Number + 1;
       Serial.print("Top Bar - Page Up to: "); // REMOVE ME
     }
 
-    Serial.println(myGLCD.Get_Top_Bar_Page_Number()); // REMOVE ME
+    Serial.println(myGLCD.Top_Bar_Page_Number); // REMOVE ME
     Top_Bar();
   }
 
@@ -368,14 +368,14 @@ void setup() {
 
   myGLCD.Set_Top_Bar_Text("Main;Relay's;Voltmeter's;");
 
-  myGLCD.Set_Top_Bar_Size(50);
+  myGLCD.Top_Bar_Size = 50;
 
-  myGLCD.Set_Top_Bar_Color(0x001F);
-  myGLCD.Set_Top_Bar_Edge_Color(0x9CF3);
-  myGLCD.Set_Top_Bar_Text_Color(0xEF5D);
+  myGLCD.Top_Bar_Color = 0x001F;
+  myGLCD.Top_Bar_Edge_Color = 0x9CF3;
+  myGLCD.Top_Bar_Text_Color = 0xEF5D;
 
 
-  myTouch.Set_Top_Bar_Size(myGLCD.Get_Top_Bar_Size());
+  myTouch.Set_Top_Bar_Size(myGLCD.Top_Bar_Size);
 
   myTouch.Set_Top_Bar_Button_Size(125, myGLCD.getDisplayXSize());
 
