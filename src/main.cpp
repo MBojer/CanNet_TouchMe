@@ -36,10 +36,6 @@ int Touch_Input_X, Touch_Input_Y;
 
 int Light_Strenght = 180; // CNAMGE ME
 
-#define Page_Number_Last 3
-int Page_Number = 1;
-String Page_Number_Text_Array[Page_Number_Last] = {"Main","Relay's","Voltmeter's"};
-
 
 
 
@@ -59,8 +55,8 @@ void Main_Page() {
 
   // --------------- 3 X 1 ---------------
   // --------------- Dimmer - Main ---------------
-  myGLCD.Button_Size_2_X = myGLCD.getDisplayXSize() - myGLCD.Button_Matrix_Spacing * 2;
-  myGLCD.Button_Size_2_X = myGLCD.Button_Size_Y;
+  myGLCD.Button_Size_2_X = myGLCD.getDisplayXSize() - (myGLCD.Button_Matrix_Spacing * 2);
+  myGLCD.Button_Size_2_Y = myGLCD.Button_Size_Y;
   myGLCD.Draw_Button_Matrix("", 1, 3, true); // _Button_Size_2
 
 
@@ -281,9 +277,9 @@ void Top_Bar() {
 
   myGLCD.Draw_Top_Bar();
 
-       if (Page_Number == 1) Main_Page();
-  else if (Page_Number == 2) Relay_Page();
-  else if (Page_Number == 3) Voltmeter_Page();
+       if (myGLCD.Top_Bar_Page_Number == 1) Main_Page();
+  else if (myGLCD.Top_Bar_Page_Number == 2) Relay_Page();
+  else if (myGLCD.Top_Bar_Page_Number == 3) Voltmeter_Page();
 
 } // END MARKER - Top_Bar
 
@@ -382,6 +378,7 @@ void setup() {
   myTouch.Top_Bar_Size = myGLCD.Top_Bar_Size;
 
   myTouch.Set_Top_Bar_Button_Size(125, myGLCD.getDisplayXSize());
+  myGLCD.Top_Bar_Button_Edge_Size = myGLCD.Button_Edge_Size;
 
   myTouch.Top_Bar_Ignore_Input_For = 1500;
 
@@ -417,12 +414,12 @@ void Touch_Check() {
   Top_Bar_Touch();
 
   // --------------------------------------------- 1 - Main Page ---------------------------------------------
-  if (Page_Number == 1) {
+  if (myGLCD.Top_Bar_Page_Number == 1) {
   // Main_Page_Touch();
   }
 
   // --------------------------------------------- 2 - Relay Page ---------------------------------------------
-  else if (Page_Number == 2) { // CHANGE BELOW
+  else if (myGLCD.Top_Bar_Page_Number == 2) { // CHANGE BELOW
   }
 } // End Marker - Touch_Check
 

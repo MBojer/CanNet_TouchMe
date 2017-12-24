@@ -325,6 +325,7 @@ public:
 
 		int Top_Bar_Size;
 		int Top_Bar_Button_Size;
+		int Top_Bar_Button_Edge_Size;
 
 		word Top_Bar_Color;
 		word Top_Bar_Button_Color;

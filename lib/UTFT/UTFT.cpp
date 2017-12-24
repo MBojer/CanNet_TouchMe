@@ -1490,7 +1490,8 @@ void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte But
 		Draw_Button(
 	    Button_Text,
 	    Button_Matrix_Spacing * Button_Number_X + Button_Size_X * (Button_Number_X - 1),
-	    Top_Bar_Size + Button_Matrix_Spacing * Button_Number_Y + Button_Size_Y * (Button_Number_Y - 1)
+	    Top_Bar_Size + Button_Matrix_Spacing * Button_Number_Y + Button_Size_Y * (Button_Number_Y - 1),
+			false
 		);
 	}
 
@@ -1527,6 +1528,7 @@ void UTFT::Draw_Top_Bar() {
 
 	Button_Size_X = getDisplayXSize() - 1;
 	Button_Size_Y = Top_Bar_Size;
+	Button_Edge_Size = 0;
 
 	Draw_Button(_Top_Bar_Text_Array[Top_Bar_Page_Number - 1], 0, 0);
 
@@ -1542,7 +1544,7 @@ void UTFT::Draw_Top_Bar() {
 		Button_Size_2_Y = Top_Bar_Size;
 	}
 
-	Button_Edge_Size = 4;
+	Button_Edge_Size = Top_Bar_Button_Edge_Size;
 
 	if (Top_Bar_Page_Number != 1) {
 		String Page_Number_Text = "<< " + String(Top_Bar_Page_Number - 1);
