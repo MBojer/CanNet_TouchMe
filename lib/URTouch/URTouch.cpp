@@ -289,7 +289,7 @@ int16_t URTouch::getX()
 		if (c>disp_y_size)
 			c = disp_y_size;
 	}
-	return _X_Flip_Output - c;
+	return Flip_Output_X - c;
 }
 
 int16_t URTouch::getY()
@@ -317,7 +317,7 @@ int16_t URTouch::getY()
 		if (c>disp_x_size)
 			c = disp_x_size;
 	}
-	return _Y_Flip_Output - c;
+	return Flip_Output_Y - c;
 }
 
 
@@ -359,98 +359,36 @@ bool URTouch::Stabilize_Input(int Touch_Input_X, int Touch_Input_Y) {
 
 
 
-void	URTouch::getX_Flip_Output(int Display_Size_X) {
-
-	_X_Flip_Output = Display_Size_X;
-
-} // END MARKER - getX_Flip_Output
-
-
-void	URTouch::getY_Flip_Output(int Display_Size_Y) {
-
-	_Y_Flip_Output = Display_Size_Y;
-
-} // END MARKER - getY_Flip_Output
-
-
-
-
-
-void URTouch::Set_Button_Size(int Button_Size_X, int Button_Size_Y) {
-
-  _Button_Size_X = Button_Size_X;
-  _Button_Size_Y = Button_Size_Y;
-
-} // END MARKER - Size
-
-int URTouch::Get_Button_Size_X() {
-	  return _Button_Size_X;
-} // END MARKER - Size_X
-
-int URTouch::Get_Button_Size_Y() {
-  return _Button_Size_Y;
-} // END MARKER - Size_Y
-
-
-void URTouch::Set_Button_Size_2(int Button_Size_X, int Button_Size_Y) {
-
-  _Button_Size_2_X = Button_Size_X;
-  _Button_Size_2_Y = Button_Size_Y;
-
-} // END MARKER - Size
-
-int URTouch::Get_Button_Size_2_X() {
-  return _Button_Size_2_X;
-} // END MARKER - Size_X
-
-int URTouch::Get_Button_Size_2_Y() {
-  return _Button_Size_2_Y;
-} // END MARKER - Size_Y
-
-
-void URTouch::Set_Button_Matrix_Spacing(byte Spacing) {
-
-  _Button_Matrix_Spacing = Spacing;
-
-} // END MARKER - Draw_Button_Matrix_Spacing
-
-byte URTouch::Get_Button_Matrix_Spacing() {
-
-  return _Button_Matrix_Spacing;
-
-} // END MARKER - Draw_Button_Matrix_Spacing
-
-
 byte URTouch::Get_Button_Matrix_Number(bool X_Y, int Input, bool Use_Button_Size_2) {
 
 	if (X_Y == false) { // false = X
 
-		if (Input - _Button_Matrix_Spacing < 0) { // Input before first button
+		if (Input - Button_Matrix_Spacing < 0) { // Input before first button
 			return 0;
 		}
 
 		if (Use_Button_Size_2 == false) { // Button_Size
-			_Button_Size = _Button_Size_X;
+			Button_Size = Button_Size_X;
 		} // END MARKER - if (Use_Button_Size_2 == false)
 
 		else { // Button_Size
-			_Button_Size = _Button_Size_2_X;
+			Button_Size = Button_Size_2_X;
 		} // END MARKER - else
 
 	} // END MARKER - if (X_Y == false)
 
 
 	else { // true = Y
-		if (Input -Top_Bar_Size - _Button_Matrix_Spacing < 0) { // Input before first button
+		if (Input - Top_Bar_Size - Button_Matrix_Spacing < 0) { // Input before first button
 			return 0;
 		}
 
 		if (Use_Button_Size_2 == false) { // Button_Size
-			_Button_Size = _Button_Size_Y;
+			Button_Size = Button_Size_Y;
 		} // END MARKER - if (Use_Button_Size_2 == false)
 
 		else { // Button_Size
-			_Button_Size = _Button_Size_2_Y;
+			Button_Size = Button_Size_2_Y;
 		} // END MARKER - else
 
 	} // END MARKER - else
@@ -458,10 +396,10 @@ byte URTouch::Get_Button_Matrix_Number(bool X_Y, int Input, bool Use_Button_Size
 
 	for (int x = 1; x < 100; x++) {
 
-		int Temp_Int = Input - _Button_Matrix_Spacing * x;
+		int Temp_Int = Input - Button_Matrix_Spacing * x;
 
 		if (x != 1) {
-			Temp_Int = Temp_Int - _Button_Size * (x - 1);
+			Temp_Int = Temp_Int - Button_Size * (x - 1);
 		}
 
 		if (X_Y == true) { // true = Y
@@ -476,7 +414,7 @@ byte URTouch::Get_Button_Matrix_Number(bool X_Y, int Input, bool Use_Button_Size
 			return 0;
 		}
 
-		if (Temp_Int < _Button_Size && Temp_Int > 0) {
+		if (Temp_Int < Button_Size && Temp_Int > 0) {
 			return x;
 		}
 

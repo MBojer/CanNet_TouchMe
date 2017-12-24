@@ -83,25 +83,26 @@ class URTouch
 				void Set_Stabilize_Input(int Max_Touch_Diaviation, int Max_Touch_Diaviation_Time);
 				bool Stabilize_Input(int Touch_Input_X, int Touch_Input_Y);
 
-				void getX_Flip_Output(int Display_Size_X);
-				void getY_Flip_Output(int Display_Size_Y);
 
+				// -------------------------- Buttons --------------------------
+				int Button_Size;
+				int Button_Size_X;
+				int Button_Size_Y;
+				int Button_Size_2_X;
+				int Button_Size_2_Y;
+
+
+				// -------------------------- Button Matrix --------------------------
 				byte Get_Button_Matrix_Number(bool X_Y, int Input, bool Use_Button_Size_2);
 				byte Get_Button_Matrix_Number(bool X_Y, int Input);
 
-				void Set_Button_Size(int Button_Size_X, int Button_Size_Y);
-		    void Set_Button_Size_2(int Button_Size_X, int Button_Size_Y);
+				byte Button_Matrix_Number_X;
+				byte Button_Matrix_Number_Y;
+				int Button_Matrix_Size;
+				int Button_Matrix_Spacing;
 
-		    int Get_Button_Size_X();
-		    int Get_Button_Size_Y();
-		    int Get_Button_Size_2_X();
-		    int Get_Button_Size_2_Y();
-
-				void Set_Button_Matrix_Spacing(byte Spacing);
-				byte Get_Button_Matrix_Spacing();
 
 				// -------------------------- Top Bar --------------------------
-
 				byte Get_Top_Bar_Button_Number(int Input_X, int Input_Y);
 				void Set_Top_Bar_Button_Size(int Button_Size, int Display_Size_X);
 
@@ -110,28 +111,20 @@ class URTouch
 				int Top_Bar_Button_Pressed;
 				int Top_Bar_Ignore_Input_For;
 
+				// -------------------------- MISC --------------------------
+
+				int Flip_Output_X = 0;
+				int Flip_Output_Y = 0;
+
+
 			private:
 
-				int _X_Flip_Output = 0;
-				int _Y_Flip_Output = 0;
-
-				int _Button_Size;
-				int _Button_Size_X;
-		    int _Button_Size_Y;
-		    int _Button_Size_2_X;
-		    int _Button_Size_2_Y;
-
-				byte _Button_Matrix_Number_X;
-				byte _Button_Matrix_Number_Y;
-				int _Button_Matrix_Size;
-				int _Button_Matrix_Spacing;
-
 				// -------------------------- Top Bar --------------------------
-
 				int _Top_Bar_Button_Spaceing;
 
 				unsigned long _Top_Bar_Ignore_Input_Untill;
 
+				// -------------------------- MISC --------------------------
 
 				unsigned long _Touch_Input_Last_Input;
 				int _Max_Touch_Diaviation = 250; // Max diviation from last touch input

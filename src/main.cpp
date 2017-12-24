@@ -70,7 +70,7 @@ void Main_Page_Touch() {
 
   myTouch.Button_Size_X = myGLCD.Button_Size_X;
   myTouch.Button_Size_Y = myGLCD.Button_Size_Y;
-  myTouch.Set_Button_Matrix_Spacing(myGLCD.Get_Button_Matrix_Spacing());
+  myTouch.Button_Matrix_Spacing = myGLCD.Button_Matrix_Spacing;
 
 
   // --------------------------------------------- Dimmer Send ---------------------------------------------
@@ -86,12 +86,12 @@ void Main_Page_Touch() {
 
       if (Touch_Input_X > 0 && Touch_Input_X < Button_Spazing) { // Uses the space before the bar to make a bigger touch spot for 0%
         Light_Strenght = 0;
-        Touch_Input_X = Button_Spazing + Main_Page_Dimmer_Maker_Size_X + 2 + myGLCD.Get_Button_Edge_Size(); // To make the maker apear at the start of the dimmer
+        Touch_Input_X = Button_Spazing + Main_Page_Dimmer_Maker_Size_X + 2 + myGLCD.Button_Edge_Size; // To make the maker apear at the start of the dimmer
       }
 
       else if (Touch_Input_X > myGLCD.getDisplayXSize() - Button_Spazing && Touch_Input_X < myGLCD.getDisplayXSize()) { // Asme as above just oposite (100%)
         Light_Strenght = 255;
-        Touch_Input_X = myGLCD.getDisplayXSize() - Button_Spazing - Main_Page_Dimmer_Maker_Size_X - 2 - myGLCD.Get_Button_Edge_Size(); // To make the maker apear at the end of the dimmer
+        Touch_Input_X = myGLCD.getDisplayXSize() - Button_Spazing - Main_Page_Dimmer_Maker_Size_X - 2 - myGLCD.Button_Edge_Size; // To make the maker apear at the end of the dimmer
       }
 
       else {
@@ -110,9 +110,9 @@ void Main_Page_Touch() {
         myGLCD.setColor(0, 255, 0);
         myGLCD.fillRoundRect(
                               Main_Page_Dimmer_Last_Marker_Potition - Main_Page_Dimmer_Maker_Size_X,
-                              (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Get_Button_Size_Y() * 2) + 2 + myGLCD.Get_Button_Edge_Size(),
+                              (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Button_Size_Y * 2) + 2 + myGLCD.Button_Edge_Size,
                               Main_Page_Dimmer_Last_Marker_Potition + Main_Page_Dimmer_Maker_Size_X,
-                              (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Get_Button_Size_Y() * 3) - 2 - myGLCD.Get_Button_Edge_Size()
+                              (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Button_Size_Y * 3) - 2 - myGLCD.Button_Edge_Size
                             );
       }
 
@@ -120,9 +120,9 @@ void Main_Page_Touch() {
       myGLCD.setColor(255, 255, 255);
       myGLCD.fillRoundRect(
                             Touch_Input_X - Main_Page_Dimmer_Maker_Size_X,
-                            (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Get_Button_Size_Y() * 2) + 2 + myGLCD.Get_Button_Edge_Size(),
+                            (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Button_Size_Y * 2) + 2 + myGLCD.Button_Edge_Size,
                             Touch_Input_X + Main_Page_Dimmer_Maker_Size_X,
-                            (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Get_Button_Size_Y() * 3) - 2 - myGLCD.Get_Button_Edge_Size()
+                            (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Button_Size_Y * 3) - 2 - myGLCD.Button_Edge_Size
                           );
 
       // Notes marker potition
@@ -137,23 +137,23 @@ void Main_Page_Touch() {
   if (Main_Page_Ignore_Input_Until > millis()) return;
 
   // --------------------------------------------- 1 X ? ---------------------------------------------
-  else if (Touch_Input_Y > myTouch.Top_Bar_Size + Button_Spazing && Touch_Input_Y < myTouch.Top_Bar_Size + Button_Spazing + myGLCD.Get_Button_Size_Y()) {
+  else if (Touch_Input_Y > myTouch.Top_Bar_Size + Button_Spazing && Touch_Input_Y < myTouch.Top_Bar_Size + Button_Spazing + myGLCD.Button_Size_Y) {
 
 
     // --------------------------------------------- 1 X 1 ---------------------------------------------
-    if (Touch_Input_X > Button_Spazing && Touch_Input_X < (Button_Spazing + myGLCD.Get_Button_Size_X())) {
+    if (Touch_Input_X > Button_Spazing && Touch_Input_X < (Button_Spazing + myGLCD.Button_Size_X)) {
       Main_Page_Ignore_Input_Until = millis() + Main_Page_Ignore_Input_For;
       Serial.println("1 X 1"); // REMOVE ME
     }
 
     // --------------------------------------------- 1 X 2 ---------------------------------------------
-    else if (Touch_Input_X > (Button_Spazing * 2 + myGLCD.Get_Button_Size_X()) && Touch_Input_X < (Button_Spazing * 2 + myGLCD.Get_Button_Size_X() * 2)) {
+    else if (Touch_Input_X > (Button_Spazing * 2 + myGLCD.Button_Size_X) && Touch_Input_X < (Button_Spazing * 2 + myGLCD.Button_Size_X * 2)) {
       Main_Page_Ignore_Input_Until = millis() + Main_Page_Ignore_Input_For;
       Serial.println("1 X 2"); // REMOVE ME
     }
 
     // --------------------------------------------- 1 X 2 ---------------------------------------------
-    else if (Touch_Input_X > (Button_Spazing * 3 + myGLCD.Get_Button_Size_X() * 2) && Touch_Input_X < (Button_Spazing * 3 + myGLCD.Get_Button_Size_X() * 3)) {
+    else if (Touch_Input_X > (Button_Spazing * 3 + myGLCD.Button_Size_X * 2) && Touch_Input_X < (Button_Spazing * 3 + myGLCD.Button_Size_X * 3)) {
       Main_Page_Ignore_Input_Until = millis() + Main_Page_Ignore_Input_For;
       Serial.println("1 X 3"); // REMOVE ME
     }
@@ -161,10 +161,10 @@ void Main_Page_Touch() {
 
 
   // --------------------------------------------- 2 X ? ---------------------------------------------
-  else if (Touch_Input_Y > myTouch.Top_Bar_Size + Button_Spazing * 2 + myGLCD.Get_Button_Size_Y() && Touch_Input_Y < myTouch.Top_Bar_Size + Button_Spazing * 2 + myGLCD.Get_Button_Size_Y() * 2) {
+  else if (Touch_Input_Y > myTouch.Top_Bar_Size + Button_Spazing * 2 + myGLCD.Button_Size_Y && Touch_Input_Y < myTouch.Top_Bar_Size + Button_Spazing * 2 + myGLCD.Button_Size_Y * 2) {
 
     // --------------------------------------------- 2 X 1 ---------------------------------------------
-    if (Touch_Input_X > Button_Spazing && Touch_Input_X < (Button_Spazing + myGLCD.Get_Button_Size_X())) {
+    if (Touch_Input_X > Button_Spazing && Touch_Input_X < (Button_Spazing + myGLCD.Button_Size_X)) {
       Main_Page_Ignore_Input_Until = millis() + Main_Page_Ignore_Input_For;
       Serial.println("2 X 1"); // REMOVE ME
     }
@@ -178,20 +178,20 @@ void Main_Page_Touch() {
 
 void Relay_Page() {
 
-  myGLCD.Set_Button_Size(200, 90);
-  myGLCD.Set_Button_Edge_Size(4);
-  myGLCD.Set_Button_Matrix_Spacing(50);
-
-  myGLCD.Draw_Button_Matrix("Old Lights", 1, 1);
-  myGLCD.Draw_Button_Matrix("Main Lights", 2, 1);
-  myGLCD.Draw_Button_Matrix("Red Lights", 3, 1);
-
-  myGLCD.Draw_Button_Matrix("USB Charger", 1, 2);
-  myGLCD.Draw_Button_Matrix("Bilge pump", 2, 2);
-  myGLCD.Draw_Button_Matrix("Gen / Inv", 3, 2);
-
-  myGLCD.Draw_Button_Matrix("Back Lights", 1, 3);
-  myGLCD.Draw_Button_Matrix("Internet", 2, 3);
+  // myGLCD.Set_Button_Size(200, 90);
+  // myGLCD.Set_Button_Edge_Size(4);
+  // myGLCD.Set_Button_Matrix_Spacing(50);
+  //
+  // myGLCD.Draw_Button_Matrix("Old Lights", 1, 1);
+  // myGLCD.Draw_Button_Matrix("Main Lights", 2, 1);
+  // myGLCD.Draw_Button_Matrix("Red Lights", 3, 1);
+  //
+  // myGLCD.Draw_Button_Matrix("USB Charger", 1, 2);
+  // myGLCD.Draw_Button_Matrix("Bilge pump", 2, 2);
+  // myGLCD.Draw_Button_Matrix("Gen / Inv", 3, 2);
+  //
+  // myGLCD.Draw_Button_Matrix("Back Lights", 1, 3);
+  // myGLCD.Draw_Button_Matrix("Internet", 2, 3);
 
 } // End Marker - Main_Controles
 
@@ -202,7 +202,7 @@ void Relay_Page_Touch() {
 
 void Voltmeter_Page() {
 
-  myGLCD.Set_Button_Size(200, 90);
+  // myGLCD.Set_Button_Size(200, 90);
 
   myGLCD.Draw_Button_Matrix("Voltmeter 1", 1, 1);
 
@@ -346,11 +346,8 @@ void setup() {
 
   // myTouch.Set_Stabilize_Input(250, 250);
 
-  myTouch.getX_Flip_Output(800);
-  myTouch.getY_Flip_Output(480);
-
-
-  myGLCD.Center_Text(true);
+  myTouch.Flip_Output_X = 800;
+  myTouch.Flip_Output_Y = 480;
 
   /*
   #define VGA_BLACK		0x0000
@@ -391,13 +388,12 @@ void setup() {
 
   // -------------------------- Buttons --------------------------
 
-  myGLCD.Set_Button_Color(0x001F);
-  myGLCD.Set_Button_Back_Color(0x001F);
+  myGLCD.Button_Color = 0x001F;
+  myGLCD.Button_Back_Color = 0x001F;
+  myGLCD.Button_Text_Color = 0xEF5D;
+  myGLCD.Button_Edge_Color = 0x9CF3;
 
-  myGLCD.Set_Button_Edge_Color(0x9CF3);
-  myGLCD.Set_Button_Text_Color(0xEF5D);
-
-
+  myGLCD.Button_Center_Text = true;
 
   myGLCD.print(String("Boot Done"), CENTER, Display_Center_Y - 5);
   Serial.println("Boot Done");
