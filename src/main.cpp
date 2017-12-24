@@ -295,24 +295,23 @@ void Top_Bar_Touch() {
 
       if (myGLCD.Top_Bar_Page_Number == 1); // Ingnore input if you are at page 1
 
-      else myGLCD.Top_Bar_Page_Number = myGLCD.Top_Bar_Page_Number - 1;
-
-      Serial.print("Top Bar - Page Down to: "); // REMOVE ME
+      else {
+        myGLCD.Top_Bar_Page_Number = myGLCD.Top_Bar_Page_Number - 1;
+        Top_Bar();
+      } // END MARKER - else
     }
 
     else if (myTouch.Top_Bar_Button_Pressed == 2) {
 
       if (myGLCD.Top_Bar_Page_Number == myGLCD.Top_Bar_Page_Number_Last); // Ingnore input if you are at the last page
 
-      else myGLCD.Top_Bar_Page_Number = myGLCD.Top_Bar_Page_Number + 1;
-
-      Serial.print("Top Bar - Page Up to: "); // REMOVE ME
+      else {
+        myGLCD.Top_Bar_Page_Number = myGLCD.Top_Bar_Page_Number + 1;
+        Top_Bar();
+      } // END MARKER - else
     }
 
-    Serial.println(myGLCD.Top_Bar_Page_Number); // REMOVE ME
-
-    Top_Bar();
-  }
+  } // END MARKER - else if
 
 } // END MARKER - Top_Bar_Touch
 
@@ -381,13 +380,11 @@ void setup() {
   myGLCD.Top_Bar_Edge_Color = 0x9CF3;
   myGLCD.Top_Bar_Text_Color = 0xEF5D;
 
-
   myTouch.Top_Bar_Size = myGLCD.Top_Bar_Size;
 
   myTouch.Set_Top_Bar_Button_Size(125, myGLCD.getDisplayXSize());
 
   myTouch.Top_Bar_Ignore_Input_For = 1500;
-
 
 
   // -------------------------- Buttons --------------------------
