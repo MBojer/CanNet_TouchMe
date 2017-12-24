@@ -441,7 +441,7 @@ byte URTouch::Get_Button_Matrix_Number(bool X_Y, int Input, bool Use_Button_Size
 
 
 	else { // true = Y
-		if (Input -_Top_Bar_Size - _Button_Matrix_Spacing < 0) { // Input before first button
+		if (Input -Top_Bar_Size - _Button_Matrix_Spacing < 0) { // Input before first button
 			return 0;
 		}
 
@@ -466,7 +466,7 @@ byte URTouch::Get_Button_Matrix_Number(bool X_Y, int Input, bool Use_Button_Size
 
 		if (X_Y == true) { // true = Y
 
-			Temp_Int = Temp_Int - _Top_Bar_Size;
+			Temp_Int = Temp_Int - Top_Bar_Size;
 
 		} // END MARKER - if (X_Y == true)
 
@@ -493,73 +493,42 @@ byte URTouch::Get_Button_Matrix_Number(bool X_Y, int Input) {
 
 
 
-void URTouch::Set_Top_Bar_Size(byte Top_Bar_Size) {
-
-	_Top_Bar_Size = Top_Bar_Size;
-
-}  // End Marker - Set_Top_Bar_Size
-
-byte URTouch::Get_Top_Bar_Size() {
-
-	return _Top_Bar_Size;
-
-} // End Marker - Get_Top_Bar_Size
-
-
-void URTouch::Set_Top_Bar_Ignore_Input_For(int Ignore_Time) {
-
-	_Top_Bar_Ignore_Input_For = Ignore_Time;
-
-} // END MARKER - Set_Top_Bar_Ignore_Input_For
-
 byte URTouch::Get_Top_Bar_Button_Number(int Input_X, int Input_Y) {
 
-	if (Input_Y > _Top_Bar_Size) { // Input not matching top bar
-		_Top_Bar_Button_Pressed = 0;
+	if (Input_Y > Top_Bar_Size) { // Input not matching top bar
+		Top_Bar_Button_Pressed = 0;
 	}
 
 	else if (_Top_Bar_Ignore_Input_Untill > millis()) { // Pressed to soon ignoreing input
-		_Top_Bar_Button_Pressed = 0;
+		Top_Bar_Button_Pressed = 0;
 	}
 
-	else if (Input_Y > 0 && Input_Y < _Top_Bar_Size) { // Y - Input matching top bar
+	else if (Input_Y > 0 && Input_Y < Top_Bar_Size) { // Y - Input matching top bar
 
-		if (Input_X > 0 && Input_X < _Top_Bar_Button_Size) { // X - Page Down
-			_Top_Bar_Ignore_Input_Untill = millis() + _Top_Bar_Ignore_Input_For;
-			_Top_Bar_Button_Pressed = 1;
+
+		if (Input_X > 0 && Input_X < Top_Bar_Button_Size) { // X - Page Down
+			_Top_Bar_Ignore_Input_Untill = millis() + Top_Bar_Ignore_Input_For;
+			Top_Bar_Button_Pressed = 1;
 		}
 
 		else if (
-							Input_X > _Top_Bar_Button_Size + _Top_Bar_Button_Spaceing &&
-							Input_X < _Top_Bar_Button_Size + _Top_Bar_Button_Spaceing + _Top_Bar_Button_Size
+							Input_X > Top_Bar_Button_Size + _Top_Bar_Button_Spaceing &&
+							Input_X < Top_Bar_Button_Size + _Top_Bar_Button_Spaceing + Top_Bar_Button_Size
 						) { // X - Page Up
 
-			_Top_Bar_Ignore_Input_Untill = millis() + _Top_Bar_Ignore_Input_For;
-			_Top_Bar_Button_Pressed = 2;
+			_Top_Bar_Ignore_Input_Untill = millis() + Top_Bar_Ignore_Input_For;
+			Top_Bar_Button_Pressed = 2;
 		}
 
 	} // END MARKER - else if (Input_Y > 0 && Input_Y < _Top_Bar_Size)
 
-	return _Top_Bar_Button_Pressed;
+	return Top_Bar_Button_Pressed;
 
 }  // End Marker - Get_Button_Matrix_Number
 
-byte URTouch::Get_Top_Bar_Button_Number() {
-	return _Top_Bar_Button_Pressed;
-}
+void URTouch::Set_Top_Bar_Button_Size(int Button_Size, int Display_Size_X) {
 
-void URTouch::Set_Top_Bar_Button_Size(int Top_Bar_Button_Size, int Display_Size_X) {
-
-	_Top_Bar_Button_Size = Top_Bar_Button_Size;
-	_Top_Bar_Button_Spaceing = Display_Size_X - _Top_Bar_Button_Size * 2;
+	Top_Bar_Button_Size = Button_Size;
+	_Top_Bar_Button_Spaceing = Display_Size_X - Top_Bar_Button_Size * 2;
 
 }  // End Marker - Set_Top_Bar_Button_Size
-
-byte URTouch::Get_Top_Bar_Button_Size() {
-
-	return _Top_Bar_Button_Size;
-
-}  // End Marker - Get_Top_Bar_Button_Size
-
-
-// end

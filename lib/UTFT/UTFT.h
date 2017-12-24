@@ -331,7 +331,7 @@ public:
 		word Top_Bar_Text_Color;
 
 		volatile byte Top_Bar_Page_Number = 1;
-
+		byte Top_Bar_Page_Number_Last;
 
 
 	private:
@@ -359,8 +359,6 @@ public:
 		int _Top_Bar_Button_Spacing;
 
 		String _Top_Bar_Text_Array[15];
-		byte _Top_Bar_Page_Number_Last;
-
 
 };
 

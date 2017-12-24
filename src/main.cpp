@@ -107,9 +107,9 @@ void Main_Page_Touch() {
         myGLCD.setColor(0, 255, 0);
         myGLCD.fillRoundRect(
                               Main_Page_Dimmer_Last_Marker_Potition - Main_Page_Dimmer_Maker_Size_X,
-                              (myTouch.Get_Top_Bar_Size() + Button_Spazing * 3 + myGLCD.Get_Button_Size_Y() * 2) + 2 + myGLCD.Get_Button_Edge_Size(),
+                              (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Get_Button_Size_Y() * 2) + 2 + myGLCD.Get_Button_Edge_Size(),
                               Main_Page_Dimmer_Last_Marker_Potition + Main_Page_Dimmer_Maker_Size_X,
-                              (myTouch.Get_Top_Bar_Size() + Button_Spazing * 3 + myGLCD.Get_Button_Size_Y() * 3) - 2 - myGLCD.Get_Button_Edge_Size()
+                              (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Get_Button_Size_Y() * 3) - 2 - myGLCD.Get_Button_Edge_Size()
                             );
       }
 
@@ -117,9 +117,9 @@ void Main_Page_Touch() {
       myGLCD.setColor(255, 255, 255);
       myGLCD.fillRoundRect(
                             Touch_Input_X - Main_Page_Dimmer_Maker_Size_X,
-                            (myTouch.Get_Top_Bar_Size() + Button_Spazing * 3 + myGLCD.Get_Button_Size_Y() * 2) + 2 + myGLCD.Get_Button_Edge_Size(),
+                            (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Get_Button_Size_Y() * 2) + 2 + myGLCD.Get_Button_Edge_Size(),
                             Touch_Input_X + Main_Page_Dimmer_Maker_Size_X,
-                            (myTouch.Get_Top_Bar_Size() + Button_Spazing * 3 + myGLCD.Get_Button_Size_Y() * 3) - 2 - myGLCD.Get_Button_Edge_Size()
+                            (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Get_Button_Size_Y() * 3) - 2 - myGLCD.Get_Button_Edge_Size()
                           );
 
       // Notes marker potition
@@ -134,7 +134,7 @@ void Main_Page_Touch() {
   if (Main_Page_Ignore_Input_Until > millis()) return;
 
   // --------------------------------------------- 1 X ? ---------------------------------------------
-  else if (Touch_Input_Y > myTouch.Get_Top_Bar_Size() + Button_Spazing && Touch_Input_Y < myTouch.Get_Top_Bar_Size() + Button_Spazing + myGLCD.Get_Button_Size_Y()) {
+  else if (Touch_Input_Y > myTouch.Top_Bar_Size + Button_Spazing && Touch_Input_Y < myTouch.Top_Bar_Size + Button_Spazing + myGLCD.Get_Button_Size_Y()) {
 
 
     // --------------------------------------------- 1 X 1 ---------------------------------------------
@@ -158,7 +158,7 @@ void Main_Page_Touch() {
 
 
   // --------------------------------------------- 2 X ? ---------------------------------------------
-  else if (Touch_Input_Y > myTouch.Get_Top_Bar_Size() + Button_Spazing * 2 + myGLCD.Get_Button_Size_Y() && Touch_Input_Y < myTouch.Get_Top_Bar_Size() + Button_Spazing * 2 + myGLCD.Get_Button_Size_Y() * 2) {
+  else if (Touch_Input_Y > myTouch.Top_Bar_Size + Button_Spazing * 2 + myGLCD.Get_Button_Size_Y() && Touch_Input_Y < myTouch.Top_Bar_Size + Button_Spazing * 2 + myGLCD.Get_Button_Size_Y() * 2) {
 
     // --------------------------------------------- 2 X 1 ---------------------------------------------
     if (Touch_Input_X > Button_Spazing && Touch_Input_X < (Button_Spazing + myGLCD.Get_Button_Size_X())) {
@@ -289,19 +289,28 @@ void Top_Bar_Touch() {
 
   if (!myTouch.dataAvailable() || Touch_Input_Y == -1) return;
 
-  if (myTouch.Get_Top_Bar_Button_Number(Touch_Input_X, Touch_Input_Y) != 0) {
+  else if (myTouch.Get_Top_Bar_Button_Number(Touch_Input_X, Touch_Input_Y) != 0) {
 
-    if (myTouch.Get_Top_Bar_Button_Number() == 1) {
-      myGLCD.Top_Bar_Page_Number = myGLCD.Top_Bar_Page_Number - 1;
+    if (myTouch.Top_Bar_Button_Pressed == 1) {
+
+      if (myGLCD.Top_Bar_Page_Number == 1); // Ingnore input if you are at page 1
+
+      else myGLCD.Top_Bar_Page_Number = myGLCD.Top_Bar_Page_Number - 1;
+
       Serial.print("Top Bar - Page Down to: "); // REMOVE ME
     }
 
-    else if (myTouch.Get_Top_Bar_Button_Number() == 2) {
-      myGLCD.Top_Bar_Page_Number = myGLCD.Top_Bar_Page_Number + 1;
+    else if (myTouch.Top_Bar_Button_Pressed == 2) {
+
+      if (myGLCD.Top_Bar_Page_Number == myGLCD.Top_Bar_Page_Number_Last); // Ingnore input if you are at the last page
+
+      else myGLCD.Top_Bar_Page_Number = myGLCD.Top_Bar_Page_Number + 1;
+
       Serial.print("Top Bar - Page Up to: "); // REMOVE ME
     }
 
     Serial.println(myGLCD.Top_Bar_Page_Number); // REMOVE ME
+
     Top_Bar();
   }
 
@@ -309,8 +318,6 @@ void Top_Bar_Touch() {
 
 
 void setup() {
-
-  delay(2000);
 
   Serial.begin(115200);
 
@@ -336,7 +343,7 @@ void setup() {
 
   // -------------------------- Touch --------------------------
 
-  myTouch.Set_Stabilize_Input(250, 250);
+  // myTouch.Set_Stabilize_Input(250, 250);
 
   myTouch.getX_Flip_Output(800);
   myTouch.getY_Flip_Output(480);
@@ -375,11 +382,11 @@ void setup() {
   myGLCD.Top_Bar_Text_Color = 0xEF5D;
 
 
-  myTouch.Set_Top_Bar_Size(myGLCD.Top_Bar_Size);
+  myTouch.Top_Bar_Size = myGLCD.Top_Bar_Size;
 
   myTouch.Set_Top_Bar_Button_Size(125, myGLCD.getDisplayXSize());
 
-  myTouch.Set_Top_Bar_Ignore_Input_For(1500);
+  myTouch.Top_Bar_Ignore_Input_For = 1500;
 
 
 

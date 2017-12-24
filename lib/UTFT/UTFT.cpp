@@ -1619,7 +1619,7 @@ void UTFT::Draw_Top_Bar() {
 		Draw_Button(Page_Number_Text, 0, 0, true); // _Button_Size_2
 	}
 
-	if (Top_Bar_Page_Number != _Top_Bar_Page_Number_Last) {
+	if (Top_Bar_Page_Number != Top_Bar_Page_Number_Last) {
 		String Page_Number_Text = String(Top_Bar_Page_Number + 1) + " >>";
 
 		Draw_Button(Page_Number_Text, getDisplayXSize() - 1 - Get_Button_Size_2_X(), 0, true); // _Button_Size_2
@@ -1630,14 +1630,14 @@ void UTFT::Draw_Top_Bar() {
 
 void UTFT::Set_Top_Bar_Text(String Top_Bar_Text) {
 
-	_Top_Bar_Page_Number_Last = 0;
+	Top_Bar_Page_Number_Last = 0;
 
 	for (int x = 0; x < 15; x++) {
 
-		_Top_Bar_Page_Number_Last = Top_Bar_Text.indexOf(";", _Top_Bar_Page_Number_Last + 1);
+		Top_Bar_Page_Number_Last = Top_Bar_Text.indexOf(";", Top_Bar_Page_Number_Last + 1);
 
-		if (_Top_Bar_Page_Number_Last == -1 || Top_Bar_Text.length() == 0) {
-			_Top_Bar_Page_Number_Last = x;
+		if (Top_Bar_Page_Number_Last == -1 || Top_Bar_Text.length() == 0) {
+			Top_Bar_Page_Number_Last = x;
 			break;
 		}
 
@@ -1653,7 +1653,7 @@ String UTFT::Get_Top_Bar_Text() {
 
 	String Return_String;
 
-	for (int x = 0; x < _Top_Bar_Page_Number_Last; x++) {
+	for (int x = 0; x < Top_Bar_Page_Number_Last; x++) {
 
 		Return_String = Return_String + _Top_Bar_Text_Array[x] + ";";
 

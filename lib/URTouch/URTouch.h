@@ -102,16 +102,13 @@ class URTouch
 
 				// -------------------------- Top Bar --------------------------
 
-				void Set_Top_Bar_Ignore_Input_For(int Ignore_Time);
-
 				byte Get_Top_Bar_Button_Number(int Input_X, int Input_Y);
-				byte Get_Top_Bar_Button_Number();
+				void Set_Top_Bar_Button_Size(int Button_Size, int Display_Size_X);
 
-				void Set_Top_Bar_Size(byte Top_Bar_Size);
-				byte Get_Top_Bar_Size();
-
-				void Set_Top_Bar_Button_Size(int Top_Bar_Button_Size, int Display_Size_X);
-				byte Get_Top_Bar_Button_Size();
+				int Top_Bar_Size;
+				int Top_Bar_Button_Size;
+				int Top_Bar_Button_Pressed;
+				int Top_Bar_Ignore_Input_For;
 
 			private:
 
@@ -129,12 +126,10 @@ class URTouch
 				int _Button_Matrix_Size;
 				int _Button_Matrix_Spacing;
 
-				int _Top_Bar_Size;
-				int _Top_Bar_Button_Size;
-				int _Top_Bar_Button_Pressed;
+				// -------------------------- Top Bar --------------------------
+
 				int _Top_Bar_Button_Spaceing;
 
-				int _Top_Bar_Ignore_Input_For;
 				unsigned long _Top_Bar_Ignore_Input_Untill;
 
 
