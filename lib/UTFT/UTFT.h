@@ -281,39 +281,40 @@ class UTFT
 
 public:
 
-    void Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, int Size_Y);
-    void Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, int Size_Y, bool Use_Button_Size_2); // Referance only
+		// -------------------------- Button --------------------------
+
+		void Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, int Size_Y);
+		void Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, int Size_Y, bool Use_Button_Size_2); // Referance only
 		void Draw_Button(String Button_Text, int xStart, int yStart); // Referance only
 		void Draw_Button(String Button_Text, int xStart, int yStart, bool Use_Button_Size_2); // Referance only
 
-		void Set_Button_Color(word Color);
-    void Set_Button_Text_Color(word Color);
-    void Set_Button_Back_Color(word Color);
+		int Center_Text_Calc_X(String Text, bool Use_Button_Size_2);
+		int Center_Text_Calc_Y(String Text, bool Use_Button_Size_2);
 
-    void Set_Button_Edge_Color(word Color);
-    void Set_Button_Edge_Size(byte Size);
-    byte Get_Button_Edge_Size();
+		String Button_Text;
 
-    void Center_Text(bool Center_Text);
-    int Center_Text_Calc_X(String Text, bool Use_Button_Size_2);
-    int Center_Text_Calc_Y(String Text, bool Use_Button_Size_2);
-    void Set_Button_Size(int Button_Size_X, int Button_Size_Y);
-    void Set_Button_Size_2(int Button_Size_X, int Button_Size_Y);
-    int Get_Button_Size_X();
-    int Get_Button_Size_Y();
-    int Get_Button_Size_2_X();
-    int Get_Button_Size_2_Y();
+		int Button_Size_X;
+		int Button_Size_Y;
+		int Button_Size_2_X;
+		int Button_Size_2_Y;
+
+		bool Button_Center_Text = true;
+
+		word Button_Color;
+		word Button_Back_Color;
+		word Button_Text_Color;
+
+		word Button_Edge_Color;
+		byte Button_Edge_Size;
+
+
+
+		// -------------------------- Button  Matrix --------------------------
 
 		void Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y);
 		void Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y, bool Use_Button_Size_2); // Referance only
 
-    void Set_Button_Matrix_Spacing(byte Spacing);
-    byte Get_Button_Matrix_Spacing();
-
-
-
-		// -------------------------- Button --------------------------
-
+		byte Button_Matrix_Spacing;
 
 		// -------------------------- Top Bar --------------------------
 
@@ -336,23 +337,7 @@ public:
 
 	private:
 
-    String _Button_Text;
 
-    int _Button_Size_X;
-    int _Button_Size_Y;
-    int _Button_Size_2_X;
-    int _Button_Size_2_Y;
-
-    bool _Button_Center_Text = true;
-
-    word _Button_Color;
-		word _Button_Back_Color;
-    word _Button_Text_Color;
-
-    word _Button_Edge_Color;
-    byte _Button_Edge_Size;
-
-    byte _Button_Matrix_Spacing;
 
 		// -------------------------- Top Bar --------------------------
 

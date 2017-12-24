@@ -1359,21 +1359,21 @@ void UTFT::Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, i
 	int temp_Y;
 
 	if (Use_Button_Size_2 == false) { // _Button_Size
-		temp_X = _Button_Size_X;
-		temp_Y = _Button_Size_Y;
+		temp_X = Button_Size_X;
+		temp_Y = Button_Size_Y;
 	}
 
-	else { // _Button_Size_2
-		temp_X = _Button_Size_2_X;
-		temp_Y = _Button_Size_2_Y;
+	else { // Button_Size_2
+		temp_X = Button_Size_2_X;
+		temp_Y = Button_Size_2_Y;
 	}
 
 
 	// Edge
 	{
-		setColor(_Button_Edge_Color);
+		setColor(Button_Edge_Color);
 
-		if (_Button_Edge_Size == 1) {
+		if (Button_Edge_Size == 1) {
 			drawRoundRect(xStart, yStart, xStart + temp_X, yStart + temp_Y);
 		}
 
@@ -1384,19 +1384,19 @@ void UTFT::Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, i
 
 	// Button
 	{
-		setColor(_Button_Color);
+		setColor(Button_Color);
 		fillRoundRect (
-										xStart + _Button_Edge_Size,
-										yStart + _Button_Edge_Size,
-										xStart + temp_X - _Button_Edge_Size,
-										yStart + temp_Y - _Button_Edge_Size
+										xStart + Button_Edge_Size,
+										yStart + Button_Edge_Size,
+										xStart + temp_X - Button_Edge_Size,
+										yStart + temp_Y - Button_Edge_Size
 									);
 	}
 
 	// Text
 	if (Button_Text != "") {
-		setColor(_Button_Text_Color);
-		setBackColor(_Button_Back_Color);
+		setColor(Button_Text_Color);
+		setBackColor(Button_Back_Color);
 
 			if (Use_Button_Size_2 == false) { // _Button_Size
 
@@ -1407,14 +1407,14 @@ void UTFT::Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, i
 				);
 			}
 
-			else { // _Button_Size_2
+			else { // Button_Size_2
 				print(
 							Button_Text,
 							xStart + Center_Text_Calc_X(Button_Text, true),
 							yStart + Center_Text_Calc_Y(Button_Text, true)
 				);
 
-				//if (_Button_Edge_Size == 1) {
+				//if (Button_Edge_Size == 1) {
 			}
 
 
@@ -1427,65 +1427,33 @@ void UTFT::Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, i
 
 void UTFT::Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, int Size_Y) { // Referance only
 
-	Draw_Button(Button_Text, xStart, yStart, xStart + _Button_Size_X, xStart + _Button_Size_Y, false);
+	Draw_Button(Button_Text, xStart, yStart, xStart + Button_Size_X, xStart + Button_Size_Y, false);
 
 } // END MARKER - Draw
 
 void UTFT::Draw_Button(String Button_Text, int xStart, int yStart) { // Referance only
 
-	Draw_Button(Button_Text, xStart, yStart, xStart + _Button_Size_X, xStart + _Button_Size_Y, false);
+	Draw_Button(Button_Text, xStart, yStart, xStart + Button_Size_X, xStart + Button_Size_Y, false);
 
 } // END MARKER - Draw
 
 void UTFT::Draw_Button(String Button_Text, int xStart, int yStart, bool Use_Button_Size_2) { // Referance only
 
-	Draw_Button(Button_Text, xStart, yStart, xStart + _Button_Size_2_X, xStart + _Button_Size_2_Y, Use_Button_Size_2);
+	Draw_Button(Button_Text, xStart, yStart, xStart + Button_Size_2_X, xStart + Button_Size_2_Y, Use_Button_Size_2);
 
 } // END MARKER - Draw
 
 
-void UTFT::Set_Button_Color(word Color) {
-  _Button_Color = Color;
-} // END MARKER - Color
-
-void UTFT::Set_Button_Text_Color(word Color) {
-  _Button_Text_Color = Color;
-} // END MARKER - Color
-
-void UTFT::Set_Button_Back_Color(word Color) {
-  _Button_Back_Color = Color;
-} // END MARKER - Color
-
-void UTFT::Set_Button_Edge_Color(word Color) {
-  _Button_Edge_Color = Color;
-} // END MARKER - Edge_Color
-
-
-void UTFT::Set_Button_Edge_Size(byte Size) {
-  _Button_Edge_Size = Size;
-} // END MARKER - Edge_Size
-
-byte UTFT::Get_Button_Edge_Size() {
-  return _Button_Edge_Size;
-} // END MARKER - Edge_Size
-
-
-void UTFT::Center_Text(bool Center_Text) {
-
-  _Button_Center_Text = Center_Text;
-
-} // END MARKER - Center_Text
-
 int UTFT::Center_Text_Calc_X(String Text, bool Use_Button_Size_2) {
 
-		if (_Button_Center_Text == true) {
+		if (Button_Center_Text == true) {
 
 			if (Use_Button_Size_2 == false) { // _Button_Size
-				return _Button_Size_X / 2 - Text.length() * (getFontXsize() / 2);
+				return Button_Size_X / 2 - Text.length() * (getFontXsize() / 2);
 			}
 
-			else { // _Button_Size_2
-				return _Button_Size_2_X / 2 - Text.length() * (getFontXsize() / 2);
+			else { // Button_Size_2
+				return Button_Size_2_X / 2 - Text.length() * (getFontXsize() / 2);
 			}
 		}
 
@@ -1495,14 +1463,14 @@ int UTFT::Center_Text_Calc_X(String Text, bool Use_Button_Size_2) {
 
 int UTFT::Center_Text_Calc_Y(String Text, bool Use_Button_Size_2) {
 
-		if (_Button_Center_Text == true) {
+		if (Button_Center_Text == true) {
 
 			if (Use_Button_Size_2 == false) { // _Button_Size
-				return _Button_Size_Y / 2 - (getFontYsize() / 2);
+				return Button_Size_Y / 2 - (getFontYsize() / 2);
 			}
 
-			else { // _Button_Size_2
-				return _Button_Size_2_Y / 2 - (getFontYsize() / 2);
+			else { // Button_Size_2
+				return Button_Size_2_Y / 2 - (getFontYsize() / 2);
 			}
 		}
 
@@ -1512,36 +1480,7 @@ int UTFT::Center_Text_Calc_Y(String Text, bool Use_Button_Size_2) {
 
 
 
-void UTFT::Set_Button_Size(int Button_Size_X, int Button_Size_Y) {
 
-  _Button_Size_X = Button_Size_X;
-  _Button_Size_Y = Button_Size_Y;
-
-} // END MARKER - Size
-
-void UTFT::Set_Button_Size_2(int Button_Size_X, int Button_Size_Y) {
-
-  _Button_Size_2_X = Button_Size_X;
-  _Button_Size_2_Y = Button_Size_Y;
-
-} // END MARKER - Size
-
-
-int UTFT::Get_Button_Size_X() {
-	return _Button_Size_X;
-} // END MARKER - Size_X
-
-int UTFT::Get_Button_Size_Y() {
-  return _Button_Size_Y;
-} // END MARKER - Size_Y
-
-int UTFT::Get_Button_Size_2_X() {
-  return _Button_Size_2_X;
-} // END MARKER - Size_X
-
-int UTFT::Get_Button_Size_2_Y() {
-  return _Button_Size_2_Y;
-} // END MARKER - Size_Y
 
 
 
@@ -1550,8 +1489,8 @@ void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte But
 	if (Use_Button_Size_2 == false) { // Button_Size
 		Draw_Button(
 	    Button_Text,
-	    _Button_Matrix_Spacing * Button_Number_X + _Button_Size_X * (Button_Number_X - 1),
-	    Top_Bar_Size + _Button_Matrix_Spacing * Button_Number_Y + _Button_Size_Y * (Button_Number_Y - 1)
+	    Button_Matrix_Spacing * Button_Number_X + Button_Size_X * (Button_Number_X - 1),
+	    Top_Bar_Size + Button_Matrix_Spacing * Button_Number_Y + Button_Size_Y * (Button_Number_Y - 1)
 		);
 	}
 
@@ -1559,9 +1498,9 @@ void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte But
 		Draw_Button(
 	    Button_Text,
 			// X
-	    _Button_Matrix_Spacing * Button_Number_X + _Button_Size_2_X * (Button_Number_X - 1),
+	    Button_Matrix_Spacing * Button_Number_X + Button_Size_2_X * (Button_Number_X - 1),
 			// Y
-	    Top_Bar_Size + _Button_Matrix_Spacing * Button_Number_Y + _Button_Size_2_Y * (Button_Number_Y - 1),
+	    Top_Bar_Size + Button_Matrix_Spacing * Button_Number_Y + Button_Size_2_Y * (Button_Number_Y - 1),
 			true
 		);
 	}
@@ -1575,17 +1514,6 @@ void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte But
 } // END MARKER - Draw_Button_Matrix
 
 
-void UTFT::Set_Button_Matrix_Spacing(byte Spacing) {
-
-  _Button_Matrix_Spacing = Spacing;
-
-} // END MARKER - Draw_Button_Matrix_Spacing
-
-byte UTFT::Get_Button_Matrix_Spacing() {
-
-  return _Button_Matrix_Spacing;
-
-} // END MARKER - Draw_Button_Matrix_Spacing
 
 
 // -----------------------------------------------------------------------------------------------------------------
@@ -1597,32 +1525,35 @@ void UTFT::Draw_Top_Bar() {
 
 	//-------------------------------------------------- Drws the top bar --------------------------------------------------
 
-	Set_Button_Size(getDisplayXSize() - 1, Top_Bar_Size);
+	Button_Size_X = getDisplayXSize() - 1;
+	Button_Size_Y = Top_Bar_Size;
 
 	Draw_Button(_Top_Bar_Text_Array[Top_Bar_Page_Number - 1], 0, 0);
 
 	//-------------------------------------------------- Drws Page up / Page down --------------------------------------------------
 
 	if (Top_Bar_Page_Number < 9) {
-		Set_Button_Size_2(5 * getFontXsize(), Top_Bar_Size);
+		Button_Size_2_X = 5 * getFontXsize();
+		Button_Size_2_Y = Top_Bar_Size;
 	}
 
 	else {
-		Set_Button_Size_2(6 * getFontXsize(), Top_Bar_Size);
+		Button_Size_2_X = 6 * getFontXsize();
+		Button_Size_2_Y = Top_Bar_Size;
 	}
 
-	Set_Button_Edge_Size(4);
+	Button_Edge_Size = 4;
 
 	if (Top_Bar_Page_Number != 1) {
 		String Page_Number_Text = "<< " + String(Top_Bar_Page_Number - 1);
 
-		Draw_Button(Page_Number_Text, 0, 0, true); // _Button_Size_2
+		Draw_Button(Page_Number_Text, 0, 0, true); // Button_Size_2
 	}
 
 	if (Top_Bar_Page_Number != Top_Bar_Page_Number_Last) {
 		String Page_Number_Text = String(Top_Bar_Page_Number + 1) + " >>";
 
-		Draw_Button(Page_Number_Text, getDisplayXSize() - 1 - Get_Button_Size_2_X(), 0, true); // _Button_Size_2
+		Draw_Button(Page_Number_Text, getDisplayXSize() - 1 - Button_Size_2_X, 0, true); // Button_Size_2
 	}
 
 } // END MARKER - Draw_Top_Bar

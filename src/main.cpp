@@ -45,9 +45,10 @@ String Page_Number_Text_Array[Page_Number_Last] = {"Main","Relay's","Voltmeter's
 
 void Main_Page() {
 
-  myGLCD.Set_Button_Size(200, 90);
-  myGLCD.Set_Button_Edge_Size(4);
-  myGLCD.Set_Button_Matrix_Spacing(50);
+  myGLCD.Button_Size_X = 200;
+  myGLCD.Button_Size_Y = 90;
+  myGLCD.Button_Edge_Size = 4;
+  myGLCD.Button_Matrix_Spacing = 50;
 
   myGLCD.Draw_Button_Matrix("Old Lights", 1, 1);
   myGLCD.Draw_Button_Matrix("Red Lights", 2, 1);
@@ -58,7 +59,8 @@ void Main_Page() {
 
   // --------------- 3 X 1 ---------------
   // --------------- Dimmer - Main ---------------
-  myGLCD.Set_Button_Size_2(myGLCD.getDisplayXSize() - myGLCD.Get_Button_Matrix_Spacing() * 2, myGLCD.Get_Button_Size_Y());
+  myGLCD.Button_Size_2_X = myGLCD.getDisplayXSize() - myGLCD.Button_Matrix_Spacing * 2;
+  myGLCD.Button_Size_2_X = myGLCD.Button_Size_Y;
   myGLCD.Draw_Button_Matrix("", 1, 3, true); // _Button_Size_2
 
 
@@ -66,7 +68,8 @@ void Main_Page() {
 
 void Main_Page_Touch() {
 
-  myTouch.Set_Button_Size(myGLCD.Get_Button_Size_X(), myGLCD.Get_Button_Size_Y());
+  myTouch.Button_Size_X = myGLCD.Button_Size_X;
+  myTouch.Button_Size_Y = myGLCD.Button_Size_Y;
   myTouch.Set_Button_Matrix_Spacing(myGLCD.Get_Button_Matrix_Spacing());
 
 
@@ -281,7 +284,6 @@ void Top_Bar() {
        if (Page_Number == 1) Main_Page();
   else if (Page_Number == 2) Relay_Page();
   else if (Page_Number == 3) Voltmeter_Page();
-
 
 } // END MARKER - Top_Bar
 
