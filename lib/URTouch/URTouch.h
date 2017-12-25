@@ -1,11 +1,11 @@
 /*
-  URTouch.h - Arduino/chipKit library support for Color TFT LCD Touch screens 
+  URTouch.h - Arduino/chipKit library support for Color TFT LCD Touch screens
   Copyright (C)2016 Rinky-Dink Electronics, Henning Karlsen. All right reserved
-  
+
   Basic functionality of this library are based on the demo-code provided by
   ITead studio.
 
-  You can find the latest version of the library at 
+  You can find the latest version of the library at
   http://www.RinkyDinkElectronics.com/
 
   This library is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
   will allow commercial use. This includes using the library,
   modified or not, as a tool to sell products.
 
-  The license applies to all part of the library including the 
+  The license applies to all part of the library including the
   examples and tools supplied with the library.
 */
 
@@ -59,7 +59,7 @@ class URTouch
 		void	setPrecision(byte precision);
 
 		void	calibrateRead();
-    
+
     private:
 		regtype *P_CLK, *P_CS, *P_DIN, *P_DOUT, *P_IRQ;
 		regsize B_CLK, B_CS, B_DIN, B_DOUT, B_IRQ;

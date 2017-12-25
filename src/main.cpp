@@ -1,29 +1,20 @@
 #include <Arduino.h>
 
-#include <tinyFAT.h>
-
 #include <UTFT.h>
 UTFT myGLCD(CTE50, 38, 39, 40, 41);
 extern uint8_t GroteskBold16x32[];
 
 #include <URTouch.h>
 URTouch  myTouch( 6, 5, 4, 3, 2);
-
-#include <UTFT_Buttons.h>
-UTFT_Buttons  myButtons(&myGLCD, &myTouch);
-
-#include <UTFT_Geometry.h>
-UTFT_Geometry geo(&myGLCD);
-
-#include <UTFT_tinyFAT.h>
-UTFT_tinyFAT myFiles(&myGLCD);
-
-
-
-
- 
-
-
+//
+// #include <UTFT_Buttons.h>
+// UTFT_Buttons  myButtons(&myGLCD, &myTouch);
+//
+// #include <UTFT_Geometry.h>
+// UTFT_Geometry geo(&myGLCD);
+//
+// #include <UTFT_tinyFAT.h>
+// UTFT_tinyFAT myFiles(&myGLCD);
 
 
 /* --- Color Codes ---
@@ -48,7 +39,7 @@ UTFT_tinyFAT myFiles(&myGLCD);
 
 
 // --------------------- REMOVE ME ---------------------------
-#include <MemoryFree.h>
+// #include <MemoryFree.h>
 unsigned long freeMemory_Delay_Until;
 #define freeMemory_Delay_For 1000
 
@@ -56,9 +47,6 @@ unsigned long freeMemory_Delay_Until;
 
 
 void setup() {
-
-  myGLCD.clrScr();
-  myGLCD.fillScr(0x0010);
 
   delay(500);
 
@@ -68,7 +56,11 @@ void setup() {
     delay(50);
   }
 
-  Serial.println("Setup");
+  Serial.println("Setup 123");
+
+  myGLCD.clrScr();
+
+
 
 
 } // END MARKER - setup
@@ -78,8 +70,10 @@ void setup() {
 void loop() {
 
   if (freeMemory_Delay_Until < millis()) {
-    Serial.print("freeMemory()=");
-    Serial.println(freeMemory());
+    myGLCD.fillScr(0x0010);
+    //
+    // Serial.print("freeMemory()=");
+    // Serial.println(freeMemory());
 
     freeMemory_Delay_Until = millis() + freeMemory_Delay_For;
   }

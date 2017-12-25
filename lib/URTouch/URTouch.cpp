@@ -1,11 +1,11 @@
 /*
-  URTouch.cpp - Arduino/chipKit library support for Color TFT LCD Touch screens 
+  URTouch.cpp - Arduino/chipKit library support for Color TFT LCD Touch screens
   Copyright (C)2016 Rinky-Dink Electronics, Henning Karlsen. All right reserved
-  
+
   Basic functionality of this library are based on the demo-code provided by
   ITead studio.
 
-  You can find the latest version of the library at 
+  You can find the latest version of the library at
   http://www.RinkyDinkElectronics.com/
 
   This library is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
   will allow commercial use. This includes using the library,
   modified or not, as a tool to sell products.
 
-  The license applies to all part of the library including the 
+  The license applies to all part of the library including the
   examples and tools supplied with the library.
 */
 
@@ -83,20 +83,20 @@ void URTouch::read()
 	unsigned long miny=99999, maxy=0;
 	int datacount=0;
 
-	cbi(P_CS, B_CS);                    
+	cbi(P_CS, B_CS);
 
 	pinMode(T_IRQ,  INPUT);
 	for (int i=0; i<prec; i++)
 	{
 		if (!rbi(P_IRQ, B_IRQ))
 		{
-			touch_WriteData(0x90);        
+			touch_WriteData(0x90);
 			pulse_high(P_CLK, B_CLK);
 			temp_x=touch_ReadData();
 
 			if (!rbi(P_IRQ, B_IRQ))
 			{
-				touch_WriteData(0xD0);      
+				touch_WriteData(0xD0);
 				pulse_high(P_CLK, B_CLK);
 				temp_y=touch_ReadData();
 
@@ -129,7 +129,7 @@ void URTouch::read()
 		datacount -= 2;
 	}
 
-	sbi(P_CS, B_CS);                    
+	sbi(P_CS, B_CS);
 	if ((datacount==(prec-2)) or (datacount==PREC_LOW))
 	{
 		if (orient == _default_orientation)
@@ -242,19 +242,18 @@ void URTouch::calibrateRead()
 	unsigned long tx=0;
 	unsigned long ty=0;
 
-	cbi(P_CS, B_CS);                    
+	cbi(P_CS, B_CS);
 
-	touch_WriteData(0x90);        
+	touch_WriteData(0x90);
 	pulse_high(P_CLK, B_CLK);
 	tx=touch_ReadData();
 
-	touch_WriteData(0xD0);      
+	touch_WriteData(0xD0);
 	pulse_high(P_CLK, B_CLK);
 	ty=touch_ReadData();
 
-	sbi(P_CS, B_CS);                    
+	sbi(P_CS, B_CS);
 
 	TP_X=ty;
 	TP_Y=tx;
 }
-
