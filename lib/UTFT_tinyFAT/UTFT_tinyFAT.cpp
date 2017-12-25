@@ -1,7 +1,7 @@
 /*
   UTFT_tinyFAT.cpp - Add-on library to integrate UTFT and tinyFAT
   Copyright (C)2010-2013 Henning Karlsen. All right reserved
-  
+
   Basic functionality of this library are based on the demo-code provided by
   ITead studio. You can find the latest version of the library at
   http://www.henningkarlsen.com/electronics
@@ -26,8 +26,8 @@ word UTFT_tinyFAT::loadBitmap(int x, int y, int sx, int sy, char *filename)
 {
 	int res;
 	int cx, cy, cp;
-	word temp, result;
-	byte r,g,b;
+	// word temp, result;
+	// byte r,g,b;
 
 	res=file.openFile(filename, FILEMODE_BINARY);
 	if (res==NO_ERROR)
@@ -82,7 +82,7 @@ word UTFT_tinyFAT::loadBitmap(int x, int y, int sx, int sy, char *filename)
 						}
 					}
 					break;
-			}              
+			}
 		}
 		file.closeFile();
 		_UTFT->setXY(0,0,_UTFT->getDisplayXSize()-1,_UTFT->getDisplayYSize()-1);

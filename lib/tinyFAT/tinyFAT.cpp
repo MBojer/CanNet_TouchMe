@@ -4,7 +4,7 @@
 
 	This library has been made to easily use SD card with the Arduino.
 
-	You can find the latest version of the library at 
+	You can find the latest version of the library at
 	http://www.RinkyDinkElectronics.com/
 
 	This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 	will allow commercial use. This includes using the library,
 	modified or not, as a tool to sell products.
 
-	The license applies to all part of the library including the 
+	The license applies to all part of the library including the
 	examples and tools supplied with the library.
 */
 #include "tinyFAT.h"
@@ -104,7 +104,7 @@ byte tinyFAT::findFirstFile(_directory_entry *tempDE)
 			  currSec++;
 			  mmc::readSector(buffer, currSec);
 			  offset = 0;
-			} 
+			}
 			if (buffer[offset]==0x00)
 				return ERROR_NO_MORE_FILES;
 		}
@@ -156,7 +156,7 @@ byte tinyFAT::findNextFile(_directory_entry *tempDE)
 			  currSec++;
 			  mmc::readSector(buffer, currSec);
 			  offset = 0;
-			} 
+			}
 			if (buffer[offset]==0x00)
 				return ERROR_NO_MORE_FILES;
 		}
@@ -187,7 +187,7 @@ byte tinyFAT::openFile(char *fn, byte mode)
 	_directory_entry tmpDE;
 	char tmpFN[13];
 	byte res;
-	int i, j;
+	unsigned int i, j;
 
 	if (currFile.filename[0]!=0x00)
 		return ERROR_ANOTHER_FILE_OPEN;
@@ -356,9 +356,9 @@ uint16_t tinyFAT::writeLn(char *st)
 	unsigned long currSec = firstDirSector;
 	uint16_t nextCluster = 0;
 	word offset = -32;
-	uint32_t sec;
+	// uint32_t sec;
 	char tmpFN[13];
-	int i, j;
+	int j;
 	int bufIndex=0;
 	boolean done=false;
 
@@ -377,7 +377,7 @@ uint16_t tinyFAT::writeLn(char *st)
 				  currSec++;
 				  mmc::readSector(buffer, currSec);
 				  offset = 0;
-				} 
+				}
 
 				j=0;
 				for (int i=0; i<8; i++)
@@ -399,7 +399,7 @@ uint16_t tinyFAT::writeLn(char *st)
 					}
 				}
 				tmpFN[j]=0x00;
-				
+
 				if (!strcmp(tmpFN, currFile.filename))
 				{
 					buffer[offset+0x1A]=currFile.currentCluster & 0xFF;
@@ -427,7 +427,7 @@ uint16_t tinyFAT::writeLn(char *st)
 		{
 			currSec=(BS.reservedSectors+(BS.fatCopies*BS.sectorsPerFAT)+((BS.rootDirectoryEntries*32)/512)+((currFile.currentCluster-2)*BS.sectorsPerCluster)+BS.hiddenSectors)+((currFile.fileSize/512) % BS.sectorsPerCluster);
 			mmc::readSector(buffer, currSec);
-			for (int i=0; i<strlen(st); i++)
+			for (unsigned int i=0; i<strlen(st); i++)
 				buffer[(currFile.fileSize%512)+i]=st[i];
 			buffer[(currFile.fileSize%512)+strlen(st)]=0x0D;
 			buffer[(currFile.fileSize%512)+strlen(st)+1]=0x0A;
@@ -440,7 +440,7 @@ uint16_t tinyFAT::writeLn(char *st)
 			if ((currFile.fileSize%512)!=0)
 			{
 				mmc::readSector(buffer, currSec);
-				for (int i=0; i<(512-(currFile.fileSize%512)); i++)
+				for (unsigned int i=0; i<(512-(currFile.fileSize%512)); i++)
 				{
 					buffer[(currFile.fileSize%512)+i]=st[i];
 					bufIndex++;
@@ -496,7 +496,7 @@ uint16_t tinyFAT::writeLn(char *st)
 				currSec=(BS.reservedSectors+(BS.fatCopies*BS.sectorsPerFAT)+((BS.rootDirectoryEntries*32)/512)+((currFile.currentCluster-2)*BS.sectorsPerCluster)+BS.hiddenSectors);
 			}
 			mmc::readSector(buffer, currSec);
-			for (int i=0; i<strlen(st)-bufIndex; i++)
+			for (unsigned int i=0; i<strlen(st)-bufIndex; i++)
 				buffer[i]=st[i+bufIndex];
 			buffer[strlen(st)-bufIndex]=0x0D;
 			buffer[strlen(st)-bufIndex+1]=0x0A;
@@ -519,7 +519,7 @@ uint16_t tinyFAT::writeLn(char *st)
 			  currSec++;
 			  mmc::readSector(buffer, currSec);
 			  offset = 0;
-			} 
+			}
 
 			j=0;
 			for (int i=0; i<8; i++)
@@ -575,7 +575,7 @@ boolean tinyFAT::exists(char *fn)
 	_directory_entry tmpDE;
 	char tmpFN[13];
 	byte res;
-	int i, j;
+	unsigned int i, j;
 
 	for (i=0; i<strlen(fn); i++)
 		fn[i]=uCase(fn[i]);
@@ -637,7 +637,7 @@ boolean tinyFAT::rename(char *fn1, char *fn2)
 	unsigned long currSec = firstDirSector;
 	word offset = -32;
 	char tmpFN[13];
-	int i, j;
+	unsigned int i, j;
 	boolean done=false;
 
 	for (i=0; i<strlen(fn1); i++)
@@ -661,7 +661,7 @@ boolean tinyFAT::rename(char *fn1, char *fn2)
 			  currSec++;
 			  mmc::readSector(buffer, currSec);
 			  offset = 0;
-			} 
+			}
 
 			j=0;
 			for (int i=0; i<8; i++)
@@ -690,7 +690,7 @@ boolean tinyFAT::rename(char *fn1, char *fn2)
 					buffer[i+offset]=0x20;
 				}
 				j=0;
-				for (int i=0; i<strlen(fn2); i++)
+				for (unsigned int i=0; i<strlen(fn2); i++)
 				{
 					if (fn2[i]=='.')
 						j=8;
@@ -720,7 +720,7 @@ boolean tinyFAT::delFile(char *fn)
 	int j;
 	boolean done=false;
 
-	for (int i=0; i<strlen(fn); i++)
+	for (unsigned int i=0; i<strlen(fn); i++)
 		fn[i]=uCase(fn[i]);
 
 	if (exists(fn))
@@ -734,7 +734,7 @@ boolean tinyFAT::delFile(char *fn)
 			  currSec++;
 			  mmc::readSector(buffer, currSec);
 			  offset = 0;
-			} 
+			}
 
 			j=0;
 			for (int i=0; i<8; i++)
@@ -761,7 +761,7 @@ boolean tinyFAT::delFile(char *fn)
 				buffer[offset]=0xE5;
 				firstCluster = uint16_t(buffer[0x1A + offset]) + (uint16_t(buffer[0x1B + offset])<<8);
 				mmc::writeSector(buffer, currSec);
-				
+
 				if (firstCluster!=0)
 				{
 					currSec=firstCluster/256;
@@ -822,7 +822,7 @@ boolean tinyFAT::create(char *fn)
 	boolean done=false;
 	int j;
 
-	for (int i=0; i<strlen(fn); i++)
+	for (unsigned int i=0; i<strlen(fn); i++)
 	{
 		fn[i]=uCase(fn[i]);
 		if (!validChar(fn[i]))
@@ -842,7 +842,7 @@ boolean tinyFAT::create(char *fn)
 			  currSec++;
 			  mmc::readSector(buffer, currSec);
 			  offset = 0;
-			} 
+			}
 
 			if ((buffer[offset]==0x00) or (buffer[offset]==0xE5))
 			{
@@ -851,7 +851,7 @@ boolean tinyFAT::create(char *fn)
 					buffer[i+offset]=0x20;
 				}
 				j=0;
-				for (int i=0; i<strlen(fn); i++)
+				for (unsigned int i=0; i<strlen(fn); i++)
 				{
 					if (fn[i]=='.')
 						j=8;
@@ -861,7 +861,7 @@ boolean tinyFAT::create(char *fn)
 						j++;
 					}
 				}
-				
+
 				for (int i=0x0b; i<0x20; i++)
 					buffer[offset+i]=0;
 				buffer[offset+0x0b]=0x20;
@@ -907,7 +907,7 @@ boolean tinyFAT::validChar(char c)
 {
 	char valid[]= "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$&'()-@^_`{}~.";
 
-	for (int i=0; i<strlen(valid); i++)
+	for (unsigned int i=0; i<strlen(valid); i++)
 		if (c==valid[i])
 			return true;
 	return false;

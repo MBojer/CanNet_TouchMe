@@ -6,7 +6,7 @@
   ITead studio.
 
   You can find the latest version of the library at
-  http://www.RinkyDinkElectronics.com/
+  http://www.RinkyDinkElectronics.com/ 
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the CC BY-NC-SA 3.0 license.

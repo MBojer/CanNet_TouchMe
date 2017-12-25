@@ -1,18 +1,20 @@
 #include <Arduino.h>
 
+#include <MemoryFree.h>
+
 #include <UTFT.h>
 UTFT myGLCD(CTE50, 38, 39, 40, 41);
 extern uint8_t GroteskBold16x32[];
 
 #include <URTouch.h>
 URTouch  myTouch( 6, 5, 4, 3, 2);
-//
-// #include <UTFT_Buttons.h>
-// UTFT_Buttons  myButtons(&myGLCD, &myTouch);
-//
-// #include <UTFT_Geometry.h>
-// UTFT_Geometry geo(&myGLCD);
-//
+
+#include <UTFT_Buttons.h>
+UTFT_Buttons  myButtons(&myGLCD, &myTouch);
+
+#include <UTFT_Geometry.h>
+UTFT_Geometry geo(&myGLCD);
+
 // #include <UTFT_tinyFAT.h>
 // UTFT_tinyFAT myFiles(&myGLCD);
 
@@ -53,13 +55,23 @@ void setup() {
   Serial.begin(115200);
 
   while (!Serial) {
-    delay(50);
+    delay(100);
   }
 
-  Serial.println("Setup 123");
+  Serial.println("Booting");
 
-  myGLCD.clrScr();
+  myGLCD.InitLCD();
+  myGLCD.setFont(GroteskBold16x32);
 
+  myTouch.InitTouch();
+  myTouch.setPrecision(PREC_MEDIUM);
+
+  myGLCD.fillScr(0xF800);
+  myGLCD.setBackColor(0x0000);
+  myGLCD.print(String("Booting"), CENTER, 220);
+  delay(500);
+
+  myGLCD.fillScr(0xC618);
 
 
 
@@ -69,11 +81,11 @@ void setup() {
 
 void loop() {
 
-  if (freeMemory_Delay_Until < millis()) {
-    myGLCD.fillScr(0x0010);
-    //
-    // Serial.print("freeMemory()=");
-    // Serial.println(freeMemory());
+  if (freeMemory_Delay_Until < millis()) { // REMOVE ME
+    Serial.print("freeMemory()=");
+    Serial.println(freeMemory());
+
+    myGLCD.print(String(freeMemory()), CENTER, 220);
 
     freeMemory_Delay_Until = millis() + freeMemory_Delay_For;
   }

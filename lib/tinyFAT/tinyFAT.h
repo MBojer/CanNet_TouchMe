@@ -4,7 +4,7 @@
 
 	This library has been made to easily use SD card with the Arduino.
 
-	You can find the latest version of the library at 
+	You can find the latest version of the library at
 	http://www.RinkyDinkElectronics.com/
 
 	This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 	will allow commercial use. This includes using the library,
 	modified or not, as a tool to sell products.
 
-	The license applies to all part of the library including the 
+	The license applies to all part of the library including the
 	examples and tools supplied with the library.
 */
 #ifndef tinyFAT_h
@@ -45,7 +45,7 @@
 #define ERROR_WRONG_FILEMODE		0xFFF1
 #define FILE_IS_EMPTY				0xFFFD
 #define BUFFER_OVERFLOW				0xFFFE
-#define EOF							0xFFFF
+// #define EOF							0xFFFF
 
 #define FILEMODE_BINARY				0x01
 #define FILEMODE_TEXT_READ			0x02
@@ -107,9 +107,9 @@ public:
 	_directory_entry	DE;
 	unsigned long		firstDirSector;
 	byte				buffer[512]; // the buffer cannot be any smaller, SD cards are read/written in blocks of 512 bytes
-	
+
 	tinyFAT();
-		
+
 	byte		initFAT(byte speed=SPISPEED_HIGH);
 	byte		findFirstFile(_directory_entry *tempDE);
 	byte		findNextFile(_directory_entry *tempDE);
