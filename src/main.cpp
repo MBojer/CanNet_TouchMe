@@ -1,6 +1,5 @@
 #include <Arduino.h>
 
-
 #include <UTFT.h>
 UTFT myGLCD(CTE50, 38, 39, 40, 41);
 
@@ -34,7 +33,12 @@ int Touch_Input_X, Touch_Input_Y;
 
 int Light_Strenght = 180; // CNAMGE ME
 
+// --------------------- REMOVE ME ---------------------------
+#include <MemoryFree.h>
+unsigned long freeMemory_Delay_Until;
+#define freeMemory_Delay_For 1000
 
+// --------------------- REMOVE ME - End ---------------------
 
 
 void Main_Page() {
@@ -432,5 +436,12 @@ void Touch_Check() {
 void loop() {
 
   Touch_Check();
+
+  if (freeMemory_Delay_Until < millis()) { // REMOVE ME
+    Serial.print("freeMemory()=");
+    Serial.println(freeMemory());
+
+    freeMemory_Delay_Until = millis() + freeMemory_Delay_For;
+  }
 
 } // END MARKER - Loop
