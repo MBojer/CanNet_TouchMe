@@ -1,28 +1,28 @@
 /*
   UTFT.h - Multi-Platform library support for Color TFT LCD Boards
   Copyright (C)2015 Rinky-Dink Electronics, Henning Karlsen. All right reserved
-
+  
   This library is the continuation of my ITDB02_Graph, ITDB02_Graph16
-  and RGB_GLCD libraries for Arduino and chipKit. As the number of
-  supported display modules and controllers started to increase I felt
-  it was time to make a single, universal library as it will be much
+  and RGB_GLCD libraries for Arduino and chipKit. As the number of 
+  supported display modules and controllers started to increase I felt 
+  it was time to make a single, universal library as it will be much 
   easier to maintain in the future.
 
-  Basic functionality of this library was origianlly based on the
-  demo-code provided by ITead studio (for the ITDB02 modules) and
+  Basic functionality of this library was origianlly based on the 
+  demo-code provided by ITead studio (for the ITDB02 modules) and 
   NKC Electronics (for the RGB GLCD module/shield).
 
-  This library supports a number of 8bit, 16bit and serial graphic
-  displays, and will work with both Arduino, chipKit boards and select
+  This library supports a number of 8bit, 16bit and serial graphic 
+  displays, and will work with both Arduino, chipKit boards and select 
   TI LaunchPads. For a full list of tested display modules and controllers,
   see the document UTFT_Supported_display_modules_&_controllers.pdf.
 
-  When using 8bit and 16bit display modules there are some
-  requirements you must adhere to. These requirements can be found
+  When using 8bit and 16bit display modules there are some 
+  requirements you must adhere to. These requirements can be found 
   in the document UTFT_Requirements.pdf.
   There are no special requirements when using serial displays.
 
-  You can find the latest version of the library at
+  You can find the latest version of the library at 
   http://www.RinkyDinkElectronics.com/
 
   This library is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@
   will allow commercial use. This includes using the library,
   modified or not, as a tool to sell products.
 
-  The license applies to all part of the library including the
+  The license applies to all part of the library including the 
   examples and tools supplied with the library.
 */
 
@@ -115,8 +115,8 @@
 #define ITDB24E_16		15	// S6D1121	(16bit)
 #define INFINIT32		16	// SSD1289	(Latched 16bit) -- Legacy, will be removed later
 #define ELEE32_REVA		16	// SSD1289	(Latched 16bit)
-#define CTE32_R2		17
-//#define NOT_IN_USE	18
+#define CTE32_R2		17	
+//#define NOT_IN_USE	18	
 #define ELEE32_REVB		19	// SSD1289	(8bit)
 #define TFT01_70		20	// SSD1963	(16bit) 800x480 Alternative Init
 #define CTE70			20	// SSD1963	(16bit) 800x480 Alternative Init
@@ -270,102 +270,6 @@ class UTFT
 #if defined(ENERGIA)
 		volatile uint32_t* portOutputRegister(int value);
 #endif
-
-
-
-// --------------------------------------------------------------------------------------------
-// -------------------------------------- CanNet --------------------------------------
-// --------------------------------------------------------------------------------------------
-
-
-
-public:
-
-		// -------------------------- Button --------------------------
-
-		void Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, int Size_Y);
-		void Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, int Size_Y, bool Use_Button_Size_2); // Referance only
-		void Draw_Button(String Button_Text, int xStart, int yStart); // Referance only
-		void Draw_Button(String Button_Text, int xStart, int yStart, bool Use_Button_Size_2); // Referance only
-
-		int Center_Text_Calc_X(String Text, bool Use_Button_Size_2);
-		int Center_Text_Calc_Y(String Text, bool Use_Button_Size_2);
-
-		String Button_Text;
-
-		int Button_Size_X;
-		int Button_Size_Y;
-		int Button_Size_2_X;
-		int Button_Size_2_Y;
-
-		bool Button_Center_Text = true;
-
-		word Button_Color;
-		word Button_Back_Color;
-		word Button_Text_Color;
-
-		word Button_Edge_Color;
-		byte Button_Edge_Size;
-
-
-
-		// -------------------------- Button  Matrix --------------------------
-
-		void Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y);
-		void Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y, bool Use_Button_Size_2); // Referance only
-
-		byte Button_Matrix_Spacing;
-
-		// -------------------------- Top Bar --------------------------
-
-		void Draw_Top_Bar();
-
-		void Set_Top_Bar_Text(String Top_Bar_Text);
-		String Get_Top_Bar_Text();
-
-		int Top_Bar_Size;
-		int Top_Bar_Button_Size;
-		int Top_Bar_Button_Edge_Size;
-
-		word Top_Bar_Color;
-		word Top_Bar_Button_Color;
-		word Top_Bar_Edge_Color;
-		word Top_Bar_Text_Color;
-
-		volatile byte Top_Bar_Page_Number = 1;
-		byte Top_Bar_Page_Number_Last;
-
-
-		// -------------------------- Slider --------------------------
-		void Draw_Slider(int Potition_X);
-
-		int Slider_Y_Axis;
-
-		int Slider_Restrict_X_Begin;
-		int Slider_Restrict_X_End;
-
-		byte Slider_Size_X;
-		byte Slider_Size_Y;
-
-		byte Slider_Spacing;
-
-		word Slider_Color;
-		word Slider_Color_Replace;
-
-		int Slider_Dont_Move_For;
-
-	private:
-
-		// -------------------------- Top Bar --------------------------
-		int _Top_Bar_Button_Spacing;
-
-		String _Top_Bar_Text_Array[15];
-
-
-		// -------------------------- Slider --------------------------
-		int _Slider_Last_Position = -9999;
-		unsigned long _Slider_Dont_Move_Until;
-
 };
 
 #endif

@@ -1,11 +1,11 @@
 /*
-  URTouch.h - Arduino/chipKit library support for Color TFT LCD Touch screens
+  URTouch.h - Arduino/chipKit library support for Color TFT LCD Touch screens 
   Copyright (C)2016 Rinky-Dink Electronics, Henning Karlsen. All right reserved
-
+  
   Basic functionality of this library are based on the demo-code provided by
   ITead studio.
 
-  You can find the latest version of the library at
+  You can find the latest version of the library at 
   http://www.RinkyDinkElectronics.com/
 
   This library is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
   will allow commercial use. This includes using the library,
   modified or not, as a tool to sell products.
 
-  The license applies to all part of the library including the
+  The license applies to all part of the library including the 
   examples and tools supplied with the library.
 */
 
@@ -59,7 +59,7 @@ class URTouch
 		void	setPrecision(byte precision);
 
 		void	calibrateRead();
-
+    
     private:
 		regtype *P_CLK, *P_CS, *P_DIN, *P_DOUT, *P_IRQ;
 		regsize B_CLK, B_CS, B_DIN, B_DOUT, B_IRQ;
@@ -73,64 +73,6 @@ class URTouch
 
 		void	touch_WriteData(byte data);
 		word	touch_ReadData();
-
-		// --------------------------------------------------------------------------------------------
-		// -------------------------------------- CanNet --------------------------------------
-		// --------------------------------------------------------------------------------------------
-
-		public:
-
-				void Set_Stabilize_Input(int Max_Touch_Diaviation, int Max_Touch_Diaviation_Time);
-				bool Stabilize_Input(int Touch_Input_X, int Touch_Input_Y);
-
-
-				// -------------------------- Buttons --------------------------
-				int Button_Size;
-				int Button_Size_X;
-				int Button_Size_Y;
-				int Button_Size_2_X;
-				int Button_Size_2_Y;
-
-
-				// -------------------------- Button Matrix --------------------------
-				byte Get_Button_Matrix_Number(bool X_Y, int Input, bool Use_Button_Size_2);
-				byte Get_Button_Matrix_Number(bool X_Y, int Input);
-
-				byte Button_Matrix_Number_X;
-				byte Button_Matrix_Number_Y;
-				int Button_Matrix_Size;
-				int Button_Matrix_Spacing;
-
-
-				// -------------------------- Top Bar --------------------------
-				byte Get_Top_Bar_Button_Number(int Input_X, int Input_Y);
-				void Set_Top_Bar_Button_Size(int Button_Size, int Display_Size_X);
-
-				int Top_Bar_Size;
-				int Top_Bar_Button_Size;
-				int Top_Bar_Button_Pressed;
-				int Top_Bar_Ignore_Input_For;
-
-				// -------------------------- MISC --------------------------
-
-				int Flip_Output_X = 0;
-				int Flip_Output_Y = 0;
-
-
-			private:
-
-				// -------------------------- Top Bar --------------------------
-				int _Top_Bar_Button_Spaceing;
-
-				unsigned long _Top_Bar_Ignore_Input_Untill;
-
-				// -------------------------- MISC --------------------------
-
-				unsigned long _Touch_Input_Last_Input;
-				int _Max_Touch_Diaviation = 250; // Max diviation from last touch input
-				int _Max_Touch_Diaviation_Time = 250; // If the input is stable this is the delays between the inputs gets though
-				int _Touch_Input_X_Check, _Touch_Input_Y_Check;
-
 
 #if defined(ENERGIA)
 		volatile uint32_t* portOutputRegister(int value);
