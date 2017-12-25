@@ -1595,3 +1595,50 @@ String UTFT::Get_Top_Bar_Text() {
 	return Return_String;
 
 } // END MARKER - Get_Top_Bar_Text
+
+
+
+// -------------------------- Slider --------------------------
+void UTFT::Draw_Slider(int Potition_X) {
+
+	int x = Potition_X;
+
+	if (_Slider_Dont_Move_Until > millis()) return;
+
+	if (x < Slider_Restrict_X_Begin) {
+		x = Slider_Restrict_X_Begin;
+	}
+
+	else if (x > Slider_Restrict_X_End) {
+		Serial.println("MARKER");
+		x = Slider_Restrict_X_End - Slider_Size_X * 10 - Slider_Spacing;
+	}
+
+	// ************ Removing the old slider ************
+	if (_Slider_Last_Position == -9999); // -9999 = No marker present
+
+	else {
+		setColor(Slider_Color_Replace);
+		fillRoundRect(
+									_Slider_Last_Position,											// x1
+									Slider_Y_Axis,															// y1
+									_Slider_Last_Position + Slider_Size_X,			// x2
+									Slider_Y_Axis + Slider_Size_Y	 							// y2
+									);
+
+	} // END MARKER - else
+
+
+	// ************ Draws the new slider ************
+	setColor(Slider_Color);
+	fillRoundRect(
+								x,											// x1
+								Slider_Y_Axis,									// y1
+								x + Slider_Size_X,			// x2
+								Slider_Y_Axis + Slider_Size_Y	 	// y2
+								);
+
+	_Slider_Last_Position = x;
+	_Slider_Dont_Move_Until = millis() + Slider_Dont_Move_For;
+
+} // END MARKER - Draw_Slider

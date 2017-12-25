@@ -18,13 +18,11 @@ unsigned long Top_Bar_Ignore_Input_Until;
 
 #define Main_Page_Ignore_Input_For 750 // Time in millisecounds CHANGE ME
 #define Main_Page_Delay_Output_For 2500
-#define Main_Page_Dimmer_Maker_Size_X 5 // It adds X pixels to each side
-#define Main_Page_Dimmer_Maker_Move_Ignore_For 75
+
 unsigned long Main_Page_Ignore_Input_Until;
 unsigned long Main_Page_Delay_Output_Until;
 unsigned long Main_Page_Dimmer_Maker_Move_Ignore_Untill;
 bool Main_Page_Delay_Output_Waiting = false;
-int Main_Page_Dimmer_Last_Marker_Potition = -9999;
 
 
 int Display_Center_X;
@@ -59,15 +57,9 @@ void Main_Page() {
   myGLCD.Button_Size_2_Y = myGLCD.Button_Size_Y;
   myGLCD.Draw_Button_Matrix("", 1, 3, true); // _Button_Size_2
 
-
 } // END MARKER - Main_Page
 
 void Main_Page_Touch() {
-
-  myTouch.Button_Size_X = myGLCD.Button_Size_X;
-  myTouch.Button_Size_Y = myGLCD.Button_Size_Y;
-  myTouch.Button_Matrix_Spacing = myGLCD.Button_Matrix_Spacing;
-
 
   // --------------------------------------------- Dimmer Send ---------------------------------------------
   if (Main_Page_Delay_Output_Waiting == true && Main_Page_Delay_Output_Until < millis()) {
@@ -77,21 +69,45 @@ void Main_Page_Touch() {
     Main_Page_Delay_Output_Waiting = false;
   }
 
+  if (!myTouch.dataAvailable()) return;
+
+
+  if (Touch_Input_Y == -1) return;
+
+  myTouch.Button_Size_X = myGLCD.Button_Size_X;
+  myTouch.Button_Size_Y = myGLCD.Button_Size_Y;
+  myTouch.Button_Matrix_Spacing = myGLCD.Button_Matrix_Spacing;
+
+
+
+  // -------------------------- Slider --------------------------
+  myGLCD.Slider_Y_Axis =
+                        myGLCD.Top_Bar_Size +
+                        myGLCD.Button_Matrix_Spacing * 3 +
+                        myGLCD.Button_Size_Y * 2 +
+                        myGLCD.Button_Edge_Size +
+                        myGLCD.Slider_Spacing; // Adding one extra pixel to make sure the slider does not touch the button
+
+  myGLCD.Slider_Size_X = 10;
+  myGLCD.Slider_Size_Y = myGLCD.Button_Size_Y - myGLCD.Button_Edge_Size * 2 - myGLCD.Slider_Spacing * 2;
+  myGLCD.Slider_Restrict_X_Begin = myGLCD.Button_Matrix_Spacing + myGLCD.Button_Edge_Size + myGLCD.Slider_Spacing;
+  myGLCD.Slider_Restrict_X_End = myGLCD.Button_Matrix_Spacing + myGLCD.Button_Size_2_X - myGLCD.Button_Edge_Size - myGLCD.Slider_Spacing;
+
+
+
     // --------------------------------------------- 3 X 1 ---------------------------------------------
     if (Touch_Input_X > 0 && Touch_Input_X < myGLCD.getDisplayXSize()) {
 
       if (Touch_Input_X > 0 && Touch_Input_X < Button_Spazing) { // Uses the space before the bar to make a bigger touch spot for 0%
         Light_Strenght = 0;
-        Touch_Input_X = Button_Spazing + Main_Page_Dimmer_Maker_Size_X + 2 + myGLCD.Button_Edge_Size; // To make the maker apear at the start of the dimmer
       }
 
       else if (Touch_Input_X > myGLCD.getDisplayXSize() - Button_Spazing && Touch_Input_X < myGLCD.getDisplayXSize()) { // Asme as above just oposite (100%)
         Light_Strenght = 255;
-        Touch_Input_X = myGLCD.getDisplayXSize() - Button_Spazing - Main_Page_Dimmer_Maker_Size_X - 2 - myGLCD.Button_Edge_Size; // To make the maker apear at the end of the dimmer
       }
 
       else {
-        Light_Strenght = float((Touch_Input_X - Button_Spazing)  / 2.74); // 700 (Length of bar) / 255 (analogWrite Max) = 2,745098039215686 = 2.4 (rounding down to make sure it can go to 100%)
+        Light_Strenght = float((Touch_Input_X - Button_Spazing)  / float(myGLCD.Button_Size_2_Y / 255)); // 700 (Length of bar) / 255 (analogWrite Max) = 2,745098039215686 = 2.4 (rounding down to make sure it can go to 100%)
       }
 
       Main_Page_Delay_Output_Waiting = true;
@@ -100,34 +116,11 @@ void Main_Page_Touch() {
 
     if (Main_Page_Dimmer_Maker_Move_Ignore_Untill < millis()) {
 
-
-      // Removing the old maker
-      if (Main_Page_Dimmer_Last_Marker_Potition != -9999) { // -9999 = No marker present
-        myGLCD.setColor(0, 255, 0);
-        myGLCD.fillRoundRect(
-                              Main_Page_Dimmer_Last_Marker_Potition - Main_Page_Dimmer_Maker_Size_X,
-                              (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Button_Size_Y * 2) + 2 + myGLCD.Button_Edge_Size,
-                              Main_Page_Dimmer_Last_Marker_Potition + Main_Page_Dimmer_Maker_Size_X,
-                              (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Button_Size_Y * 3) - 2 - myGLCD.Button_Edge_Size
-                            );
+      if (Main_Page_Delay_Output_Until != 0) {
+        myGLCD.Draw_Slider(Touch_Input_X);
       }
 
-      // Draws the new maker
-      myGLCD.setColor(255, 255, 255);
-      myGLCD.fillRoundRect(
-                            Touch_Input_X - Main_Page_Dimmer_Maker_Size_X,
-                            (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Button_Size_Y * 2) + 2 + myGLCD.Button_Edge_Size,
-                            Touch_Input_X + Main_Page_Dimmer_Maker_Size_X,
-                            (myTouch.Top_Bar_Size + Button_Spazing * 3 + myGLCD.Button_Size_Y * 3) - 2 - myGLCD.Button_Edge_Size
-                          );
-
-      // Notes marker potition
-      Main_Page_Dimmer_Last_Marker_Potition = Touch_Input_X;
-      Main_Page_Dimmer_Maker_Move_Ignore_Untill = millis() + Main_Page_Dimmer_Maker_Move_Ignore_For;
-  }
-
-
-
+    }
 
 
   if (Main_Page_Ignore_Input_Until > millis()) return;
@@ -316,6 +309,8 @@ void Top_Bar_Touch() {
 
 void setup() {
 
+  delay(500);
+
   Serial.begin(115200);
 
   while (!Serial) {
@@ -342,8 +337,8 @@ void setup() {
 
   // myTouch.Set_Stabilize_Input(250, 250);
 
-  myTouch.Flip_Output_X = 800;
-  myTouch.Flip_Output_Y = 480;
+  myTouch.Flip_Output_X = myGLCD.getDisplayXSize();
+  myTouch.Flip_Output_Y = myGLCD.getDisplayYSize();
 
   /*
   #define VGA_BLACK		0x0000
@@ -370,27 +365,36 @@ void setup() {
   myGLCD.Set_Top_Bar_Text("Main;Relay's;Voltmeter's;");
 
   myGLCD.Top_Bar_Size = 50;
-
-  myGLCD.Top_Bar_Color = 0x001F;
-  myGLCD.Top_Bar_Edge_Color = 0x9CF3;
-  myGLCD.Top_Bar_Text_Color = 0xEF5D;
-
   myTouch.Top_Bar_Size = myGLCD.Top_Bar_Size;
 
+  myGLCD.Top_Bar_Color = 0x001F;
+  myGLCD.Top_Bar_Text_Color = 0xEF5D;
+  myGLCD.Top_Bar_Edge_Color = 0x9CF3;
+
+  myGLCD.Top_Bar_Button_Edge_Size = 4;
+
   myTouch.Set_Top_Bar_Button_Size(125, myGLCD.getDisplayXSize());
-  myGLCD.Top_Bar_Button_Edge_Size = myGLCD.Button_Edge_Size;
 
   myTouch.Top_Bar_Ignore_Input_For = 1500;
 
 
   // -------------------------- Buttons --------------------------
 
-  myGLCD.Button_Color = 0x001F;
-  myGLCD.Button_Back_Color = 0x001F;
-  myGLCD.Button_Text_Color = 0xEF5D;
-  myGLCD.Button_Edge_Color = 0x9CF3;
+  myGLCD.Button_Color = myGLCD.Top_Bar_Color;
+  myGLCD.Button_Back_Color = myGLCD.Top_Bar_Color;
+  myGLCD.Button_Text_Color = myGLCD.Top_Bar_Text_Color;
+  myGLCD.Button_Edge_Color = myGLCD.Top_Bar_Edge_Color;
 
   myGLCD.Button_Center_Text = true;
+
+
+  // -------------------------- Slider --------------------------
+
+  myGLCD.Slider_Color = myGLCD.Button_Edge_Color;
+  myGLCD.Slider_Color_Replace = myGLCD.Button_Color;
+  myGLCD.Slider_Spacing = 2;
+  myGLCD.Slider_Dont_Move_For = 75;
+
 
   myGLCD.print(String("Boot Done"), CENTER, Display_Center_Y - 5);
   Serial.println("Boot Done");
@@ -415,7 +419,7 @@ void Touch_Check() {
 
   // --------------------------------------------- 1 - Main Page ---------------------------------------------
   if (myGLCD.Top_Bar_Page_Number == 1) {
-  // Main_Page_Touch();
+  Main_Page_Touch();
   }
 
   // --------------------------------------------- 2 - Relay Page ---------------------------------------------

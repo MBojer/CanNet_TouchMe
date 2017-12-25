@@ -336,15 +336,35 @@ public:
 		byte Top_Bar_Page_Number_Last;
 
 
+		// -------------------------- Slider --------------------------
+		void Draw_Slider(int Potition_X);
+
+		int Slider_Y_Axis;
+
+		int Slider_Restrict_X_Begin;
+		int Slider_Restrict_X_End;
+
+		byte Slider_Size_X;
+		byte Slider_Size_Y;
+
+		byte Slider_Spacing;
+
+		word Slider_Color;
+		word Slider_Color_Replace;
+
+		int Slider_Dont_Move_For;
+
 	private:
 
-
-
 		// -------------------------- Top Bar --------------------------
-
 		int _Top_Bar_Button_Spacing;
 
 		String _Top_Bar_Text_Array[15];
+
+
+		// -------------------------- Slider --------------------------
+		int _Slider_Last_Position = -9999;
+		unsigned long _Slider_Dont_Move_Until;
 
 };
 
