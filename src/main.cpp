@@ -11,6 +11,8 @@ URTouch  myTouch( 6, 5, 4, 3, 2);
 
 #include <UTFT_Buttons.h>
 UTFT_Buttons  myButtons(&myGLCD, &myTouch);
+extern uint8_t Dingbats1_XL[];
+
 
 #include <UTFT_Geometry.h>
 UTFT_Geometry geo(&myGLCD);
@@ -62,6 +64,8 @@ void setup() {
 
   myGLCD.InitLCD();
   myGLCD.setFont(GroteskBold16x32);
+  myButtons.setSymbolFont(Dingbats1_XL);
+
 
   myTouch.InitTouch();
   myTouch.setPrecision(PREC_MEDIUM);
@@ -73,6 +77,19 @@ void setup() {
 
   myGLCD.fillScr(0xC618);
 
+
+  // ----------------- Test Buttons -----------------
+
+  // int but1, but2, but3, but4, butX, butY, pressed_button;
+  // myButtons.default_colors = true;
+
+  myButtons.addButton( 10,  20, 300,  30, "Button 1");
+  myButtons.addButton( 10,  60, 300,  30, "Button 2");
+  myButtons.addButton( 10, 100, 300,  30, "Button 3");
+  // but4 = myButtons.addButton( 10, 140, 300,  30, "Button 4", BUTTON_DISABLED);
+  // butX = myButtons.addButton(279, 199,  40,  40, "a", BUTTON_SYMBOL);
+  // butY = myButtons.addButton(  0, 199, 100,  40, "I", BUTTON_SYMBOL | BUTTON_SYMBOL_REP_3X);
+  myButtons.drawButtons();
 
 
 } // END MARKER - setup
