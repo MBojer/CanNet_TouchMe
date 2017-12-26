@@ -1,25 +1,4 @@
-/*
-#define VGA_BLACK		0x0000
-#define VGA_WHITE		0xFFFF
-#define VGA_RED			0xF800
-#define VGA_GREEN		0x0400
-#define VGA_BLUE		0x001F
-#define VGA_SILVER		0xC618
-#define VGA_GRAY		0x8410
-#define VGA_MAROON		0x8000
-#define VGA_YELLOW		0xFFE0
-#define VGA_OLIVE		0x8400
-#define VGA_LIME		0x07E0
-#define VGA_AQUA		0x07FF
-#define VGA_TEAL		0x0410
-#define VGA_NAVY		0x0010
-#define VGA_FUCHSIA		0xF81F
-#define VGA_PURPLE		0x8010
-#define VGA_TRANSPARENT	0xFFFFFFFF
-*/
-
 #include <Arduino.h>
-
 
 #include <UTFT.h>
 UTFT myGLCD(CTE50, 38, 39, 40, 41);
@@ -27,9 +6,32 @@ UTFT myGLCD(CTE50, 38, 39, 40, 41);
 #include <URTouch.h>
 URTouch  myTouch( 6, 5, 4, 3, 2);
 
+// extern uint8_t BigFont[];
 extern uint8_t GroteskBold16x32[];
 
+#define Default_Ignore_Input_For 2000 // Time in millisecounds CHANGE ME
 
+
+unsigned long Top_Bar_Ignore_Input_Until;
+
+
+#define Main_Page_Ignore_Input_For 750 // Time in millisecounds CHANGE ME
+#define Main_Page_Delay_Output_For 2500
+
+unsigned long Main_Page_Ignore_Input_Until;
+unsigned long Main_Page_Delay_Output_Until;
+unsigned long Main_Page_Dimmer_Maker_Move_Ignore_Untill;
+bool Main_Page_Delay_Output_Waiting = false;
+
+
+int Display_Center_X;
+int Display_Center_Y;
+
+int Button_Spazing = 50;
+
+int Touch_Input_X, Touch_Input_Y;
+
+int Light_Strenght = 180; // CNAMGE ME
 
 // --------------------- REMOVE ME ---------------------------
 #include <MemoryFree.h>
@@ -38,105 +40,6 @@ unsigned long freeMemory_Delay_Until;
 
 // --------------------- REMOVE ME - End ---------------------
 
-
-
-void setup() {
-
-    delay(500);
-
-    Serial.begin(115200);
-
-    while (!Serial) {
-      delay(100);
-    }
-
-    Serial.println("Booting");
-
-    myGLCD.InitLCD();
-    myGLCD.setFont(GroteskBold16x32);
-
-    myTouch.InitTouch();
-    myTouch.setPrecision(PREC_MEDIUM);
-
-    myGLCD.fillScr(0xF800);
-    myGLCD.setBackColor(0x0000);
-    myGLCD.print(String("Booting"), CENTER, myGLCD.getDisplayYSize() / 2 - 5);
-    delay(500);
-
-
-    // -------------------------- General Page Settings --------------------------
-    myGLCD.Page_Color_Default = 0x001F;
-    myGLCD.Page_Text_Color_Default = 0xEF5D;
-    myGLCD.Page_Button_Color_Default = 0x001F;
-    myGLCD.Page_Button_Edge_Color_Default = 0xEF5D;
-    myGLCD.Page_Button_Edge_Size_Default = 4;
-    myGLCD.Page_Button_Center_Text_Default = true;
-    myGLCD.Page_Button_Size_X_Default = 200;
-    myGLCD.Page_Button_Size_Y_Default = 90;
-    myGLCD.Page_Top_Bar_Active_Default = true;
-
-    myGLCD.Page_Top_Bar_Size = 50;
-    myGLCD.Page_Top_Bar_Button_Size = 200;
-
-
-    // -------------------------- Page 1 --------------------------
-    myGLCD.Page_Active[1] = true;
-    myGLCD.Page_Name[1] = "Main";
-    myGLCD.Page_Button_Matrix_Spacing[1] = 50;
-
-    myGLCD.Page_Add_Button(1, 1, "Red Light", 1, 1);
-    myGLCD.Page_Add_Button(1, 2, "Red Light", 1, 2);
-    myGLCD.Page_Add_Button(1, 3, "Red Light", 1, 2);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // -------------------------- Boot End --------------------------
-    myGLCD.print(String("Boot Done"), CENTER, myGLCD.getDisplayYSize() / 2 - 5);
-    Serial.println("Boot Done");
-
-    delay(500);
-
-
-  }
-
-
-
-
-
-
-
-void loop() {
-  // --------------------- REMOVE ME ---------------------------
-  if (freeMemory_Delay_Until < millis()) { // REMOVE ME
-    Serial.print("freeMemory()=");
-    Serial.println(freeMemory());
-
-    // myGLCD.Draw_Button_Matrix(String(freeMemory()), 2, 2);
-
-    freeMemory_Delay_Until = millis() + freeMemory_Delay_For;
-  }
-  // --------------------- REMOVE ME - End ---------------------------
-}
-
-
-
-/*
 
 void Main_Page() {
 
@@ -409,8 +312,31 @@ void Top_Bar_Touch() {
 } // END MARKER - Top_Bar_Touch
 
 
+void setup() {
 
+  delay(500);
 
+  Serial.begin(115200);
+
+  while (!Serial) {
+    delay(100);
+  }
+
+  Serial.println("Booting");
+
+  myGLCD.InitLCD();
+  myGLCD.setFont(GroteskBold16x32);
+
+  myTouch.InitTouch();
+  myTouch.setPrecision(PREC_MEDIUM);
+
+  Display_Center_X = myGLCD.getDisplayXSize() / 2;
+  Display_Center_Y = myGLCD.getDisplayYSize() / 2;
+
+  myGLCD.fillScr(0xF800);
+  myGLCD.setBackColor(0x0000);
+  myGLCD.print(String("Booting"), CENTER, Display_Center_Y - 5);
+  delay(500);
 
   // -------------------------- Touch --------------------------
 
@@ -419,7 +345,25 @@ void Top_Bar_Touch() {
   myTouch.Flip_Output_X = myGLCD.getDisplayXSize();
   myTouch.Flip_Output_Y = myGLCD.getDisplayYSize();
 
-
+  /*
+  #define VGA_BLACK		0x0000
+  #define VGA_WHITE		0xFFFF
+  #define VGA_RED			0xF800
+  #define VGA_GREEN		0x0400
+  #define VGA_BLUE		0x001F
+  #define VGA_SILVER		0xC618
+  #define VGA_GRAY		0x8410
+  #define VGA_MAROON		0x8000
+  #define VGA_YELLOW		0xFFE0
+  #define VGA_OLIVE		0x8400
+  #define VGA_LIME		0x07E0
+  #define VGA_AQUA		0x07FF
+  #define VGA_TEAL		0x0410
+  #define VGA_NAVY		0x0010
+  #define VGA_FUCHSIA		0xF81F
+  #define VGA_PURPLE		0x8010
+  #define VGA_TRANSPARENT	0xFFFFFFFF
+  */
 
   // -------------------------- Top Bar --------------------------
 
@@ -485,12 +429,12 @@ void Top_Bar_Touch() {
 
 
   // -------------------------- Boot End --------------------------
-  myGLCD.print(String("Boot Done"), CENTER, myGLCD.getDisplayYSize() / 2 - 5);
+  myGLCD.print(String("Boot Done"), CENTER, Display_Center_Y - 5);
   Serial.println("Boot Done");
 
   delay(500);
 
-  // Top_Bar();
+  Top_Bar();
 
 }
 
@@ -504,11 +448,11 @@ void Touch_Check() {
 
   // if (myTouch.Stabilize_Input(Touch_Input_X, Touch_Input_Y) == 1)  return; // Touch input diviated to much returning
 
-  // Top_Bar_Touch();
+  Top_Bar_Touch();
 
   // --------------------------------------------- 1 - Main Page ---------------------------------------------
   if (myGLCD.Top_Bar_Page_Number == 1) {
-  // Main_Page_Touch();
+  Main_Page_Touch();
   }
 
   // --------------------------------------------- 2 - Relay Page ---------------------------------------------
@@ -517,4 +461,18 @@ void Touch_Check() {
 } // End Marker - Touch_Check
 
 
-*/
+
+void loop() {
+
+  Touch_Check();
+
+  if (freeMemory_Delay_Until < millis()) { // REMOVE ME
+    Serial.print("freeMemory()=");
+    Serial.println(freeMemory());
+
+    // myGLCD.Draw_Button_Matrix(String(freeMemory()), 2, 2);
+
+    freeMemory_Delay_Until = millis() + freeMemory_Delay_For;
+  }
+
+} // END MARKER - Loop

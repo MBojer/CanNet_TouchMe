@@ -283,58 +283,73 @@ public:
 
 		// ----------------------------------------- Page Settings -------------------------------------------
 		#define Max_Number_Of_Pages 15
+		#define Max_Number_Of_Buttons 15
 
 		void Page_Add_Button(byte Page_Number, byte Button_ID, String Button_Text, int Position_X, int Position_Y);
-		void Page_Add_Button(byte Page_Number, byte Button_ID, String Button_Text, String Button_Matrix_Position);
 		void Page_Enable_Button(byte Page_Number, byte Button_ID);
 		void Page_Disable_Button(byte Page_Number, byte Button_ID);
 		void Page_Remove_Button(byte Page_Number, byte Button_ID);
 
 		void Page_Draw(byte Page_Number);
 
-
 		void Page_Up();
 		void Page_Down();
 
-
-
 		byte Page_Number = 1;
 
-		bool Page_Active[Max_Number_Of_Pages];
+		// +++ Global settings +++
+		word Page_Color_Default;
+		word Page_Text_Color_Default;
+		word Page_Button_Color_Default;
+		word Page_Button_Edge_Color_Default;
+		byte Page_Button_Edge_Size_Default;
+		bool Page_Button_Center_Text_Default;
+		int Page_Button_Size_X_Default;
+		int Page_Button_Size_Y_Default;
 
-		String Page_Buttons[Max_Number_Of_Pages];
-
-		String Page_Settings_Name[Max_Number_Of_Pages];
-
-		word Page_Settings_Color[Max_Number_Of_Pages];
-
-		word Page_Settings_Button_Color[Max_Number_Of_Pages];
-		word Page_Settings_Button_Edge_Color[Max_Number_Of_Pages];
-		byte Page_Settings_Button_Edge_Size[Max_Number_Of_Pages];
-		bool Page_Settings_Button_Center_Text[Max_Number_Of_Pages];
-		int Page_Settings_Button_Size_X[Max_Number_Of_Pages];
-		int Page_Settings_Button_Size_Y[Max_Number_Of_Pages];
-
-		word Page_Settings_Text_Color[Max_Number_Of_Pages];
+		bool Page_Top_Bar_Active_Default;
 
 
+		// +++ Page settings +++
+		bool Page_Active[Max_Number_Of_Pages]; // The page will be drawn if this one is set to true
+		word Page_Color[Max_Number_Of_Pages];
+		word Page_Text_Color[Max_Number_Of_Pages];
+
+		String Page_Name[Max_Number_Of_Pages]; // Text used for topbar
+
+		String Page_Button_Text[Max_Number_Of_Pages][Max_Number_Of_Buttons]; // Veriable containing the information about the buttons
+		int Page_Button_Position_X[Max_Number_Of_Pages][Max_Number_Of_Buttons]; // Veriable containing the information about the buttons
+		int Page_Button_Position_Y[Max_Number_Of_Pages][Max_Number_Of_Buttons]; // Veriable containing the information about the buttons
+
+
+		word Page_Button_Color[Max_Number_Of_Pages];
+		word Page_Button_Edge_Color[Max_Number_Of_Pages];
+		byte Page_Button_Edge_Size[Max_Number_Of_Pages];
+		bool Page_Button_Center_Text[Max_Number_Of_Pages];
+		int  Page_Button_Size_X[Max_Number_Of_Pages];
+		int Page_Button_Size_Y[Max_Number_Of_Pages];
+		int Page_Button_Matrix_Spacing[Max_Number_Of_Pages];
+
+		bool Page_Top_Bar_Active[Max_Number_Of_Pages];
+
+
+		// +++ Top_Bar +++
+		byte Page_Top_Bar_Size;
+		int Page_Top_Bar_Button_Size;
 
 
 		// -------------------------- Button --------------------------
-		void Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, int Size_Y);
-		void Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, int Size_Y, bool Use_Button_Size_2); // Referance only
-		void Draw_Button(String Button_Text, int xStart, int yStart); // Referance only
-		void Draw_Button(String Button_Text, int xStart, int yStart, bool Use_Button_Size_2); // Referance only
+		void Draw_Button(int Start_X, int Start_Y); // Remove the rest
 
-		int Center_Text_Calc_X(String Text, bool Use_Button_Size_2);
-		int Center_Text_Calc_Y(String Text, bool Use_Button_Size_2);
+		int Center_Text_Calc_X(String Text, int Button_Size);
+		int Center_Text_Calc_X(String Text);
+		int Center_Text_Calc_Y(String Text, int Button_Size);
+		int Center_Text_Calc_Y(String Text);
 
 		String Button_Text;
 
 		int Button_Size_X;
 		int Button_Size_Y;
-		int Button_Size_2_X;
-		int Button_Size_2_Y;
 
 		bool Button_Center_Text = true;
 
@@ -347,30 +362,10 @@ public:
 
 
 		// -------------------------- Button  Matrix --------------------------
-		void Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y);
-		void Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y, bool Use_Button_Size_2); // Referance only
-
-		byte Button_Matrix_Spacing;
-
-
-		// -------------------------- Top Bar --------------------------
-		void Draw_Top_Bar();
-
-		void Set_Top_Bar_Text(String Top_Bar_Text);
-		String Get_Top_Bar_Text();
-
-		int Top_Bar_Size;
-		int Top_Bar_Button_Size;
-		int Top_Bar_Button_Edge_Size;
-
-		word Top_Bar_Color;
-		word Top_Bar_Button_Color;
-		word Top_Bar_Edge_Color;
-		word Top_Bar_Text_Color;
-
-		volatile byte Top_Bar_Page_Number = 1;
-		byte Top_Bar_Page_Number_Last;
-
+		// void Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y);
+		// void Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y, bool Use_Button_Size_2); // Referance only
+    //
+		// byte Button_Matrix_Spacing;
 
 		// -------------------------- Slider --------------------------
 		void Draw_Slider(int Potition_X);
@@ -394,8 +389,6 @@ public:
 
 		// -------------------------- Top Bar --------------------------
 		int _Top_Bar_Button_Spacing;
-
-		String _Top_Bar_Text_Array[15];
 
 
 		// -------------------------- Slider --------------------------

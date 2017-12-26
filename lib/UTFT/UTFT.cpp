@@ -1353,69 +1353,53 @@ void UTFT::setWritePage(byte page)
 // -------------------------------------- MB_Draw_Button --------------------------------------
 // --------------------------------------------------------------------------------------------
 
-void UTFT::Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, int Size_Y, bool Use_Button_Size_2) {
-
-	int temp_X;
-	int temp_Y;
-
-	if (Use_Button_Size_2 == false) { // _Button_Size
-		temp_X = Button_Size_X;
-		temp_Y = Button_Size_Y;
-	}
-
-	else { // Button_Size_2
-		temp_X = Button_Size_2_X;
-		temp_Y = Button_Size_2_Y;
-	}
-
+void UTFT::Draw_Button(int Start_X, int Start_Y) {
 
 	// Edge
-	{
 		setColor(Button_Edge_Color);
 
-		if (Button_Edge_Size == 1) {
-			drawRoundRect(xStart, yStart, xStart + temp_X, yStart + temp_Y);
+		if (Button_Edge_Size == 0);
+
+		else if (Button_Edge_Size == 1) {
+			drawRoundRect(Start_X, Start_Y, Start_X + Button_Size_X, Start_Y + Button_Size_Y);
 		}
 
 		else {
-			fillRoundRect (xStart, yStart, xStart + temp_X, yStart + temp_Y);
+			fillRoundRect (Start_X, Start_Y, Start_X + Button_Size_X, Start_Y + Button_Size_Y);
 		}
-	}
+
 
 	// Button
-	{
 		setColor(Button_Color);
 		fillRoundRect (
-										xStart + Button_Edge_Size,
-										yStart + Button_Edge_Size,
-										xStart + temp_X - Button_Edge_Size,
-										yStart + temp_Y - Button_Edge_Size
+										Start_X + Button_Edge_Size,
+										Start_Y + Button_Edge_Size,
+										Start_X + Button_Size_X - Button_Edge_Size,
+										Start_Y + Button_Size_Y - Button_Edge_Size
 									);
-	}
 
 	// Text
 	if (Button_Text != "") {
 		setColor(Button_Text_Color);
 		setBackColor(Button_Back_Color);
 
-			if (Use_Button_Size_2 == false) { // _Button_Size
-
+			if (Button_Center_Text == true) {
 				print(
-							Button_Text,
-							xStart + Center_Text_Calc_X(Button_Text, false),
-							yStart + Center_Text_Calc_Y(Button_Text, false)
+					Button_Text,
+					Start_X + Center_Text_Calc_X(Button_Text),
+					Start_Y + Center_Text_Calc_Y(Button_Text)
 				);
 			}
 
-			else { // Button_Size_2
-				print(
-							Button_Text,
-							xStart + Center_Text_Calc_X(Button_Text, true),
-							yStart + Center_Text_Calc_Y(Button_Text, true)
+			else {
+				print( // CHANGE ME TO SOMETHING USEFUL
+					Button_Text,
+					Start_X + 15,
+					Start_Y + 15
 				);
-
-				//if (Button_Edge_Size == 1) {
 			}
+
+
 
 
 
@@ -1425,94 +1409,47 @@ void UTFT::Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, i
 } // END MARKER - Draw
 
 
-void UTFT::Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, int Size_Y) { // Referance only
+int UTFT::Center_Text_Calc_X(String Text, int Button_Size) {
 
-	Draw_Button(Button_Text, xStart, yStart, xStart + Button_Size_X, xStart + Button_Size_Y, false);
-
-} // END MARKER - Draw
-
-void UTFT::Draw_Button(String Button_Text, int xStart, int yStart) { // Referance only
-
-	Draw_Button(Button_Text, xStart, yStart, xStart + Button_Size_X, xStart + Button_Size_Y, false);
-
-} // END MARKER - Draw
-
-void UTFT::Draw_Button(String Button_Text, int xStart, int yStart, bool Use_Button_Size_2) { // Referance only
-
-	Draw_Button(Button_Text, xStart, yStart, xStart + Button_Size_2_X, xStart + Button_Size_2_Y, Use_Button_Size_2);
-
-} // END MARKER - Draw
-
-
-int UTFT::Center_Text_Calc_X(String Text, bool Use_Button_Size_2) {
-
-		if (Button_Center_Text == true) {
-
-			if (Use_Button_Size_2 == false) { // _Button_Size
-				return Button_Size_X / 2 - Text.length() * (getFontXsize() / 2);
-			}
-
-			else { // Button_Size_2
-				return Button_Size_2_X / 2 - Text.length() * (getFontXsize() / 2);
-			}
-		}
-
-		else return 0;
+	return Button_Size / 2 - Text.length() * (getFontXsize() / 2);
 
 } // END MARKER - Center_Text_Calc_X
 
-int UTFT::Center_Text_Calc_Y(String Text, bool Use_Button_Size_2) {
+int UTFT::Center_Text_Calc_X(String Text) {
+	return Center_Text_Calc_X(Text, Button_Size_X);
+} // END MARKER - Center_Text_Calc_X - Reff
 
-		if (Button_Center_Text == true) {
 
-			if (Use_Button_Size_2 == false) { // _Button_Size
-				return Button_Size_Y / 2 - (getFontYsize() / 2);
-			}
-
-			else { // Button_Size_2
-				return Button_Size_2_Y / 2 - (getFontYsize() / 2);
-			}
-		}
-
-		else return 0;
-
+int UTFT::Center_Text_Calc_Y(String Text, int Button_Size) {
+	return Button_Size / 2 - (getFontYsize() / 2);
 } // END MARKER - Center_Text_Calc_X
 
+int UTFT::Center_Text_Calc_Y(String Text) {
+	return Center_Text_Calc_Y(Text, Button_Size_Y);
+} // END MARKER - Center_Text_Calc_Y - Reff
 
 
 
 
 
-
-void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y, bool Use_Button_Size_2) {
-
-	if (Use_Button_Size_2 == false) { // Button_Size
-		Draw_Button(
-	    Button_Text,
-	    Button_Matrix_Spacing * Button_Number_X + Button_Size_X * (Button_Number_X - 1),
-	    Top_Bar_Size + Button_Matrix_Spacing * Button_Number_Y + Button_Size_Y * (Button_Number_Y - 1),
-			false
-		);
-	}
-
-	else { // Button_Size_2
-		Draw_Button(
-	    Button_Text,
-			// X
-	    Button_Matrix_Spacing * Button_Number_X + Button_Size_2_X * (Button_Number_X - 1),
-			// Y
-	    Top_Bar_Size + Button_Matrix_Spacing * Button_Number_Y + Button_Size_2_Y * (Button_Number_Y - 1),
-			true
-		);
-	}
-
-} // END MARKER - Draw_Button_Matrix
-
-void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y) { // Referance only
-
-	Draw_Button_Matrix(Button_Text, Button_Number_X, Button_Number_Y, false);
-
-} // END MARKER - Draw_Button_Matrix
+// void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y, bool Use_Button_Size_2) {
+//
+//
+// 		Draw_Button(
+// 	    Button_Matrix_Spacing * Button_Number_X + Button_Size_X * (Button_Number_X - 1),
+// 	    Top_Bar_Size + Button_Matrix_Spacing * Button_Number_Y + Button_Size_Y * (Button_Number_Y - 1)
+// 		);
+//
+//
+//
+//
+// } // END MARKER - Draw_Button_Matrix
+//
+// void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y) { // Referance only
+//
+// 	Draw_Button_Matrix(Button_Text, Button_Number_X, Button_Number_Y, false);
+//
+// } // END MARKER - Draw_Button_Matrix
 
 
 
@@ -1521,80 +1458,79 @@ void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte But
 // ---------------------------------------------------- Top Bar ----------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------
 
-void UTFT::Draw_Top_Bar() {
+// void UTFT::Draw_Top_Bar() {
+//
+  //
+	// //-------------------------------------------------- Drws the top bar --------------------------------------------------
+	// Button_Size_X = getDisplayXSize() - 1;
+	// Button_Size_Y = Top_Bar_Size;
+	// Button_Edge_Size = 0;
+  //
+	// Draw_Button(_Top_Bar_Text_Array[Top_Bar_Page_Number - 1], 0, 0);
+  //
+  //
+	// //-------------------------------------------------- Drws Page up / Page down --------------------------------------------------
+	// if (Top_Bar_Page_Number < 9) {
+	// 	Button_Size_2_X = 5 * getFontXsize();
+	// 	Button_Size_2_Y = Top_Bar_Size;
+	// }
+  //
+	// else {
+	// 	Button_Size_2_X = 6 * getFontXsize();
+	// 	Button_Size_2_Y = Top_Bar_Size;
+	// }
+  //
+	// Button_Edge_Size = Top_Bar_Button_Edge_Size;
+  //
+	// if (Top_Bar_Page_Number != 1) {
+	// 	String Page_Number_Text = "<< " + String(Top_Bar_Page_Number - 1);
+  //
+	// 	Draw_Button(Page_Number_Text, 0, 0, true); // Button_Size_2
+	// }
+  //
+	// if (Top_Bar_Page_Number != Top_Bar_Page_Number_Last) {
+	// 	String Page_Number_Text = String(Top_Bar_Page_Number + 1) + " >>";
+  //
+	// 	Draw_Button(Page_Number_Text, getDisplayXSize() - 1 - Button_Size_2_X, 0, true); // Button_Size_2
+	// }
+//
+// } // END MARKER - Draw_Top_Bar
 
 
-	//-------------------------------------------------- Drws the top bar --------------------------------------------------
+// void UTFT::Set_Top_Bar_Text(String Top_Bar_Text) {
+//
+// 	Top_Bar_Page_Number_Last = 0;
+//
+// 	for (int x = 0; x < 15; x++) {
+//
+// 		Top_Bar_Page_Number_Last = Top_Bar_Text.indexOf(";", Top_Bar_Page_Number_Last + 1);
+//
+// 		if (Top_Bar_Page_Number_Last == -1 || Top_Bar_Text.length() == 0) {
+// 			Top_Bar_Page_Number_Last = x;
+// 			break;
+// 		}
+//
+// 		_Top_Bar_Text_Array[x] = Top_Bar_Text.substring(0, Top_Bar_Text.indexOf(";"));
+//
+// 		Top_Bar_Text.replace(_Top_Bar_Text_Array[x] + ";", "");
+//
+// 	} // END MARKER - for loop
+//
+// } // END MARKER - Set_Top_Bar_Text
 
-	Button_Size_X = getDisplayXSize() - 1;
-	Button_Size_Y = Top_Bar_Size;
-	Button_Edge_Size = 0;
-
-	Draw_Button(_Top_Bar_Text_Array[Top_Bar_Page_Number - 1], 0, 0);
-
-	//-------------------------------------------------- Drws Page up / Page down --------------------------------------------------
-
-	if (Top_Bar_Page_Number < 9) {
-		Button_Size_2_X = 5 * getFontXsize();
-		Button_Size_2_Y = Top_Bar_Size;
-	}
-
-	else {
-		Button_Size_2_X = 6 * getFontXsize();
-		Button_Size_2_Y = Top_Bar_Size;
-	}
-
-	Button_Edge_Size = Top_Bar_Button_Edge_Size;
-
-	if (Top_Bar_Page_Number != 1) {
-		String Page_Number_Text = "<< " + String(Top_Bar_Page_Number - 1);
-
-		Draw_Button(Page_Number_Text, 0, 0, true); // Button_Size_2
-	}
-
-	if (Top_Bar_Page_Number != Top_Bar_Page_Number_Last) {
-		String Page_Number_Text = String(Top_Bar_Page_Number + 1) + " >>";
-
-		Draw_Button(Page_Number_Text, getDisplayXSize() - 1 - Button_Size_2_X, 0, true); // Button_Size_2
-	}
-
-} // END MARKER - Draw_Top_Bar
-
-
-void UTFT::Set_Top_Bar_Text(String Top_Bar_Text) {
-
-	Top_Bar_Page_Number_Last = 0;
-
-	for (int x = 0; x < 15; x++) {
-
-		Top_Bar_Page_Number_Last = Top_Bar_Text.indexOf(";", Top_Bar_Page_Number_Last + 1);
-
-		if (Top_Bar_Page_Number_Last == -1 || Top_Bar_Text.length() == 0) {
-			Top_Bar_Page_Number_Last = x;
-			break;
-		}
-
-		_Top_Bar_Text_Array[x] = Top_Bar_Text.substring(0, Top_Bar_Text.indexOf(";"));
-
-		Top_Bar_Text.replace(_Top_Bar_Text_Array[x] + ";", "");
-
-	} // END MARKER - for loop
-
-} // END MARKER - Set_Top_Bar_Text
-
-String UTFT::Get_Top_Bar_Text() {
-
-	String Return_String;
-
-	for (int x = 0; x < Top_Bar_Page_Number_Last; x++) {
-
-		Return_String = Return_String + _Top_Bar_Text_Array[x] + ";";
-
-	} // END MARKER - for loop
-
-	return Return_String;
-
-} // END MARKER - Get_Top_Bar_Text
+// String UTFT::Get_Top_Bar_Text() {
+//
+// 	String Return_String;
+//
+// 	for (int x = 0; x < Top_Bar_Page_Number_Last; x++) {
+//
+// 		Return_String = Return_String + _Top_Bar_Text_Array[x] + ";";
+//
+// 	} // END MARKER - for loop
+//
+// 	return Return_String;
+//
+// } // END MARKER - Get_Top_Bar_Text
 
 
 
@@ -1649,40 +1585,35 @@ void UTFT::Draw_Slider(int Potition_X) {
 // ----------------------------------------- Page_Add_Button -------------------------------------------
 void UTFT::Page_Add_Button(byte Page_Number, byte Button_ID, String Button_Text, int Position_X, int Position_Y) {
 
-	if (Page_Buttons[Page_Number].indexOf(String(Page_Number) + ";") != -1) {
-		Serial.println("Button exists, removing then addidng"); // REMOVE ME
-		Page_Remove_Button(Page_Number, Button_ID);
-		Serial.println("Add button again"); // REMOVE ME
-	}
-
-	else {
-		Serial.println("Adding"); // REMOVE ME
-
-		Page_Buttons[Page_Number] =
-																Page_Buttons[Page_Number] + ";-" +
-																Page_Number + ";" +
-																Button_Text + ";" +
-																Position_X + ";" +
-																Position_Y +
-																"-;";
-
-
-
-
-
-
-	}
+	// if (Page_Buttons[Page_Number].indexOf(String(Page_Number) + ";") != -1) {
+	// 	Serial.println("Button exists, removing then addidng"); // REMOVE ME
+	// 	Page_Remove_Button(Page_Number, Button_ID);
+	// 	Serial.println("Add button again"); // REMOVE ME
+	// }
+  //
+	// else {
+	// 	Serial.println("Adding"); // REMOVE ME
+  //
+	// 	Page_Buttons[Page_Number] =
+	// 															Page_Buttons[Page_Number] + ";-" +
+	// 															Page_Number + ";" +
+	// 															Button_Text + ";" +
+	// 															Position_X + ";" +
+	// 															Position_Y +
+	// 															"-;";
+  //
+  //
+  //
+  //
+  //
+  //
+	// }
 
 	// ID;;Text;;Position_X;;Position_Y
 	// ;-01;;Button 1;;400;;200-;
 
 };
 
-
-// ----------------------------------------- Page_Add_Button -------------------------------------------
-void UTFT::Page_Add_Button(byte Page_Number, byte Button_ID, String Button_Text, String Button_Matrix_Position) {
-
-};
 
 // ----------------------------------------- Page_Enable_Button -------------------------------------------
 void UTFT::Page_Enable_Button(byte Page_Number, byte Button_ID) {
