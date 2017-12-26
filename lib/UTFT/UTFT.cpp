@@ -1642,3 +1642,66 @@ void UTFT::Draw_Slider(int Potition_X) {
 	_Slider_Dont_Move_Until = millis() + Slider_Dont_Move_For;
 
 } // END MARKER - Draw_Slider
+
+
+
+
+// ----------------------------------------- Page_Add_Button -------------------------------------------
+void UTFT::Page_Add_Button(byte Page_Number, byte Button_ID, String Button_Text, int Position_X, int Position_Y) {
+
+	if (Page_Buttons[Page_Number].indexOf(String(Page_Number) + ";") != -1) {
+		Serial.println("Button exists, removing then addidng"); // REMOVE ME
+		Page_Remove_Button(Page_Number, Button_ID);
+		Serial.println("Add button again"); // REMOVE ME
+	}
+
+	else {
+		Serial.println("Adding"); // REMOVE ME
+
+		Page_Buttons[Page_Number] =
+																Page_Buttons[Page_Number] + ";-" +
+																Page_Number + ";" +
+																Button_Text + ";" +
+																Position_X + ";" +
+																Position_Y +
+																"-;";
+
+
+
+
+
+
+	}
+
+	// ID;;Text;;Position_X;;Position_Y
+	// ;-01;;Button 1;;400;;200-;
+
+};
+
+
+// ----------------------------------------- Page_Add_Button -------------------------------------------
+void UTFT::Page_Add_Button(byte Page_Number, byte Button_ID, String Button_Text, String Button_Matrix_Position) {
+
+};
+
+// ----------------------------------------- Page_Enable_Button -------------------------------------------
+void UTFT::Page_Enable_Button(byte Page_Number, byte Button_ID) {
+
+};
+
+// ----------------------------------------- Page_Disable_Button -------------------------------------------
+void UTFT::Page_Disable_Button(byte Page_Number, byte Button_ID) {
+
+};
+
+// ----------------------------------------- Page_Remove_Button -------------------------------------------
+void UTFT::Page_Remove_Button(byte Page_Number, byte Button_ID) {
+
+};
+
+// ----------------------------------------- Page_Draw -------------------------------------------
+void UTFT::Page_Draw(byte Page_Number) {
+
+	Serial.println("Page_Draw"); // REMOVE ME
+
+};

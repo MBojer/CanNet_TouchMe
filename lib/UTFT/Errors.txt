@@ -1,0 +1,3 @@
+Page_Init:
+  0 = All ok
+  1 = Page_Init > Max_Number_Of_Pages

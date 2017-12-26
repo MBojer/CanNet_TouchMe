@@ -36,7 +36,7 @@ int Light_Strenght = 180; // CNAMGE ME
 // --------------------- REMOVE ME ---------------------------
 #include <MemoryFree.h>
 unsigned long freeMemory_Delay_Until;
-#define freeMemory_Delay_For 1000
+#define freeMemory_Delay_For 2000
 
 // --------------------- REMOVE ME - End ---------------------
 
@@ -274,8 +274,8 @@ void Top_Bar() {
 
   myGLCD.Draw_Top_Bar();
 
-       if (myGLCD.Top_Bar_Page_Number == 1) Main_Page();
-  else if (myGLCD.Top_Bar_Page_Number == 2) Relay_Page();
+       if (myGLCD.Top_Bar_Page_Number == 1) myGLCD.Page_Draw(1);
+  else if (myGLCD.Top_Bar_Page_Number == 2) Main_Page();
   else if (myGLCD.Top_Bar_Page_Number == 3) Voltmeter_Page();
 
 } // END MARKER - Top_Bar
@@ -400,6 +400,34 @@ void setup() {
   myGLCD.Slider_Dont_Move_For = 75;
 
 
+
+  // -------------------------- Page 1 --------------------------
+  myGLCD.Page_Active[1] = true;
+  myGLCD.Page_Settings_Color[1] = myGLCD.Top_Bar_Color;
+  myGLCD.Page_Settings_Button_Color[1] = myGLCD.Top_Bar_Color;
+  myGLCD.Page_Settings_Button_Size_X[1] = 200;
+  myGLCD.Page_Settings_Button_Size_Y[1] = 90;
+  myGLCD.Page_Settings_Text_Color[1] = myGLCD.Top_Bar_Text_Color;
+  myGLCD.Page_Settings_Button_Edge_Color[1] = myGLCD.Top_Bar_Edge_Color;
+  myGLCD.Page_Settings_Button_Edge_Size[1] = 4;
+  myGLCD.Page_Settings_Button_Center_Text[1] = true;
+
+  myGLCD.Page_Add_Button(1, 1, "Test Button", 300, 200);
+
+
+
+  // void Page_Remove_Button(byte Page_Number, byte Button_ID);
+
+
+
+
+
+
+
+
+
+
+  // -------------------------- Boot End --------------------------
   myGLCD.print(String("Boot Done"), CENTER, Display_Center_Y - 5);
   Serial.println("Boot Done");
 
@@ -440,6 +468,8 @@ void loop() {
   if (freeMemory_Delay_Until < millis()) { // REMOVE ME
     Serial.print("freeMemory()=");
     Serial.println(freeMemory());
+
+    // myGLCD.Draw_Button_Matrix(String(freeMemory()), 2, 2);
 
     freeMemory_Delay_Until = millis() + freeMemory_Delay_For;
   }

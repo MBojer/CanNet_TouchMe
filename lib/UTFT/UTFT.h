@@ -274,15 +274,53 @@ class UTFT
 
 
 // --------------------------------------------------------------------------------------------
-// -------------------------------------- CanNet --------------------------------------
+// ----------------------------------------- CanNet -------------------------------------------
 // --------------------------------------------------------------------------------------------
 
 
 
 public:
 
-		// -------------------------- Button --------------------------
+		// ----------------------------------------- Page Settings -------------------------------------------
+		#define Max_Number_Of_Pages 15
 
+		void Page_Add_Button(byte Page_Number, byte Button_ID, String Button_Text, int Position_X, int Position_Y);
+		void Page_Add_Button(byte Page_Number, byte Button_ID, String Button_Text, String Button_Matrix_Position);
+		void Page_Enable_Button(byte Page_Number, byte Button_ID);
+		void Page_Disable_Button(byte Page_Number, byte Button_ID);
+		void Page_Remove_Button(byte Page_Number, byte Button_ID);
+
+		void Page_Draw(byte Page_Number);
+
+
+		void Page_Up();
+		void Page_Down();
+
+
+
+		byte Page_Number = 1;
+
+		bool Page_Active[Max_Number_Of_Pages];
+
+		String Page_Buttons[Max_Number_Of_Pages];
+
+		String Page_Settings_Name[Max_Number_Of_Pages];
+
+		word Page_Settings_Color[Max_Number_Of_Pages];
+
+		word Page_Settings_Button_Color[Max_Number_Of_Pages];
+		word Page_Settings_Button_Edge_Color[Max_Number_Of_Pages];
+		byte Page_Settings_Button_Edge_Size[Max_Number_Of_Pages];
+		bool Page_Settings_Button_Center_Text[Max_Number_Of_Pages];
+		int Page_Settings_Button_Size_X[Max_Number_Of_Pages];
+		int Page_Settings_Button_Size_Y[Max_Number_Of_Pages];
+
+		word Page_Settings_Text_Color[Max_Number_Of_Pages];
+
+
+
+
+		// -------------------------- Button --------------------------
 		void Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, int Size_Y);
 		void Draw_Button(String Button_Text, int xStart, int yStart, int Size_X, int Size_Y, bool Use_Button_Size_2); // Referance only
 		void Draw_Button(String Button_Text, int xStart, int yStart); // Referance only
@@ -308,16 +346,14 @@ public:
 		byte Button_Edge_Size;
 
 
-
 		// -------------------------- Button  Matrix --------------------------
-
 		void Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y);
 		void Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y, bool Use_Button_Size_2); // Referance only
 
 		byte Button_Matrix_Spacing;
 
-		// -------------------------- Top Bar --------------------------
 
+		// -------------------------- Top Bar --------------------------
 		void Draw_Top_Bar();
 
 		void Set_Top_Bar_Text(String Top_Bar_Text);
