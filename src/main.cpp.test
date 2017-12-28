@@ -1,0 +1,112 @@
+
+
+/* Colors:
+
+#define VGA_BLACK		0x0000
+#define VGA_WHITE		0xFFFF
+#define VGA_RED			0xF800
+#define VGA_GREEN		0x0400
+#define VGA_BLUE		0x001F
+#define VGA_SILVER		0xC618
+#define VGA_GRAY		0x8410
+#define VGA_MAROON		0x8000
+#define VGA_YELLOW		0xFFE0
+#define VGA_OLIVE		0x8400
+#define VGA_LIME		0x07E0
+#define VGA_AQUA		0x07FF
+#define VGA_TEAL		0x0410
+#define VGA_NAVY		0x0010
+#define VGA_FUCHSIA		0xF81F
+#define VGA_PURPLE		0x8010
+#define VGA_TRANSPARENT	0xFFFFFFFF
+*/
+
+#include <Arduino.h>
+/*
+  Listfiles
+
+ This example shows how print out the files in a
+ directory on a SD card
+
+ The circuit:
+ * SD card attached to SPI bus as follows:
+ ** MOSI - pin 11
+ ** MISO - pin 12
+ ** CLK - pin 13
+ ** CS - pin 4 (for MKRZero SD: SDCARD_SS_PIN)
+
+ created   Nov 2010
+ by David A. Mellis
+ modified 9 Apr 2012
+ by Tom Igoe
+ modified 2 Feb 2014
+ by Scott Fitzgerald
+
+ This example code is in the public domain.
+
+ */
+#include <SPI.h>
+#include <SD.h>
+
+#define Setting_File_Path "/TouchMe/Settings.txt"
+
+File root;
+File Settings_File;
+
+void printDirectory(File dir, int numTabs) {
+  while (true) {
+
+    File entry =  dir.openNextFile();
+    if (! entry) {
+      // no more files
+      break;
+    }
+    for (uint8_t i = 0; i < numTabs; i++) {
+      Serial.print('\t');
+    }
+    Serial.print(entry.name());
+    if (entry.isDirectory()) {
+      Serial.println("/");
+      printDirectory(entry, numTabs + 1);
+    } else {
+      // files have sizes, directories do not
+      Serial.print("\t\t");
+      Serial.println(entry.size(), DEC);
+    }
+    entry.close();
+  }
+}
+
+void setup() {
+  // Open serial communications and wait for port to open:
+  Serial.begin(115200);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+
+  Serial.print("Initializing SD card...");
+
+  if (!SD.begin(53)) {
+    Serial.println("initialization failed!");
+    while (1);
+  }
+  Serial.println("initialization done.");
+
+  // root = SD.open("/");
+  // printDirectory(root, 0);
+
+  Settings_File = SD.open(Setting_File_Path);
+
+  Serial.print("SD.open: "); //Printing for debugging purpose
+  Serial.println(Settings_File); //Printing for debugging purpose
+
+  Serial.println("done!");
+
+
+  Settings_File.close();
+}
+
+void loop() {
+
+
+}

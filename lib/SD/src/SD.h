@@ -50,7 +50,7 @@ public:
   boolean isDirectory(void);
   File openNextFile(uint8_t mode = O_RDONLY);
   void rewindDirectory(void);
-  
+
   using Print::write;
 };
 
@@ -61,7 +61,7 @@ private:
   Sd2Card card;
   SdVolume volume;
   SdFile root;
-  
+
   // my quick&dirty iterator, should be replaced
   SdFile getParentDir(const char *filepath, int *indx);
 public:
@@ -69,7 +69,7 @@ public:
   // before other methods are used.
   boolean begin(uint8_t csPin = SD_CHIP_SELECT_PIN);
   boolean begin(uint32_t clock, uint8_t csPin);
-  
+
   //call this when a card is removed. It will allow you to insert and initialise a new card.
   void end();
 
@@ -87,25 +87,25 @@ public:
   // do not exist they will be created.
   boolean mkdir(const char *filepath);
   boolean mkdir(const String &filepath) { return mkdir(filepath.c_str()); }
-  
+
   // Delete the file.
   boolean remove(const char *filepath);
   boolean remove(const String &filepath) { return remove(filepath.c_str()); }
-  
+
   boolean rmdir(const char *filepath);
   boolean rmdir(const String &filepath) { return rmdir(filepath.c_str()); }
 
 private:
 
   // This is used to determine the mode used to open a file
-  // it's here because it's the easiest place to pass the 
+  // it's here because it's the easiest place to pass the
   // information through the directory walking function. But
   // it's probably not the best place for it.
   // It shouldn't be set directly--it is set via the parameters to `open`.
   int fileOpenMode;
-  
+
   friend class File;
-  friend boolean callback_openPath(SdFile&, const char *, boolean, void *); 
+  friend boolean callback_openPath(SdFile&, const char *, boolean, void *);
 };
 
 extern SDClass SD;
