@@ -281,6 +281,13 @@ public:
 	int Button_Size_X;
 	int Button_Size_Y;
 
+	word Button_Color;
+	word Button_Text_Color;
+
+	word Button_Edge_Color;
+	int Button_Edge_Size;
+
+
 	bool Button_Center_Text = true;
 
 

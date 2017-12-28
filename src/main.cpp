@@ -42,7 +42,7 @@ String Page_File_Content[Max_Number_Of_Pages];
 
 // -------------------------------------------- LCD --------------------------------------------
 #include <UTFT.h>
-UTFT myGLCD(CTE50, 38, 39, 40, 41);
+UTFT lcd(CTE50, 38, 39, 40, 41);
 extern uint8_t GroteskBold16x32[];
 
 
@@ -94,6 +94,7 @@ String decToHex(byte decValue, byte desiredStringLength) {
   return hexString;
 }
 
+
 void Error_Mode(byte Error_Type, String Error_Text) {
 
   // ADD ME - Support for write log file to sd if avalible
@@ -106,8 +107,8 @@ void Error_Mode(byte Error_Type, String Error_Text) {
       Serial.println("HALTING");
     }
 
-    myGLCD.fillScr(0xF800);
-    myGLCD.print("FATAL ERROR: " + Error_Text, 20, 20);
+    lcd.fillScr(0xF800);
+    lcd.print("FATAL ERROR: " + Error_Text, 20, 20);
 
     while (1) {
       delay(1000);
@@ -154,9 +155,37 @@ String Read_Conf_File(String File_Path, bool Error_Message) {
     return File_Content;
 }
 
-String Read_Conf_File(String File_Path) {
+String Read_Conf_File(String File_Path) { // Referance only
   return Read_Conf_File(File_Path, true);
 } // END MARKER - Read_Conf_File
+
+
+
+String Read_Setting_Line(String &Settings_File_Content, int Line_Number) {
+
+  int String_Offset;
+
+  for (int x = 1; x < Line_Number; x++) {
+    String_Offset = Settings_File_Content.indexOf("\r\n", String_Offset);
+  }
+
+  return Settings_File_Content.substring(String_Offset, Settings_File_Content.indexOf("\r\n", String_Offset));
+}
+
+
+
+String Setting_On_Line(String &Settings_File_Content, int Line_Number) {
+
+  int String_Offset;
+
+  for (int x = 1; x < Line_Number; x++) {
+    String_Offset = Settings_File_Content.indexOf("\r\n", String_Offset);
+  }
+
+  return Settings_File_Content.substring(String_Offset, Settings_File_Content.indexOf(" = ", String_Offset));
+}
+
+
 
 String Find_Setting(String &Settings_File_Content, String Settings_Name) {
 
@@ -202,37 +231,30 @@ word Find_Setting_Color(String &Settings_File_Content, String Settings_Name) {
 
 
 
-
 void Top_Bar() {
 
-  // String teststring = "001F";
-  //
-  // // long long number = strtoll( &teststring, NULL, 16);
-  //
-  // int testint = hexToDec(teststring);
-  // word testword = word(testint);
-
-  myGLCD.clrScr();
+  lcd.clrScr();
 
 
   if (Top_Bar_File_Content != "") {
 
-    myGLCD.setColor(Find_Setting_Color(Settings_File_Content, "Button Color"));
-
-    myGLCD.fillRoundRect(0, 0, myGLCD.getDisplayXSize() - 1, Find_Setting(Top_Bar_File_Content, "Size").toInt());
-
-    
-
-
-  }
+    lcd.setColor(Find_Setting_Color(Settings_File_Content, "Button Color"));
 
 
 
+    lcd.fillRoundRect(0, 0, lcd.getDisplayXSize() - 1, Find_Setting(Top_Bar_File_Content, "Size").toInt());
 
 
 
-  // myGLCD.fillScr(testword);
-  // myGLCD.fillScr(word(Find_Setting(Settings_File_Content, "Color")));
+}
+
+
+
+
+
+
+  // lcd.fillScr(testword);
+  // lcd.fillScr(word(Find_Setting(Settings_File_Content, "Color")));
 
 
 
@@ -260,8 +282,8 @@ void setup() {
 
 
   // -------------------------------------------- LCD --------------------------------------------
-  myGLCD.InitLCD();
-  myGLCD.setFont(GroteskBold16x32);
+  lcd.InitLCD();
+  lcd.setFont(GroteskBold16x32);
 
 
   // -------------------------------------------- Touch --------------------------------------------
@@ -270,9 +292,9 @@ void setup() {
 
 
   // -------------------------------------------- Boot Message --------------------------------------------
-  myGLCD.fillScr(0xF800);
-  myGLCD.setBackColor(0x0000);
-  myGLCD.print(String("Booting"), CENTER, myGLCD.getDisplayYSize() / 2 - 5);
+  lcd.fillScr(0xF800);
+  lcd.setBackColor(0x0000);
+  lcd.print(String("Booting"), CENTER, lcd.getDisplayYSize() / 2 - 5);
   delay(500);
 
 
@@ -282,7 +304,6 @@ void setup() {
   Serial.println(freeMemory()); // REMOVE ME
 
   Settings_File_Content = Read_Conf_File(Setting_File_Path);
-
 
   Serial.print("Settings File: "); // REMOVE ME
   Serial.println(freeMemory()); // REMOVE ME
@@ -305,8 +326,40 @@ void setup() {
   Serial.println(freeMemory()); // REMOVE ME
 
 
+  // -------------------------------------------- Settings file import --------------------------------------------
+
+  // CHAMNGE ME - Use switch
+
+  for (int x = 1; x < 7; x++) {
+
+    switch (Read_Setting_Line(Settings_File_Content, x)) {
+      case /* value */:
+    } // END MARKER - switch
+
+
+
+  } // END MARKER - switch
+
+
+
+  // Text Color = 0xEF5D
+  //
+  // Edge Color = 0xEF5D
+  // Edge Size = 4
+  //
+  // Button Color = 0x001F
+  // Button Center Text = true
+  // Button Size X = 200
+  // Button Size Y = 90
+  //
+  // Top Bar Active = true
+
+
+
+
+
   // -------------------------------------------- Boot Message - End --------------------------------------------
-  myGLCD.print(String("Boot Done"), CENTER, myGLCD.getDisplayYSize() / 2 - 5);
+  lcd.print(String("Boot Done"), CENTER, lcd.getDisplayYSize() / 2 - 5);
   Serial.println("Boot Done");
 
   delay(500);
