@@ -160,36 +160,9 @@ String Read_Conf_File(String File_Path) { // Referance only
 } // END MARKER - Read_Conf_File
 
 
+String Find_Setting(String &Settings_File_Content, String Setting_Name) {
 
-String Read_Setting_Line(String &Settings_File_Content, int Line_Number) {
-
-  int String_Offset;
-
-  for (int x = 1; x < Line_Number; x++) {
-    String_Offset = Settings_File_Content.indexOf("\r\n", String_Offset);
-  }
-
-  return Settings_File_Content.substring(String_Offset, Settings_File_Content.indexOf("\r\n", String_Offset));
-}
-
-
-
-String Setting_On_Line(String &Settings_File_Content, int Line_Number) {
-
-  int String_Offset;
-
-  for (int x = 1; x < Line_Number; x++) {
-    String_Offset = Settings_File_Content.indexOf("\r\n", String_Offset);
-  }
-
-  return Settings_File_Content.substring(String_Offset, Settings_File_Content.indexOf(" = ", String_Offset));
-}
-
-
-
-String Find_Setting(String &Settings_File_Content, String Settings_Name) {
-
-  String Search_String = "\r\n" + Settings_Name + " = ";
+  String Search_String = "\r\n" + Setting_Name + " = ";
 
   if (Settings_File_Content.indexOf(Search_String) == -1) {
     return "";
@@ -206,9 +179,9 @@ String Find_Setting(String &Settings_File_Content, String Settings_Name) {
 
 } // END MARKER - Find_Setting
 
-word Find_Setting_Color(String &Settings_File_Content, String Settings_Name) {
+word Find_Setting_Color(String &Settings_File_Content, String Setting_Name) {
 
-  String Search_String = "\r\n" + Settings_Name + " = ";
+  String Search_String = "\r\n" + Setting_Name + " = ";
 
   if (Settings_File_Content.indexOf(Search_String) == -1) {
     return -1;
@@ -229,32 +202,26 @@ word Find_Setting_Color(String &Settings_File_Content, String Settings_Name) {
 
 } // END MARKER - Find_Setting
 
+int Find_Setting_Int(String &Settings_File_Content, String Setting_Name) {
+
+  Setting_Name = Find_Setting(Settings_File_Content, Setting_Name);
+
+  return Setting_Name.toInt();
+
+} // END MARKER - Find_Setting
+
 
 
 void Top_Bar() {
 
   lcd.clrScr();
 
-
   if (Top_Bar_File_Content != "") {
-
-    lcd.setColor(Find_Setting_Color(Settings_File_Content, "Button Color"));
-
-
-
-    lcd.fillRoundRect(0, 0, lcd.getDisplayXSize() - 1, Find_Setting(Top_Bar_File_Content, "Size").toInt());
+    lcd.Draw_Top_Bar(Find_Setting(Page_File_Content[lcd.Current_Page], "Name"));
+  }
 
 
 
-}
-
-
-
-
-
-
-  // lcd.fillScr(testword);
-  // lcd.fillScr(word(Find_Setting(Settings_File_Content, "Color")));
 
 
 
@@ -315,11 +282,9 @@ void setup() {
 
   for (int x = 1; x < Max_Number_Of_Pages; x++) {
 
-    Page_File_Content[x] = Read_Conf_File(String(Page_File_Path) + "Page " + x + ".txt", false);
+    Page_File_Content[x] = Read_Conf_File(String(Page_File_Path) + "Page_" + x + ".txt", false);
 
     if (Page_File_Content[x] == "") break;
-
-    Serial.println(Page_File_Content[x]); // REMOVE ME
   }
 
   Serial.print("Pages: "); // REMOVE ME
@@ -327,35 +292,31 @@ void setup() {
 
 
   // -------------------------------------------- Settings file import --------------------------------------------
+  if (Settings_File_Content.indexOf("\r\nText Color = ") != -1) {
+    lcd.Text_Color = Find_Setting_Color(Settings_File_Content, "Text Color");
+  }
 
-  // CHAMNGE ME - Use switch
+  if (Settings_File_Content.indexOf("\r\nEdge Color = ") != -1) {
+    lcd.Edge_Color = Find_Setting_Color(Settings_File_Content, "Edge Color");
+  }
 
-  for (int x = 1; x < 7; x++) {
+  if (Settings_File_Content.indexOf("\r\nEdge Size = ") != -1) {
+    lcd.Edge_Size = Find_Setting_Int(Settings_File_Content, "Edge Size");
+  }
 
-    switch (Read_Setting_Line(Settings_File_Content, x)) {
-      case /* value */:
-    } // END MARKER - switch
-
-
-
-  } // END MARKER - switch
-
-
-
-  // Text Color = 0xEF5D
-  //
-  // Edge Color = 0xEF5D
-  // Edge Size = 4
-  //
-  // Button Color = 0x001F
-  // Button Center Text = true
-  // Button Size X = 200
-  // Button Size Y = 90
-  //
-  // Top Bar Active = true
+  if (Settings_File_Content.indexOf("\r\nButton Center Text = ") != -1) {
+    lcd.Button_Center_Text = Find_Setting_Int(Settings_File_Content, "Button Center Text");
+  }
 
 
+  // -------------------------------------------- Top Bar file import --------------------------------------------
+  if (Top_Bar_File_Content.indexOf("\r\nSize = ") != -1) {
+    lcd.Top_Bar_Size = Find_Setting_Int(Top_Bar_File_Content, "Size");
+  }
 
+  if (Top_Bar_File_Content.indexOf("\r\nButton Size = ") != -1) {
+    lcd.Top_Bar_Button_Size = Find_Setting_Int(Top_Bar_File_Content, "Button Size");
+  }
 
 
   // -------------------------------------------- Boot Message - End --------------------------------------------

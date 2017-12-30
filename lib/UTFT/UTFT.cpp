@@ -1355,7 +1355,6 @@ void UTFT::setWritePage(byte page)
 
 void UTFT::Draw_Button(String Button_Text, int Start_X, int Start_Y) {
 
-
 	// Edge
 		setColor(Button_Edge_Color);
 
@@ -1381,8 +1380,8 @@ void UTFT::Draw_Button(String Button_Text, int Start_X, int Start_Y) {
 
 	// Text
 	if (Button_Text != "") {
-		setColor(Button_Text_Color);
-		setBackColor(Button_Text_Color);
+		setColor(Text_Color);
+		setBackColor(Button_Color);
 
 			if (Button_Center_Text == true) {
 				print(
@@ -1405,6 +1404,7 @@ void UTFT::Draw_Button(String Button_Text, int Start_X, int Start_Y) {
 
 
 
+
 int UTFT::Center_Text_Calc_X(String Text, int Button_Size) {
 
 	return Button_Size / 2 - Text.length() * (getFontXsize() / 2);
@@ -1423,6 +1423,54 @@ int UTFT::Center_Text_Calc_Y(String Text, int Button_Size) {
 int UTFT::Center_Text_Calc_Y(String Text) { // Referance only
 	return Center_Text_Calc_Y(Text, Button_Size_Y);
 } // END MARKER - Center_Text_Calc_Y - Reff
+
+
+// ------------------------------------------ Top Bar ------------------------------------------
+void UTFT::Draw_Top_Bar(String Top_Bar_Text) {
+
+	Button_Size_X = getDisplayXSize() - 1;
+	Button_Size_Y = Top_Bar_Size;
+
+	Button_Edge_Size = 0;
+
+	setColor(Button_Color);
+	setBackColor(Button_Color);
+
+
+	Draw_Button(Top_Bar_Text, 0, 0);
+	// Draw_Button(String Button_Text, int Start_X, int Start_Y);
+	// Find_Setting(String &Settings_File_Content, String Setting_Name)
+
+
+  //
+  //
+	// //-------------------------------------------------- Drws Page up / Page down --------------------------------------------------
+	// if (Top_Bar_Page_Number < 9) {
+	// 	Button_Size_2_X = 5 * getFontXsize();
+	// 	Button_Size_2_Y = Top_Bar_Size;
+	// }
+  //
+	// else {
+	// 	Button_Size_2_X = 6 * getFontXsize();
+	// 	Button_Size_2_Y = Top_Bar_Size;
+	// }
+  //
+	// Button_Edge_Size = Top_Bar_Button_Edge_Size;
+  //
+	// if (Top_Bar_Page_Number != 1) {
+	// 	String Page_Number_Text = "<< " + String(Top_Bar_Page_Number - 1);
+  //
+	// 	Draw_Button(Page_Number_Text, 0, 0, true); // Button_Size_2
+	// }
+  //
+	// if (Top_Bar_Page_Number != Top_Bar_Page_Number_Last) {
+	// 	String Page_Number_Text = String(Top_Bar_Page_Number + 1) + " >>";
+  //
+	// 	Draw_Button(Page_Number_Text, getDisplayXSize() - 1 - Button_Size_2_X, 0, true); // Button_Size_2
+	// }
+
+} // END MARKER - Draw_Top_Bar
+
 
 
 //

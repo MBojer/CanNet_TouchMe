@@ -282,7 +282,7 @@ public:
 	int Button_Size_Y;
 
 	word Button_Color;
-	word Button_Text_Color;
+	// word Button_Text_Color;
 
 	word Button_Edge_Color;
 	int Button_Edge_Size;
@@ -298,8 +298,22 @@ public:
 	int Center_Text_Calc_Y(String Text);
 
 
+	// ------------------------------------------ Settings File ------------------------------------------
+	word Text_Color;
+
+	word Edge_Color;
+	byte Edge_Size;
 
 
+	// ------------------------------------------ Top Bar ------------------------------------------
+	void Draw_Top_Bar(String Top_Bar_Text);
+
+	int Top_Bar_Size;
+	int Top_Bar_Button_Size;
+
+
+	// ------------------------------------------ MISC ------------------------------------------
+	int Current_Page = 1;
 
 
 };
