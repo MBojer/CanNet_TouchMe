@@ -333,3 +333,382 @@ void loop() {
 
 
 } // END MARKER - loop
+
+
+// // --------------------------------------------------------------------------------------------
+// // ------------------------------------------ CanNet - UTFT.h ------------------------------------------
+// // --------------------------------------------------------------------------------------------
+//
+// public:
+//
+// 	void Draw_Button(String Button_Text, int Start_X, int Start_Y);
+// 	int Button_Size_X;
+// 	int Button_Size_Y;
+//
+// 	word Button_Color;
+// 	// word Button_Text_Color;
+//
+// 	word Button_Edge_Color;
+// 	int Button_Edge_Size;
+//
+//
+// 	bool Button_Center_Text = true;
+//
+//
+// 	int Center_Text_Calc_X(String Text, int Button_Size);
+// 	int Center_Text_Calc_X(String Text);
+//
+// 	int Center_Text_Calc_Y(String Text, int Button_Size);
+// 	int Center_Text_Calc_Y(String Text);
+//
+//
+// 	// ------------------------------------------ Settings File ------------------------------------------
+// 	word Text_Color;
+//
+// 	word Edge_Color;
+// 	byte Edge_Size;
+//
+//
+// 	// ------------------------------------------ Top Bar ------------------------------------------
+// 	void Draw_Top_Bar(String Top_Bar_Text);
+//
+// 	int Top_Bar_Size;
+// 	int Top_Bar_Button_Size;
+//
+//
+// 	// ------------------------------------------ MISC ------------------------------------------
+// 	int Current_Page = 1;
+
+
+
+// // --------------------------------------------------------------------------------------------
+// // ------------------------------------------ CanNet - UFTF.cpp ------------------------------------------
+// // --------------------------------------------------------------------------------------------
+//
+// void UTFT::Draw_Button(String Button_Text, int Start_X, int Start_Y) {
+//
+// 	// Edge
+// 		setColor(Button_Edge_Color);
+//
+// 		if (Button_Edge_Size == 0);
+//
+// 		else if (Button_Edge_Size == 1) {
+// 			drawRoundRect(Start_X, Start_Y, Start_X + Button_Size_X, Start_Y + Button_Size_Y);
+// 		}
+//
+// 		else {
+// 			fillRoundRect (Start_X, Start_Y, Start_X + Button_Size_X, Start_Y + Button_Size_Y);
+// 		}
+//
+//
+// 	// Button
+// 		setColor(Button_Color);
+// 		fillRoundRect (
+// 										Start_X + Button_Edge_Size,
+// 										Start_Y + Button_Edge_Size,
+// 										Start_X + Button_Size_X - Button_Edge_Size,
+// 										Start_Y + Button_Size_Y - Button_Edge_Size
+// 									);
+//
+// 	// Text
+// 	if (Button_Text != "") {
+// 		setColor(Text_Color);
+// 		setBackColor(Button_Color);
+//
+// 			if (Button_Center_Text == true) {
+// 				print(
+// 					Button_Text,
+// 					Start_X + Center_Text_Calc_X(Button_Text),
+// 					Start_Y + Center_Text_Calc_Y(Button_Text)
+// 				);
+// 			}
+//
+// 			else {
+// 				print( // CHANGE ME TO SOMETHING USEFUL
+// 					Button_Text,
+// 					Start_X + 15,
+// 					Start_Y + 15
+// 				);
+// 			}
+//   } // END MARKER - if (Button_Text != "")
+//
+// } // END MARKER - Draw_Button
+//
+//
+//
+//
+// int UTFT::Center_Text_Calc_X(String Text, int Button_Size) {
+//
+// 	return Button_Size / 2 - Text.length() * (getFontXsize() / 2);
+//
+// } // END MARKER - Center_Text_Calc_X
+//
+// int UTFT::Center_Text_Calc_X(String Text) { // Referance only
+// 	return Center_Text_Calc_X(Text, Button_Size_X);
+// } // END MARKER - Center_Text_Calc_X - Reff
+//
+//
+// int UTFT::Center_Text_Calc_Y(String Text, int Button_Size) {
+// 	return Button_Size / 2 - (getFontYsize() / 2);
+// } // END MARKER - Center_Text_Calc_X
+//
+// int UTFT::Center_Text_Calc_Y(String Text) { // Referance only
+// 	return Center_Text_Calc_Y(Text, Button_Size_Y);
+// } // END MARKER - Center_Text_Calc_Y - Reff
+//
+//
+// // ------------------------------------------ Top Bar ------------------------------------------
+// void UTFT::Draw_Top_Bar(String Top_Bar_Text) {
+//
+// 	Button_Size_X = getDisplayXSize() - 1;
+// 	Button_Size_Y = Top_Bar_Size;
+//
+// 	Button_Edge_Size = 0;
+//
+// 	setColor(Button_Color);
+// 	setBackColor(Button_Color);
+//
+//
+// 	Draw_Button(Top_Bar_Text, 0, 0);
+// 	// Draw_Button(String Button_Text, int Start_X, int Start_Y);
+// 	// Find_Setting(String &Settings_File_Content, String Setting_Name)
+//
+//
+//   //
+//   //
+// 	// //-------------------------------------------------- Drws Page up / Page down --------------------------------------------------
+// 	// if (Top_Bar_Page_Number < 9) {
+// 	// 	Button_Size_2_X = 5 * getFontXsize();
+// 	// 	Button_Size_2_Y = Top_Bar_Size;
+// 	// }
+//   //
+// 	// else {
+// 	// 	Button_Size_2_X = 6 * getFontXsize();
+// 	// 	Button_Size_2_Y = Top_Bar_Size;
+// 	// }
+//   //
+// 	// Button_Edge_Size = Top_Bar_Button_Edge_Size;
+//   //
+// 	// if (Top_Bar_Page_Number != 1) {
+// 	// 	String Page_Number_Text = "<< " + String(Top_Bar_Page_Number - 1);
+//   //
+// 	// 	Draw_Button(Page_Number_Text, 0, 0, true); // Button_Size_2
+// 	// }
+//   //
+// 	// if (Top_Bar_Page_Number != Top_Bar_Page_Number_Last) {
+// 	// 	String Page_Number_Text = String(Top_Bar_Page_Number + 1) + " >>";
+//   //
+// 	// 	Draw_Button(Page_Number_Text, getDisplayXSize() - 1 - Button_Size_2_X, 0, true); // Button_Size_2
+// 	// }
+//
+// } // END MARKER - Draw_Top_Bar
+//
+//
+//
+// //
+// //
+// //
+// // // void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y, bool Use_Button_Size_2) {
+// // //
+// // //
+// // // 		Draw_Button(
+// // // 	    Button_Matrix_Spacing * Button_Number_X + Button_Size_X * (Button_Number_X - 1),
+// // // 	    Top_Bar_Size + Button_Matrix_Spacing * Button_Number_Y + Button_Size_Y * (Button_Number_Y - 1)
+// // // 		);
+// // //
+// // //
+// // //
+// // //
+// // // } // END MARKER - Draw_Button_Matrix
+// // //
+// // // void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y) { // Referance only
+// // //
+// // // 	Draw_Button_Matrix(Button_Text, Button_Number_X, Button_Number_Y, false);
+// // //
+// // // } // END MARKER - Draw_Button_Matrix
+// //
+// //
+// //
+// //
+// // // -----------------------------------------------------------------------------------------------------------------
+// // // ---------------------------------------------------- Top Bar ----------------------------------------------------
+// // // -----------------------------------------------------------------------------------------------------------------
+// //
+// // // void UTFT::Draw_Top_Bar() {
+// // //
+// //   //
+// // 	// //-------------------------------------------------- Drws the top bar --------------------------------------------------
+// // 	// Button_Size_X = getDisplayXSize() - 1;
+// // 	// Button_Size_Y = Top_Bar_Size;
+// // 	// Button_Edge_Size = 0;
+// //   //
+// // 	// Draw_Button(_Top_Bar_Text_Array[Top_Bar_Page_Number - 1], 0, 0);
+// //   //
+// //   //
+// // 	// //-------------------------------------------------- Drws Page up / Page down --------------------------------------------------
+// // 	// if (Top_Bar_Page_Number < 9) {
+// // 	// 	Button_Size_2_X = 5 * getFontXsize();
+// // 	// 	Button_Size_2_Y = Top_Bar_Size;
+// // 	// }
+// //   //
+// // 	// else {
+// // 	// 	Button_Size_2_X = 6 * getFontXsize();
+// // 	// 	Button_Size_2_Y = Top_Bar_Size;
+// // 	// }
+// //   //
+// // 	// Button_Edge_Size = Top_Bar_Button_Edge_Size;
+// //   //
+// // 	// if (Top_Bar_Page_Number != 1) {
+// // 	// 	String Page_Number_Text = "<< " + String(Top_Bar_Page_Number - 1);
+// //   //
+// // 	// 	Draw_Button(Page_Number_Text, 0, 0, true); // Button_Size_2
+// // 	// }
+// //   //
+// // 	// if (Top_Bar_Page_Number != Top_Bar_Page_Number_Last) {
+// // 	// 	String Page_Number_Text = String(Top_Bar_Page_Number + 1) + " >>";
+// //   //
+// // 	// 	Draw_Button(Page_Number_Text, getDisplayXSize() - 1 - Button_Size_2_X, 0, true); // Button_Size_2
+// // 	// }
+// // //
+// // // } // END MARKER - Draw_Top_Bar
+// //
+// //
+// // // void UTFT::Set_Top_Bar_Text(String Top_Bar_Text) {
+// // //
+// // // 	Top_Bar_Page_Number_Last = 0;
+// // //
+// // // 	for (int x = 0; x < 15; x++) {
+// // //
+// // // 		Top_Bar_Page_Number_Last = Top_Bar_Text.indexOf(";", Top_Bar_Page_Number_Last + 1);
+// // //
+// // // 		if (Top_Bar_Page_Number_Last == -1 || Top_Bar_Text.length() == 0) {
+// // // 			Top_Bar_Page_Number_Last = x;
+// // // 			break;
+// // // 		}
+// // //
+// // // 		_Top_Bar_Text_Array[x] = Top_Bar_Text.substring(0, Top_Bar_Text.indexOf(";"));
+// // //
+// // // 		Top_Bar_Text.replace(_Top_Bar_Text_Array[x] + ";", "");
+// // //
+// // // 	} // END MARKER - for loop
+// // //
+// // // } // END MARKER - Set_Top_Bar_Text
+// //
+// // // String UTFT::Get_Top_Bar_Text() {
+// // //
+// // // 	String Return_String;
+// // //
+// // // 	for (int x = 0; x < Top_Bar_Page_Number_Last; x++) {
+// // //
+// // // 		Return_String = Return_String + _Top_Bar_Text_Array[x] + ";";
+// // //
+// // // 	} // END MARKER - for loop
+// // //
+// // // 	return Return_String;
+// // //
+// // // } // END MARKER - Get_Top_Bar_Text
+// //
+// //
+// //
+// // // -------------------------- Slider --------------------------
+// // void UTFT::Draw_Slider(int Potition_X) {
+// //
+// // 	int x = Potition_X;
+// //
+// // 	if (_Slider_Dont_Move_Until > millis()) return;
+// //
+// // 	if (x < Slider_Restrict_X_Begin) {
+// // 		x = Slider_Restrict_X_Begin;
+// // 	}
+// //
+// // 	else if (x > Slider_Restrict_X_End) {
+// // 		Serial.println("MARKER");
+// // 		x = Slider_Restrict_X_End - Slider_Size_X * 10 - Slider_Spacing;
+// // 	}
+// //
+// // 	// ************ Removing the old slider ************
+// // 	if (_Slider_Last_Position == -9999); // -9999 = No marker present
+// //
+// // 	else {
+// // 		setColor(Slider_Color_Replace);
+// // 		fillRoundRect(
+// // 									_Slider_Last_Position,											// x1
+// // 									Slider_Y_Axis,															// y1
+// // 									_Slider_Last_Position + Slider_Size_X,			// x2
+// // 									Slider_Y_Axis + Slider_Size_Y	 							// y2
+// // 									);
+// //
+// // 	} // END MARKER - else
+// //
+// //
+// // 	// ************ Draws the new slider ************
+// // 	setColor(Slider_Color);
+// // 	fillRoundRect(
+// // 								x,											// x1
+// // 								Slider_Y_Axis,									// y1
+// // 								x + Slider_Size_X,			// x2
+// // 								Slider_Y_Axis + Slider_Size_Y	 	// y2
+// // 								);
+// //
+// // 	_Slider_Last_Position = x;
+// // 	_Slider_Dont_Move_Until = millis() + Slider_Dont_Move_For;
+// //
+// // } // END MARKER - Draw_Slider
+// //
+// //
+// //
+// //
+// // // ----------------------------------------- Page_Add_Button -------------------------------------------
+// // void UTFT::Page_Add_Button(byte Page_Number, byte Button_ID, String Button_Text, int Position_X, int Position_Y) {
+// //
+// // 	// if (Page_Buttons[Page_Number].indexOf(String(Page_Number) + ";") != -1) {
+// // 	// 	Serial.println("Button exists, removing then addidng"); // REMOVE ME
+// // 	// 	Page_Remove_Button(Page_Number, Button_ID);
+// // 	// 	Serial.println("Add button again"); // REMOVE ME
+// // 	// }
+// //   //
+// // 	// else {
+// // 	// 	Serial.println("Adding"); // REMOVE ME
+// //   //
+// // 	// 	Page_Buttons[Page_Number] =
+// // 	// 															Page_Buttons[Page_Number] + ";-" +
+// // 	// 															Page_Number + ";" +
+// // 	// 															Button_Text + ";" +
+// // 	// 															Position_X + ";" +
+// // 	// 															Position_Y +
+// // 	// 															"-;";
+// //   //
+// //   //
+// //   //
+// //   //
+// //   //
+// //   //
+// // 	// }
+// //
+// // 	// ID;;Text;;Position_X;;Position_Y
+// // 	// ;-01;;Button 1;;400;;200-;
+// //
+// // };
+// //
+// //
+// // // ----------------------------------------- Page_Enable_Button -------------------------------------------
+// // void UTFT::Page_Enable_Button(byte Page_Number, byte Button_ID) {
+// //
+// // };
+// //
+// // // ----------------------------------------- Page_Disable_Button -------------------------------------------
+// // void UTFT::Page_Disable_Button(byte Page_Number, byte Button_ID) {
+// //
+// // };
+// //
+// // // ----------------------------------------- Page_Remove_Button -------------------------------------------
+// // void UTFT::Page_Remove_Button(byte Page_Number, byte Button_ID) {
+// //
+// // };
+// //
+// // // ----------------------------------------- Page_Draw -------------------------------------------
+// // void UTFT::Page_Draw(byte Page_Number) {
+// //
+// // 	Serial.println("Page_Draw"); // REMOVE ME
+// //
+// // };
