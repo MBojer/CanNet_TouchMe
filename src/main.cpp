@@ -22,6 +22,8 @@
 
 #include <Arduino.h>
 
+#define Max_For_Loop_Runs 101
+
 
 // -------------------------------------------- SD Card --------------------------------------------
 #include <SD.h>
@@ -57,6 +59,7 @@ int Last_Page;
 
 // --------------------- REMOVE ME ---------------------------
 #include <MemoryFree.h>
+unsigned long freeMemory_Last;
 unsigned long freeMemory_Delay_Until;
 #define freeMemory_Delay_For 2000
 // --------------------- REMOVE ME - End ---------------------
@@ -74,156 +77,17 @@ bool Button_Center_Text = true;
 int Top_Bar_Size;
 int Top_Bar_Button_Size;
 
+int Matrix_Spacing;
 
-// --------------------- Draw_Button ---------------------
 int Button_Size_X;
 int Button_Size_Y;
 
-byte Button_Edge_Size;
 
+// --------------------- Draw_Button ---------------------
+int Draw_Size_X;
+int Draw_Size_Y;
 
-
-int Center_Text_Calc_X(String Text, int Button_Size) {
-
-	return Button_Size / 2 - Text.length() * (lcd.getFontXsize() / 2);
-
-} // END MARKER - Center_Text_Calc_X
-
-int Center_Text_Calc_X(String Text) { // Referance only
-	return Center_Text_Calc_X(Text, Button_Size_X);
-} // END MARKER - Center_Text_Calc_X - Reff
-
-
-int Center_Text_Calc_Y(String Text, int Button_Size) {
-	return Button_Size / 2 - (lcd.getFontYsize() / 2);
-} // END MARKER - Center_Text_Calc_X
-
-int Center_Text_Calc_Y(String Text) { // Referance only
-	return Center_Text_Calc_Y(Text, Button_Size_Y);
-} // END MARKER - Center_Text_Calc_Y - Reff
-
-
-
-// ---------------------------------- Draw ----------------------------------
-void Draw_Button(String Button_Text, int Start_X, int Start_Y) {
-
-	if (true) { // Edge
-		lcd.setColor(Edge_Color);
-
-		if (Button_Edge_Size == 0);
-
-		else if (Button_Edge_Size == 1) {
-			lcd.drawRoundRect(Start_X, Start_Y, Start_X + Button_Size_X, Start_Y + Button_Size_Y);
-		}
-
-		else {
-			lcd.fillRoundRect (Start_X, Start_Y, Start_X + Button_Size_X, Start_Y + Button_Size_Y);
-		}
-  } // Edge
-
-	if (true) { // Button
-		lcd.setColor(Button_Color);
-		lcd.fillRoundRect (
-										Start_X + Button_Edge_Size,
-										Start_Y + Button_Edge_Size,
-										Start_X + Button_Size_X - Button_Edge_Size,
-										Start_Y + Button_Size_Y - Button_Edge_Size
-									);
-  } // Button
-
-	if (Button_Text != "") { // Text
-		lcd.setColor(Text_Color);
-		lcd.setBackColor(Button_Color);
-
-			if (Button_Center_Text == true) {
-				lcd.print(
-					Button_Text,
-					Start_X + Center_Text_Calc_X(Button_Text),
-					Start_Y + Center_Text_Calc_Y(Button_Text)
-				);
-			}
-
-			else {
-				lcd.print( // CHANGE ME TO SOMETHING USEFUL
-					Button_Text,
-					Start_X + 15,
-					Start_Y + 15
-				);
-			}
-  } // END MARKER - if (Button_Text != "")
-
-} // END MARKER - Draw_Button
-
-void Draw_Top_Bar(String Top_Bar_Text) {
-
-	Button_Size_X = lcd.getDisplayXSize() - 1;
-	Button_Size_Y = Top_Bar_Size;
-
-	Button_Edge_Size = 0;
-
-  lcd.setColor(Button_Color);
-	lcd.setBackColor(Button_Color);
-
-	Draw_Button(Top_Bar_Text, 0, 0);
-
-  Button_Edge_Size = Edge_Size;
-
-
-	//-------------------------------------------------- Drws Page up / Page down --------------------------------------------------
-  Button_Size_X = Top_Bar_Button_Size;
-	Button_Edge_Size = Edge_Size;
-
-  if (Current_Page < 9) {
-		Button_Size_X = 5 * lcd.getFontXsize();
-	}
-
-	else {
-		Button_Size_X = 6 * lcd.getFontXsize();
-	}
-
-
-	if (Current_Page != 1) {
-		String Page_Number_Text = "<< " + String(Current_Page - 1);
-
-		Draw_Button(Page_Number_Text, 0, 0);
-	}
-
-	if (Current_Page != Last_Page) {
-		String Page_Number_Text = String(Current_Page + 1) + " >>";
-
-		Draw_Button(Page_Number_Text, lcd.getDisplayXSize() - 1 - Button_Size_X, 0);
-	}
-
-
-} // END MARKER - Draw_Top_Bar
-
-void Draw_Page() {
-
-  // if (Page_File_Content[Current_Page])
-
-
-	// Button_Size_X = lcd.getDisplayXSize() - 1;
-	// Button_Size_Y = Top_Bar_Size;
-  //
-	// Button_Edge_Size = 0;
-  //
-  // lcd.setColor(Button_Color);
-	// lcd.setBackColor(Button_Color);
-  //
-	// Draw_Button(Top_Bar_Text, 0, 0);
-  //
-  // Button_Edge_Size = Edge_Size;
-
-  // Draw_Button(Top_Bar_Text, 0, 0);
-
-
-
-
-} // END MARKER - Draw_Page
-
-
-
-// -------------------------------------------- CanNet - URTouch --------------------------------------------
+byte Draw_Edge_Size;
 
 
 // -------------------------------------------- CanNet - MISC --------------------------------------------
@@ -261,7 +125,6 @@ String decToHex(byte decValue, byte desiredStringLength) {
 }
 
 
-
 void Error_Mode(byte Error_Type, String Error_Text) {
 
   // ADD ME - Support for write log file to sd if avalible
@@ -289,7 +152,6 @@ void Error_Mode(byte Error_Type, String Error_Text) {
   } // END MARKER - if (Error_Type == 2) {
 
 } // END MARKER - Error_Mode
-
 
 // -------------------------------------------- CanNet - File Management --------------------------------------------
 String Read_Conf_File(String File_Path, bool Error_Message) {
@@ -337,13 +199,28 @@ String Find_Setting(String &File_Content, String Setting_Name) {
   }
 
 
-
   int Settings_Position = File_Content.indexOf(Search_String) + Search_String.length();
 
   return File_Content.substring(
                                           Settings_Position,
                                           File_Content.indexOf("\r\n", Settings_Position)
                                         );
+
+} // END MARKER - Find_Setting
+
+bool Find_Setting_Bool(String &File_Content, String Setting_Name) {
+
+  Setting_Name = Find_Setting(File_Content, Setting_Name);
+
+  return Setting_Name;
+
+} // END MARKER - Find_Setting
+
+int Find_Setting_Int(String &File_Content, String Setting_Name) {
+
+  Setting_Name = Find_Setting(File_Content, Setting_Name);
+
+  return Setting_Name.toInt();
 
 } // END MARKER - Find_Setting
 
@@ -370,21 +247,251 @@ word Find_Setting_Word(String &File_Content, String Setting_Name) {
 
 } // END MARKER - Find_Setting
 
-int Find_Setting_Int(String &File_Content, String Setting_Name) {
 
-  Setting_Name = Find_Setting(File_Content, Setting_Name);
 
-  return Setting_Name.toInt();
+
+
+String Find_Sub_Setting(String Setting_Content, String Setting_Name) {
+
+  String Search_String = Setting_Name + ":";
+
+  if (Setting_Content.indexOf(Search_String) == -1) {
+    return "";
+  }
+
+  int Settings_Position = Setting_Content.indexOf(Search_String) + Search_String.length();
+
+  return Setting_Content.substring(
+                                          Settings_Position,
+                                          Setting_Content.indexOf(":" + Setting_Name, Settings_Position)
+                                        );
 
 } // END MARKER - Find_Setting
 
-bool Find_Setting_Bool(String &File_Content, String Setting_Name) {
 
-  Setting_Name = Find_Setting(File_Content, Setting_Name);
+int Find_Sub_Setting_Int(String Setting_Content, String Setting_Name) {
 
-  return Setting_Name;
+  String Sub_Search_String = Setting_Name + ":";
 
-} // END MARKER - Find_Setting
+  if (Setting_Content.indexOf(Sub_Search_String) == -1) {
+    return -1;
+  }
+
+  int Settings_Position = Setting_Content.indexOf(Sub_Search_String) + Sub_Search_String.length();
+
+  return Setting_Content.substring(
+                                          Settings_Position,
+                                          Setting_Content.indexOf(" ", Settings_Position)
+                                        ).toInt();
+
+} // END MARKER - Find_Setting_Int
+
+
+
+
+
+
+
+int Center_Text_Calc_X(String Text, int Button_Size) {
+
+	return Button_Size / 2 - Text.length() * (lcd.getFontXsize() / 2);
+
+} // END MARKER - Center_Text_Calc_X
+
+int Center_Text_Calc_X(String Text) { // Referance only
+	return Center_Text_Calc_X(Text, Draw_Size_X);
+} // END MARKER - Center_Text_Calc_X - Reff
+
+
+int Center_Text_Calc_Y(String Text, int Button_Size) {
+	return Button_Size / 2 - (lcd.getFontYsize() / 2);
+} // END MARKER - Center_Text_Calc_X
+
+int Center_Text_Calc_Y(String Text) { // Referance only
+	return Center_Text_Calc_Y(Text, Draw_Size_Y);
+} // END MARKER - Center_Text_Calc_Y - Reff
+
+
+
+// ---------------------------------- Draw ----------------------------------
+void Draw_Button(String Button_Text, int Start_X, int Start_Y) {
+
+	if (true) { // Edge
+		lcd.setColor(Edge_Color);
+
+		if (Draw_Edge_Size == 0);
+
+		else if (Draw_Edge_Size == 1) {
+			lcd.drawRoundRect(Start_X, Start_Y, Start_X + Draw_Size_X, Start_Y + Draw_Size_Y);
+		}
+
+		else {
+			lcd.fillRoundRect (Start_X, Start_Y, Start_X + Draw_Size_X, Start_Y + Draw_Size_Y);
+		}
+  } // Edge
+
+	if (true) { // Button
+		lcd.setColor(Button_Color);
+		lcd.fillRoundRect (
+										Start_X + Draw_Edge_Size,
+										Start_Y + Draw_Edge_Size,
+										Start_X + Draw_Size_X - Draw_Edge_Size,
+										Start_Y + Draw_Size_Y - Draw_Edge_Size
+									);
+  } // Button
+
+	if (Button_Text != "") { // Text
+		lcd.setColor(Text_Color);
+		lcd.setBackColor(Button_Color);
+
+			if (Button_Center_Text == true) {
+				lcd.print(
+					Button_Text,
+					Start_X + Center_Text_Calc_X(Button_Text),
+					Start_Y + Center_Text_Calc_Y(Button_Text)
+				);
+			}
+
+			else {
+				lcd.print( // CHANGE ME TO SOMETHING USEFUL
+					Button_Text,
+					Start_X + 15,
+					Start_Y + 15
+				);
+			}
+  } // END MARKER - if (Button_Text != "")
+
+} // END MARKER - Draw_Button
+
+void Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y) {
+
+  Draw_Button(
+              Button_Text,
+              Matrix_Spacing * Button_Number_X + Draw_Size_X * (Button_Number_X - 1),
+        	    Top_Bar_Size + Matrix_Spacing * Button_Number_Y + Draw_Size_Y * (Button_Number_Y - 1)
+  );
+
+} // END MARKER - Draw_Button_Matrix
+
+void Draw_Top_Bar(String Top_Bar_Text) {
+
+	Draw_Size_X = lcd.getDisplayXSize() - 1;
+	Draw_Size_Y = Top_Bar_Size;
+
+	Draw_Edge_Size = 0;
+
+  lcd.setColor(Button_Color);
+	lcd.setBackColor(Button_Color);
+
+	Draw_Button(Top_Bar_Text, 0, 0);
+
+  Draw_Edge_Size = Edge_Size;
+
+
+	//-------------------------------------------------- Drws Page up / Page down --------------------------------------------------
+  Draw_Size_X = Top_Bar_Button_Size;
+	Draw_Edge_Size = Edge_Size;
+
+  if (Current_Page < 9) {
+		Draw_Size_X = 5 * lcd.getFontXsize();
+	}
+
+	else {
+		Draw_Size_X = 6 * lcd.getFontXsize();
+	}
+
+
+	if (Current_Page != 1) {
+		String Page_Number_Text = "<< " + String(Current_Page - 1);
+
+		Draw_Button(Page_Number_Text, 0, 0);
+	}
+
+	if (Current_Page != Last_Page) {
+		String Page_Number_Text = String(Current_Page + 1) + " >>";
+
+		Draw_Button(Page_Number_Text, lcd.getDisplayXSize() - 1 - Draw_Size_X, 0);
+	}
+
+
+} // END MARKER - Draw_Top_Bar
+
+
+
+
+void Draw_Page(String Page_Content) {
+
+  if (Page_Content == "") return; // Nothing in the file so nothing to do
+
+  Page_Content.replace("\r\nName = " + Find_Setting(Page_Content, "Name"), "");
+
+  for (int x = 0; x < Max_For_Loop_Runs; x++) {
+
+    // ---------------------------------- Matrix Button ----------------------------------
+    if (Page_Content.indexOf("\r\nMatrix Button = ") != -1) {
+
+      Draw_Size_X = Button_Size_X;
+      Draw_Size_Y = Button_Size_Y;
+
+      String Button_Settings = Find_Setting(Page_Content, "Matrix Button");
+
+      Draw_Button_Matrix(
+                          Find_Sub_Setting(Button_Settings, "N"),
+                          Find_Sub_Setting_Int(Button_Settings, "X"),
+                          Find_Sub_Setting_Int(Button_Settings, "Y")
+      );
+
+      Page_Content.replace("\r\nMatrix Button = " + Button_Settings, ""); // Removed the entry that was just drawn
+    } // Matrix Button
+
+
+    // ---------------------------------- Matrix Slider ----------------------------------
+    if (Page_Content.indexOf("\r\nMatrix Slider = ") != -1) {
+
+      Draw_Size_Y = Button_Size_Y;
+
+      String Slider_Settings = Find_Setting(Page_Content, "Matrix Slider");
+
+      if (Find_Sub_Setting_Int(Slider_Settings, "X") == 0) {
+        Draw_Size_X = lcd.getDisplayXSize() - Matrix_Spacing * 2;
+
+        Draw_Button_Matrix("", 1, Find_Sub_Setting_Int(Slider_Settings, "Y"));
+      } // X == 0
+
+      else { // X != 0
+        Draw_Size_X = Button_Size_X;
+
+        Draw_Button_Matrix(
+                            "",
+                            Find_Sub_Setting_Int(Slider_Settings, "X"),
+                            Find_Sub_Setting_Int(Slider_Settings, "Y")
+        );
+      } // X != 0
+
+      Page_Content.replace("\r\nMatrix Slider = " + Slider_Settings, ""); // Removed the entry that was just drawn
+    } // Matrix Slider
+
+
+    // ---------------------------------- End of loop cheks ----------------------------------
+    else if (Page_Content == "Settings:\r\n") break; // No entries left in file
+
+    else if (x == Max_For_Loop_Runs - 1) {
+      Page_Content.replace("Settings:\r\n", "");
+      Error_Mode(2, "Draw_Page, Settings left over:\r\n" + Page_Content);
+      break; // Assuming error in page file
+    }
+
+  }
+
+} // END MARKER - Draw_Page
+
+
+
+// -------------------------------------------- CanNet - URTouch --------------------------------------------
+
+
+
+
 
 
 
@@ -395,6 +502,8 @@ void Top_Bar() {
   if (Top_Bar_Present == true) {
     Draw_Top_Bar(Find_Setting(Page_File_Content, "Name"));
   }
+
+  Draw_Page(Page_File_Content);
 
 } // END MARKER - Top_Bar
 
@@ -459,6 +568,18 @@ void setup() {
     Button_Center_Text = Find_Setting_Bool(File_Content, "Button Center Text");
   }
 
+  if (File_Content.indexOf("\r\nMatrix Spacing = ") != -1) {
+    Matrix_Spacing = Find_Setting_Int(File_Content, "Matrix Spacing");
+  }
+
+  if (File_Content.indexOf("\r\nButton Size X = ") != -1) {
+    Button_Size_X = Find_Setting_Int(File_Content, "Button Size X");
+  }
+
+  if (File_Content.indexOf("\r\nButton Size Y = ") != -1) {
+    Button_Size_Y = Find_Setting_Int(File_Content, "Button Size Y");
+  }
+
 
   // -------------------------------------------- Top Bar file import --------------------------------------------
   File_Content = Read_Conf_File(Top_Bar_File_Path);
@@ -479,21 +600,24 @@ void setup() {
 
 
   // -------------------------------------------- Page file import --------------------------------------------
-  byte Loop_Counter = 0;
-  while (true) {
+  for (int x = 1; x < Max_For_Loop_Runs; x++) {
 
-    Loop_Counter++;
-
-    if (SD.exists(String(Page_File_Path) + "Page_" + Loop_Counter + ".txt")) {
-      if (Loop_Counter == Current_Page) {
-        Page_File_Content = Read_Conf_File(String(Page_File_Path) + "Page_" + Loop_Counter + ".txt", false);
+    if (SD.exists(String(Page_File_Path) + "Page_" + x + ".txt")) {
+      if (x == Current_Page) {
+        Page_File_Content = Read_Conf_File(String(Page_File_Path) + "Page_" + x + ".txt", false);
       }
     }
 
+    else if (x == Max_For_Loop_Runs - 1) {
+      Error_Mode(2, "Page file import: for ran 100 loop");
+    }
+
     else {
-      Last_Page = Loop_Counter - 1;
+      Last_Page = x - 1;
       break;
     }
+
+
   }
 
 
@@ -510,10 +634,18 @@ void setup() {
 void loop() {
   // --------------------- REMOVE ME ---------------------------
   if (freeMemory_Delay_Until < millis()) { // REMOVE ME
-    Serial.print("freeMemory()=");
-    Serial.println(freeMemory());
 
-    // myGLCD.Draw_Button_Matrix(String(freeMemory()), 2, 2);
+    unsigned long mesurement = freeMemory();
+
+    if (freeMemory_Last != mesurement) {
+      Serial.print("freeMemory()=");
+      Serial.println(mesurement);
+      freeMemory_Last = mesurement;
+    }
+
+
+
+
 
     freeMemory_Delay_Until = millis() + freeMemory_Delay_For;
   }
@@ -528,14 +660,14 @@ void loop() {
 // public:
 //
 // 	void Draw_Button(String Button_Text, int Start_X, int Start_Y);
-// 	int Button_Size_X;
-// 	int Button_Size_Y;
+// 	int Draw_Size_X;
+// 	int Draw_Size_Y;
 //
 // 	word Button_Color;
 // 	// word Button_Text_Color;
 //
 // 	word Button_Edge_Color;
-// 	int Button_Edge_Size;
+// 	int Draw_Edge_Size;
 //
 //
 // 	bool Button_Center_Text = true;
@@ -564,9 +696,9 @@ void loop() {
 //
 // 	// ------------------------------------------ MISC ------------------------------------------
 // 	int Current_Page = 1;
-
-
-
+//
+//
+//
 // // --------------------------------------------------------------------------------------------
 // // ------------------------------------------ CanNet - UFTF.cpp ------------------------------------------
 // // --------------------------------------------------------------------------------------------
@@ -576,24 +708,24 @@ void loop() {
 // 	// Edge
 // 		setColor(Button_Edge_Color);
 //
-// 		if (Button_Edge_Size == 0);
+// 		if (Draw_Edge_Size == 0);
 //
-// 		else if (Button_Edge_Size == 1) {
-// 			drawRoundRect(Start_X, Start_Y, Start_X + Button_Size_X, Start_Y + Button_Size_Y);
+// 		else if (Draw_Edge_Size == 1) {
+// 			drawRoundRect(Start_X, Start_Y, Start_X + Draw_Size_X, Start_Y + Draw_Size_Y);
 // 		}
 //
 // 		else {
-// 			fillRoundRect (Start_X, Start_Y, Start_X + Button_Size_X, Start_Y + Button_Size_Y);
+// 			fillRoundRect (Start_X, Start_Y, Start_X + Draw_Size_X, Start_Y + Draw_Size_Y);
 // 		}
 //
 //
 // 	// Button
 // 		setColor(Button_Color);
 // 		fillRoundRect (
-// 										Start_X + Button_Edge_Size,
-// 										Start_Y + Button_Edge_Size,
-// 										Start_X + Button_Size_X - Button_Edge_Size,
-// 										Start_Y + Button_Size_Y - Button_Edge_Size
+// 										Start_X + Draw_Edge_Size,
+// 										Start_Y + Draw_Edge_Size,
+// 										Start_X + Draw_Size_X - Draw_Edge_Size,
+// 										Start_Y + Draw_Size_Y - Draw_Edge_Size
 // 									);
 //
 // 	// Text
@@ -630,7 +762,7 @@ void loop() {
 // } // END MARKER - Center_Text_Calc_X
 //
 // int UTFT::Center_Text_Calc_X(String Text) { // Referance only
-// 	return Center_Text_Calc_X(Text, Button_Size_X);
+// 	return Center_Text_Calc_X(Text, Draw_Size_X);
 // } // END MARKER - Center_Text_Calc_X - Reff
 //
 //
@@ -639,17 +771,17 @@ void loop() {
 // } // END MARKER - Center_Text_Calc_X
 //
 // int UTFT::Center_Text_Calc_Y(String Text) { // Referance only
-// 	return Center_Text_Calc_Y(Text, Button_Size_Y);
+// 	return Center_Text_Calc_Y(Text, Draw_Size_Y);
 // } // END MARKER - Center_Text_Calc_Y - Reff
 //
 //
 // // ------------------------------------------ Top Bar ------------------------------------------
 // void UTFT::Draw_Top_Bar(String Top_Bar_Text) {
 //
-// 	Button_Size_X = getDisplayXSize() - 1;
-// 	Button_Size_Y = Top_Bar_Size;
+// 	Draw_Size_X = getDisplayXSize() - 1;
+// 	Draw_Size_Y = Top_Bar_Size;
 //
-// 	Button_Edge_Size = 0;
+// 	Draw_Edge_Size = 0;
 //
 // 	setColor(Button_Color);
 // 	setBackColor(Button_Color);
@@ -673,7 +805,7 @@ void loop() {
 // 	// 	Button_Size_2_Y = Top_Bar_Size;
 // 	// }
 //   //
-// 	// Button_Edge_Size = Top_Bar_Button_Edge_Size;
+// 	// Draw_Edge_Size = Top_Bar_Draw_Edge_Size;
 //   //
 // 	// if (Top_Bar_Page_Number != 1) {
 // 	// 	String Page_Number_Text = "<< " + String(Top_Bar_Page_Number - 1);
@@ -698,8 +830,8 @@ void loop() {
 // // //
 // // //
 // // // 		Draw_Button(
-// // // 	    Button_Matrix_Spacing * Button_Number_X + Button_Size_X * (Button_Number_X - 1),
-// // // 	    Top_Bar_Size + Button_Matrix_Spacing * Button_Number_Y + Button_Size_Y * (Button_Number_Y - 1)
+// // // 	    Button_Matrix_Spacing * Button_Number_X + Draw_Size_X * (Button_Number_X - 1),
+// // // 	    Top_Bar_Size + Button_Matrix_Spacing * Button_Number_Y + Draw_Size_Y * (Button_Number_Y - 1)
 // // // 		);
 // // //
 // // //
@@ -724,9 +856,9 @@ void loop() {
 // // //
 // //   //
 // // 	// //-------------------------------------------------- Drws the top bar --------------------------------------------------
-// // 	// Button_Size_X = getDisplayXSize() - 1;
-// // 	// Button_Size_Y = Top_Bar_Size;
-// // 	// Button_Edge_Size = 0;
+// // 	// Draw_Size_X = getDisplayXSize() - 1;
+// // 	// Draw_Size_Y = Top_Bar_Size;
+// // 	// Draw_Edge_Size = 0;
 // //   //
 // // 	// Draw_Button(_Top_Bar_Text_Array[Top_Bar_Page_Number - 1], 0, 0);
 // //   //
@@ -742,7 +874,7 @@ void loop() {
 // // 	// 	Button_Size_2_Y = Top_Bar_Size;
 // // 	// }
 // //   //
-// // 	// Button_Edge_Size = Top_Bar_Button_Edge_Size;
+// // 	// Draw_Edge_Size = Top_Bar_Draw_Edge_Size;
 // //   //
 // // 	// if (Top_Bar_Page_Number != 1) {
 // // 	// 	String Page_Number_Text = "<< " + String(Top_Bar_Page_Number - 1);
