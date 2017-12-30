@@ -22,8 +22,6 @@
 
 #include <Arduino.h>
 
-#define Max_Number_Of_Pages 15 // Used all over
-
 
 // -------------------------------------------- SD Card --------------------------------------------
 #include <SD.h>
@@ -35,10 +33,10 @@ String File_Content;
 #define Setting_File_Path "/TouchMe/Settings.txt"
 
 #define Top_Bar_File_Path "/TouchMe/Top_Bar.txt"
-String Top_Bar_File_Content;
+bool Top_Bar_Present = false;
 
 #define Page_File_Path "/TouchMe/" // Adding the page names later in a loop
-String Page_File_Content[Max_Number_Of_Pages];
+String Page_File_Content;
 
 
 // -------------------------------------------- LCD --------------------------------------------
@@ -112,9 +110,9 @@ void Draw_Button(String Button_Text, int Start_X, int Start_Y) {
 	if (true) { // Edge
 		lcd.setColor(Edge_Color);
 
-		if (Edge_Size == 0);
+		if (Button_Edge_Size == 0);
 
-		else if (Edge_Size == 1) {
+		else if (Button_Edge_Size == 1) {
 			lcd.drawRoundRect(Start_X, Start_Y, Start_X + Button_Size_X, Start_Y + Button_Size_Y);
 		}
 
@@ -126,10 +124,10 @@ void Draw_Button(String Button_Text, int Start_X, int Start_Y) {
 	if (true) { // Button
 		lcd.setColor(Button_Color);
 		lcd.fillRoundRect (
-										Start_X + Edge_Size,
-										Start_Y + Edge_Size,
-										Start_X + Button_Size_X - Edge_Size,
-										Start_Y + Button_Size_Y - Edge_Size
+										Start_X + Button_Edge_Size,
+										Start_Y + Button_Edge_Size,
+										Start_X + Button_Size_X - Button_Edge_Size,
+										Start_Y + Button_Size_Y - Button_Edge_Size
 									);
   } // Button
 
@@ -151,7 +149,6 @@ void Draw_Button(String Button_Text, int Start_X, int Start_Y) {
 					Start_X + 15,
 					Start_Y + 15
 				);
-        Serial.println("MARKER"); // REMOVE ME
 			}
   } // END MARKER - if (Button_Text != "")
 
@@ -171,36 +168,58 @@ void Draw_Top_Bar(String Top_Bar_Text) {
 
   Button_Edge_Size = Edge_Size;
 
-  // Draw_Button(Top_Bar_Text, 0, 0);
+
+	//-------------------------------------------------- Drws Page up / Page down --------------------------------------------------
+  Button_Size_X = Top_Bar_Button_Size;
+	Button_Edge_Size = Edge_Size;
+
+  if (Current_Page < 9) {
+		Button_Size_X = 5 * lcd.getFontXsize();
+	}
+
+	else {
+		Button_Size_X = 6 * lcd.getFontXsize();
+	}
 
 
-  	//-------------------------------------------------- Drws Page up / Page down --------------------------------------------------
-    Button_Size_X = Top_Bar_Button_Size;
-  	Button_Edge_Size = Edge_Size;
+	if (Current_Page != 1) {
+		String Page_Number_Text = "<< " + String(Current_Page - 1);
 
-    if (Current_Page < 9) {
-  		Button_Size_X = 5 * lcd.getFontXsize();
-  	}
+		Draw_Button(Page_Number_Text, 0, 0);
+	}
 
-  	else {
-  		Button_Size_X = 6 * lcd.getFontXsize();
-  	}
+	if (Current_Page != Last_Page) {
+		String Page_Number_Text = String(Current_Page + 1) + " >>";
 
-
-  	if (Current_Page != 1) {
-  		String Page_Number_Text = "<< " + String(Current_Page - 1);
-
-  		Draw_Button(Page_Number_Text, 0, 0);
-  	}
-
-  	if (Current_Page != Last_Page) {
-  		String Page_Number_Text = String(Current_Page + 1) + " >>";
-
-  		Draw_Button(Page_Number_Text, lcd.getDisplayXSize() - 1 - Button_Size_X, 0);
-  	}
+		Draw_Button(Page_Number_Text, lcd.getDisplayXSize() - 1 - Button_Size_X, 0);
+	}
 
 
 } // END MARKER - Draw_Top_Bar
+
+void Draw_Page() {
+
+  // if (Page_File_Content[Current_Page])
+
+
+	// Button_Size_X = lcd.getDisplayXSize() - 1;
+	// Button_Size_Y = Top_Bar_Size;
+  //
+	// Button_Edge_Size = 0;
+  //
+  // lcd.setColor(Button_Color);
+	// lcd.setBackColor(Button_Color);
+  //
+	// Draw_Button(Top_Bar_Text, 0, 0);
+  //
+  // Button_Edge_Size = Edge_Size;
+
+  // Draw_Button(Top_Bar_Text, 0, 0);
+
+
+
+
+} // END MARKER - Draw_Page
 
 
 
@@ -373,20 +392,14 @@ void Top_Bar() {
 
   lcd.clrScr();
 
-  if (Top_Bar_File_Content != "") {
-    Draw_Top_Bar(Find_Setting(Page_File_Content[Current_Page], "Name"));
+  if (Top_Bar_Present == true) {
+    Draw_Top_Bar(Find_Setting(Page_File_Content, "Name"));
   }
-
-
-
-
-
-
-
 
 } // END MARKER - Top_Bar
 
 
+// -------------------------------------------- Setup --------------------------------------------
 void setup() {
 
   // -------------------------------------------- Serial --------------------------------------------
@@ -446,33 +459,41 @@ void setup() {
     Button_Center_Text = Find_Setting_Bool(File_Content, "Button Center Text");
   }
 
+
+  // -------------------------------------------- Top Bar file import --------------------------------------------
+  File_Content = Read_Conf_File(Top_Bar_File_Path);
+
+  if (File_Content != "") {
+    Top_Bar_Present = true;
+  }
+
+  if (File_Content.indexOf("\r\nSize = ") != -1) {
+    Top_Bar_Size = Find_Setting_Int(File_Content, "Size");
+  }
+
+  if (File_Content.indexOf("\r\nButton Size = ") != -1) {
+    Top_Bar_Button_Size = Find_Setting_Int(File_Content, "Button Size");
+  }
+
   File_Content = "";
 
 
-  // -------------------------------------------- Top Bar file import --------------------------------------------
-  Top_Bar_File_Content = Read_Conf_File(Top_Bar_File_Path);
-
-
-  if (Top_Bar_File_Content.indexOf("\r\nSize = ") != -1) {
-    Top_Bar_Size = Find_Setting_Int(Top_Bar_File_Content, "Size");
-  }
-
-  if (Top_Bar_File_Content.indexOf("\r\nButton Size = ") != -1) {
-    Top_Bar_Button_Size = Find_Setting_Int(Top_Bar_File_Content, "Button Size");
-  }
-
-
-
   // -------------------------------------------- Page file import --------------------------------------------
-  for (int x = 1; x < Max_Number_Of_Pages; x++) {
+  byte Loop_Counter = 0;
+  while (true) {
 
-    Page_File_Content[x] = Read_Conf_File(String(Page_File_Path) + "Page_" + x + ".txt", false);
+    Loop_Counter++;
 
-    if (Page_File_Content[x] == "") {
-      Last_Page = x - 1;
-      break;
+    if (SD.exists(String(Page_File_Path) + "Page_" + Loop_Counter + ".txt")) {
+      if (Loop_Counter == Current_Page) {
+        Page_File_Content = Read_Conf_File(String(Page_File_Path) + "Page_" + Loop_Counter + ".txt", false);
+      }
     }
 
+    else {
+      Last_Page = Loop_Counter - 1;
+      break;
+    }
   }
 
 
