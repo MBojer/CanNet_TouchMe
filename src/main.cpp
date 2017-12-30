@@ -49,12 +49,24 @@ extern uint8_t GroteskBold16x32[];
 
 // -------------------------------------------- Touch --------------------------------------------
 #include <URTouch.h>
-URTouch myTouch( 6, 5, 4, 3, 2);
+URTouch touch( 6, 5, 4, 3, 2);
+
+int Touch_Input_X;
+int Touch_Input_Y;
+
+// -------------------------------------------- Touch - Top Bar --------------------------------------------
+int Top_Bar_Button_Spaceing;
+byte Top_Bar_Button_Pressed;
+
+
+// -------------------------------------------- Touch - Millis --------------------------------------------
+#define Top_Bar_Ignore_Input_For 1000
+unsigned long Top_Bar_Ignore_Input_Untill;
 
 
 // -------------------------------------------- MISC --------------------------------------------
 int Current_Page = 1;
-int Last_Page;
+int Last_Page = 1;
 
 
 // --------------------- REMOVE ME ---------------------------
@@ -144,14 +156,14 @@ void Error_Mode(byte Error_Type, String Error_Text) {
       delay(1000);
     }
 
-  } // END MARKER - if (Error_Type == 1) {
+  } // if (Error_Type == 1) {
 
   if (Error_Type == 2) {
       Serial.print("ERROR: ");
       Serial.println(Error_Text);
-  } // END MARKER - if (Error_Type == 2) {
+  } // if (Error_Type == 2) {
 
-} // END MARKER - Error_Mode
+} // Error_Mode
 
 // -------------------------------------------- CanNet - File Management --------------------------------------------
 String Read_Conf_File(String File_Path, bool Error_Message) {
@@ -187,7 +199,7 @@ String Read_Conf_File(String File_Path, bool Error_Message) {
 
 String Read_Conf_File(String File_Path) { // Referance only
   return Read_Conf_File(File_Path, true);
-} // END MARKER - Read_Conf_File
+} // Read_Conf_File
 
 
 String Find_Setting(String &File_Content, String Setting_Name) {
@@ -206,7 +218,7 @@ String Find_Setting(String &File_Content, String Setting_Name) {
                                           File_Content.indexOf("\r\n", Settings_Position)
                                         );
 
-} // END MARKER - Find_Setting
+} // Find_Setting
 
 bool Find_Setting_Bool(String &File_Content, String Setting_Name) {
 
@@ -214,7 +226,7 @@ bool Find_Setting_Bool(String &File_Content, String Setting_Name) {
 
   return Setting_Name;
 
-} // END MARKER - Find_Setting
+} // Find_Setting
 
 int Find_Setting_Int(String &File_Content, String Setting_Name) {
 
@@ -222,7 +234,7 @@ int Find_Setting_Int(String &File_Content, String Setting_Name) {
 
   return Setting_Name.toInt();
 
-} // END MARKER - Find_Setting
+} // Find_Setting
 
 word Find_Setting_Word(String &File_Content, String Setting_Name) {
 
@@ -245,7 +257,7 @@ word Find_Setting_Word(String &File_Content, String Setting_Name) {
 
   return word(hexToDec(Temp_String));
 
-} // END MARKER - Find_Setting
+} // Find_Setting
 
 
 
@@ -266,7 +278,7 @@ String Find_Sub_Setting(String Setting_Content, String Setting_Name) {
                                           Setting_Content.indexOf(":" + Setting_Name, Settings_Position)
                                         );
 
-} // END MARKER - Find_Setting
+} // Find_Setting
 
 
 int Find_Sub_Setting_Int(String Setting_Content, String Setting_Name) {
@@ -284,7 +296,7 @@ int Find_Sub_Setting_Int(String Setting_Content, String Setting_Name) {
                                           Setting_Content.indexOf(" ", Settings_Position)
                                         ).toInt();
 
-} // END MARKER - Find_Setting_Int
+} // Find_Setting_Int
 
 
 
@@ -296,20 +308,20 @@ int Center_Text_Calc_X(String Text, int Button_Size) {
 
 	return Button_Size / 2 - Text.length() * (lcd.getFontXsize() / 2);
 
-} // END MARKER - Center_Text_Calc_X
+} // Center_Text_Calc_X
 
 int Center_Text_Calc_X(String Text) { // Referance only
 	return Center_Text_Calc_X(Text, Draw_Size_X);
-} // END MARKER - Center_Text_Calc_X - Reff
+} // Center_Text_Calc_X - Reff
 
 
 int Center_Text_Calc_Y(String Text, int Button_Size) {
 	return Button_Size / 2 - (lcd.getFontYsize() / 2);
-} // END MARKER - Center_Text_Calc_X
+} // Center_Text_Calc_X
 
 int Center_Text_Calc_Y(String Text) { // Referance only
 	return Center_Text_Calc_Y(Text, Draw_Size_Y);
-} // END MARKER - Center_Text_Calc_Y - Reff
+} // Center_Text_Calc_Y - Reff
 
 
 
@@ -359,9 +371,9 @@ void Draw_Button(String Button_Text, int Start_X, int Start_Y) {
 					Start_Y + 15
 				);
 			}
-  } // END MARKER - if (Button_Text != "")
+  } // if (Button_Text != "")
 
-} // END MARKER - Draw_Button
+} // Draw_Button
 
 void Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y) {
 
@@ -371,7 +383,7 @@ void Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Nu
         	    Top_Bar_Size + Matrix_Spacing * Button_Number_Y + Draw_Size_Y * (Button_Number_Y - 1)
   );
 
-} // END MARKER - Draw_Button_Matrix
+} // Draw_Button_Matrix
 
 void Draw_Top_Bar(String Top_Bar_Text) {
 
@@ -414,10 +426,7 @@ void Draw_Top_Bar(String Top_Bar_Text) {
 	}
 
 
-} // END MARKER - Draw_Top_Bar
-
-
-
+} // Draw_Top_Bar
 
 void Draw_Page(String Page_Content) {
 
@@ -483,7 +492,7 @@ void Draw_Page(String Page_Content) {
 
   }
 
-} // END MARKER - Draw_Page
+} // Draw_Page
 
 
 
@@ -492,10 +501,10 @@ void Draw_Page(String Page_Content) {
 
 
 
-
-
-
+// -------------------------------------------- Top_Bar --------------------------------------------
 void Top_Bar() {
+
+  Page_File_Content = Read_Conf_File(String(Page_File_Path) + "Page_" + Current_Page + ".txt", false);
 
   lcd.clrScr();
 
@@ -505,7 +514,98 @@ void Top_Bar() {
 
   Draw_Page(Page_File_Content);
 
-} // END MARKER - Top_Bar
+} // Top_Bar
+
+byte Get_Top_Bar_Button_Number(int Input_X, int Input_Y) {
+
+	if (Input_Y > Top_Bar_Size) { // Input not matching top bar
+		Top_Bar_Button_Pressed = 0;
+	}
+
+	else if (Top_Bar_Ignore_Input_Untill > millis()) { // Pressed to soon ignoreing input
+		Top_Bar_Button_Pressed = 0;
+	}
+
+	else if (Input_Y > 0 && Input_Y < Top_Bar_Size) { // Y - Input matching top bar
+
+
+		if (Input_X > 0 && Input_X < Top_Bar_Button_Size) { // X - Page Down
+			Top_Bar_Ignore_Input_Untill = millis() + Top_Bar_Ignore_Input_For;
+			Top_Bar_Button_Pressed = 1;
+		}
+
+		else if (
+							Input_X > Top_Bar_Button_Size + Top_Bar_Button_Spaceing &&
+							Input_X < Top_Bar_Button_Size + Top_Bar_Button_Spaceing + Top_Bar_Button_Size
+						) { // X - Page Up
+
+			Top_Bar_Ignore_Input_Untill = millis() + Top_Bar_Ignore_Input_For;
+			Top_Bar_Button_Pressed = 2;
+		}
+
+	} // else if (Input_Y > 0 && Input_Y < _Top_Bar_Size)
+
+	return Top_Bar_Button_Pressed;
+
+}  // Get_Top_Bar_Button_Number
+
+void Top_Bar_Touch() {
+
+  if (!touch.dataAvailable() || Touch_Input_Y == -1) return;
+
+  else if (Get_Top_Bar_Button_Number(Touch_Input_X, Touch_Input_Y) != 0) {
+
+    if (Top_Bar_Button_Pressed == 1) {
+
+      Serial.println("Marker");
+
+      if (Current_Page == 1); // Ingnore input if you are at page 1
+
+      else {
+        Current_Page = Current_Page - 1;
+        Top_Bar();
+      } // else
+    }
+
+    else if (Top_Bar_Button_Pressed == 2) {
+
+      if (Current_Page == Last_Page); // Ingnore input if you are at the last page
+
+      else {
+        Current_Page = Current_Page + 1;
+        Top_Bar();
+      } // else
+    }
+
+  } // else if
+
+} // Top_Bar_Touch
+
+
+// -------------------------------------------- Touch Check --------------------------------------------
+void Touch_Check() {
+
+  touch.read();
+
+  Touch_Input_X = touch.getX();
+  Touch_Input_Y = touch.getY();
+
+  Top_Bar_Touch();
+
+
+  // if (myTouch.Stabilize_Input(Touch_Input_X, Touch_Input_Y) == 1)  return; // Touch input diviated to much returning
+
+
+  // // --------------------------------------------- 1 - Main Page ---------------------------------------------
+  // if (Current_Page == 1) {
+  // // Main_Page_Touch();
+  // }
+  //
+  // // --------------------------------------------- 2 - Relay Page ---------------------------------------------
+  // else if (Current_Page == 2) { // CHANGE BELOW
+  // }
+
+} // Touch_Check
 
 
 // -------------------------------------------- Setup --------------------------------------------
@@ -533,8 +633,8 @@ void setup() {
 
 
   // -------------------------------------------- Touch --------------------------------------------
-  myTouch.InitTouch();
-  myTouch.setPrecision(PREC_MEDIUM);
+  touch.InitTouch();
+  touch.setPrecision(PREC_MEDIUM);
 
 
   // -------------------------------------------- Boot Message --------------------------------------------
@@ -602,11 +702,7 @@ void setup() {
   // -------------------------------------------- Page file import --------------------------------------------
   for (int x = 1; x < Max_For_Loop_Runs; x++) {
 
-    if (SD.exists(String(Page_File_Path) + "Page_" + x + ".txt")) {
-      if (x == Current_Page) {
-        Page_File_Content = Read_Conf_File(String(Page_File_Path) + "Page_" + x + ".txt", false);
-      }
-    }
+    if (SD.exists(String(Page_File_Path) + "Page_" + x + ".txt"));
 
     else if (x == Max_For_Loop_Runs - 1) {
       Error_Mode(2, "Page file import: for ran 100 loop");
@@ -629,9 +725,10 @@ void setup() {
 
   Top_Bar();
 
-} // END MARKER - setup
+} // setup
 
 void loop() {
+
   // --------------------- REMOVE ME ---------------------------
   if (freeMemory_Delay_Until < millis()) { // REMOVE ME
 
@@ -643,14 +740,22 @@ void loop() {
       freeMemory_Last = mesurement;
     }
 
-
-
-
-
     freeMemory_Delay_Until = millis() + freeMemory_Delay_For;
   }
   // --------------------- REMOVE ME - End ---------------------------
-}
+
+
+
+  Touch_Check();
+
+
+
+
+
+
+} // loop
+
+
 
 
 // // --------------------------------------------------------------------------------------------
@@ -748,9 +853,9 @@ void loop() {
 // 					Start_Y + 15
 // 				);
 // 			}
-//   } // END MARKER - if (Button_Text != "")
+//   } // if (Button_Text != "")
 //
-// } // END MARKER - Draw_Button
+// } // Draw_Button
 //
 //
 //
@@ -759,20 +864,20 @@ void loop() {
 //
 // 	return Button_Size / 2 - Text.length() * (getFontXsize() / 2);
 //
-// } // END MARKER - Center_Text_Calc_X
+// } // Center_Text_Calc_X
 //
 // int UTFT::Center_Text_Calc_X(String Text) { // Referance only
 // 	return Center_Text_Calc_X(Text, Draw_Size_X);
-// } // END MARKER - Center_Text_Calc_X - Reff
+// } // Center_Text_Calc_X - Reff
 //
 //
 // int UTFT::Center_Text_Calc_Y(String Text, int Button_Size) {
 // 	return Button_Size / 2 - (getFontYsize() / 2);
-// } // END MARKER - Center_Text_Calc_X
+// } // Center_Text_Calc_X
 //
 // int UTFT::Center_Text_Calc_Y(String Text) { // Referance only
 // 	return Center_Text_Calc_Y(Text, Draw_Size_Y);
-// } // END MARKER - Center_Text_Calc_Y - Reff
+// } // Center_Text_Calc_Y - Reff
 //
 //
 // // ------------------------------------------ Top Bar ------------------------------------------
@@ -819,7 +924,7 @@ void loop() {
 // 	// 	Draw_Button(Page_Number_Text, getDisplayXSize() - 1 - Button_Size_2_X, 0, true); // Button_Size_2
 // 	// }
 //
-// } // END MARKER - Draw_Top_Bar
+// } // Draw_Top_Bar
 //
 //
 //
@@ -837,13 +942,13 @@ void loop() {
 // // //
 // // //
 // // //
-// // // } // END MARKER - Draw_Button_Matrix
+// // // } // Draw_Button_Matrix
 // // //
 // // // void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y) { // Referance only
 // // //
 // // // 	Draw_Button_Matrix(Button_Text, Button_Number_X, Button_Number_Y, false);
 // // //
-// // // } // END MARKER - Draw_Button_Matrix
+// // // } // Draw_Button_Matrix
 // //
 // //
 // //
@@ -888,7 +993,7 @@ void loop() {
 // // 	// 	Draw_Button(Page_Number_Text, getDisplayXSize() - 1 - Button_Size_2_X, 0, true); // Button_Size_2
 // // 	// }
 // // //
-// // // } // END MARKER - Draw_Top_Bar
+// // // } // Draw_Top_Bar
 // //
 // //
 // // // void UTFT::Set_Top_Bar_Text(String Top_Bar_Text) {
@@ -908,9 +1013,9 @@ void loop() {
 // // //
 // // // 		Top_Bar_Text.replace(_Top_Bar_Text_Array[x] + ";", "");
 // // //
-// // // 	} // END MARKER - for loop
+// // // 	} // for loop
 // // //
-// // // } // END MARKER - Set_Top_Bar_Text
+// // // } // Set_Top_Bar_Text
 // //
 // // // String UTFT::Get_Top_Bar_Text() {
 // // //
@@ -920,11 +1025,11 @@ void loop() {
 // // //
 // // // 		Return_String = Return_String + _Top_Bar_Text_Array[x] + ";";
 // // //
-// // // 	} // END MARKER - for loop
+// // // 	} // for loop
 // // //
 // // // 	return Return_String;
 // // //
-// // // } // END MARKER - Get_Top_Bar_Text
+// // // } // Get_Top_Bar_Text
 // //
 // //
 // //
@@ -940,7 +1045,6 @@ void loop() {
 // // 	}
 // //
 // // 	else if (x > Slider_Restrict_X_End) {
-// // 		Serial.println("MARKER");
 // // 		x = Slider_Restrict_X_End - Slider_Size_X * 10 - Slider_Spacing;
 // // 	}
 // //
@@ -956,7 +1060,7 @@ void loop() {
 // // 									Slider_Y_Axis + Slider_Size_Y	 							// y2
 // // 									);
 // //
-// // 	} // END MARKER - else
+// // 	} // else
 // //
 // //
 // // 	// ************ Draws the new slider ************
@@ -971,7 +1075,7 @@ void loop() {
 // // 	_Slider_Last_Position = x;
 // // 	_Slider_Dont_Move_Until = millis() + Slider_Dont_Move_For;
 // //
-// // } // END MARKER - Draw_Slider
+// // } // Draw_Slider
 // //
 // //
 // //
