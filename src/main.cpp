@@ -22,7 +22,8 @@
 
 #include <Arduino.h>
 
-#define Max_For_Loop_Runs 101
+#define Max_Pages 100
+#define Max_Touch_Object 100
 
 
 // -------------------------------------------- SD Card --------------------------------------------
@@ -54,14 +55,23 @@ URTouch touch( 6, 5, 4, 3, 2);
 int Touch_Input_X;
 int Touch_Input_Y;
 
+
 // -------------------------------------------- Touch - Top Bar --------------------------------------------
-int Top_Bar_Button_Spaceing;
+int Top_Bar_Button_Spaceing = -1;
 byte Top_Bar_Button_Pressed;
 
 
-// -------------------------------------------- Touch - Millis --------------------------------------------
-#define Top_Bar_Ignore_Input_For 1000
-unsigned long Top_Bar_Ignore_Input_Untill;
+// -------------------------------------------- Touch - Page X - Matrix --------------------------------------------
+int Page_X_Matrix_X[Max_Touch_Object];
+int Page_X_Matrix_Y[Max_Touch_Object];
+
+
+// -------------------------------------------- Touch - Ignore input - Millis --------------------------------------------
+int Top_Bar_Ignore_Input_For = 1000;
+unsigned long Top_Bar_Ignore_Input_Until;
+
+int Page_Ignore_Input_For = 500;
+unsigned long Page_Ignore_Input_Until;
 
 
 // -------------------------------------------- MISC --------------------------------------------
@@ -105,7 +115,74 @@ byte Draw_Edge_Size;
 // -------------------------------------------- CanNet - URTouch --------------------------------------------
 bool Flip_Touch = false;
 
+
 // -------------------------------------------- CanNet - MISC --------------------------------------------
+void Error_Mode(byte Error_Type, String Error_Text) {
+
+  // ADD ME - Support for write log file to sd if avalible
+  // ADD ME - Support for write error on screen
+  // ADD ME - When error type 1, turn the screen and unit off
+
+  if (Error_Type == 1) {
+    if (Serial) {
+      Serial.print("FATAL ERROR: ");
+      Serial.println(Error_Text);
+      Serial.println("HALTING");
+    }
+
+    lcd.fillScr(0xF800);
+    lcd.setBackColor(0x0000);
+    lcd.print("FATAL ERROR: " + Error_Text, 20, 20);
+
+    while (1) {
+      delay(1000);
+    }
+
+  } // if (Error_Type == 1) {
+
+  if (Error_Type == 2) {
+      Serial.print("ERROR: ");
+      Serial.println(Error_Text);
+  } // if (Error_Type == 2) {
+
+} // Error_Mode
+
+
+
+// -------------------------------------------- CanNet - Calculator --------------------------------------------
+int Center_Text_Calc_X(String Text, int Button_Size) {
+
+	return Button_Size / 2 - Text.length() * (lcd.getFontXsize() / 2);
+
+} // Center_Text_Calc_X
+
+int Center_Text_Calc_X(String Text) { // Referance only
+	return Center_Text_Calc_X(Text, Draw_Size_X);
+} // Center_Text_Calc_X - Reff
+
+int Center_Text_Calc_Y(String Text, int Button_Size) {
+	return Button_Size / 2 - (lcd.getFontYsize() / 2);
+} // Center_Text_Calc_X
+
+int Center_Text_Calc_Y(String Text) { // Referance only
+	return Center_Text_Calc_Y(Text, Draw_Size_Y);
+} // Center_Text_Calc_Y - Reff
+
+int Matrix_Calc_X(int X_Number) {
+  return Matrix_Spacing * X_Number + Draw_Size_X * (X_Number - 1);
+} // Matrix_Calc_X
+
+int Matrix_Calc_Y(int Y_Number) {
+  return Top_Bar_Size + Matrix_Spacing * Y_Number + Draw_Size_Y * (Y_Number - 1);
+} // Matrix_Calc_Y
+
+int Matrix_Calc_Y() {
+
+
+
+  return 0; // CHANGE ME
+} //
+
 unsigned int hexToDec(String hexString) {
 
   unsigned int decValue = 0;
@@ -139,34 +216,6 @@ String decToHex(byte decValue, byte desiredStringLength) {
   return hexString;
 }
 
-
-void Error_Mode(byte Error_Type, String Error_Text) {
-
-  // ADD ME - Support for write log file to sd if avalible
-  // ADD ME - Support for write error on screen
-
-  if (Error_Type == 1) {
-    if (Serial) {
-      Serial.print("FATAL ERROR: ");
-      Serial.println(Error_Text);
-      Serial.println("HALTING");
-    }
-
-    lcd.fillScr(0xF800);
-    lcd.print("FATAL ERROR: " + Error_Text, 20, 20);
-
-    while (1) {
-      delay(1000);
-    }
-
-  } // if (Error_Type == 1) {
-
-  if (Error_Type == 2) {
-      Serial.print("ERROR: ");
-      Serial.println(Error_Text);
-  } // if (Error_Type == 2) {
-
-} // Error_Mode
 
 // -------------------------------------------- CanNet - File Management --------------------------------------------
 String Read_Conf_File(String File_Path, bool Error_Message) {
@@ -205,6 +254,7 @@ String Read_Conf_File(String File_Path) { // Referance only
 } // Read_Conf_File
 
 
+// -------------------------------------------- CanNet - Find Settings --------------------------------------------
 String Find_Setting(String &File_Content, String Setting_Name) {
 
   String Search_String = "\r\n" + Setting_Name + " = ";
@@ -262,10 +312,6 @@ word Find_Setting_Word(String &File_Content, String Setting_Name) {
 
 } // Find_Setting
 
-
-
-
-
 String Find_Sub_Setting(String Setting_Content, String Setting_Name) {
 
   String Search_String = Setting_Name + ":";
@@ -283,7 +329,6 @@ String Find_Sub_Setting(String Setting_Content, String Setting_Name) {
 
 } // Find_Setting
 
-
 int Find_Sub_Setting_Int(String Setting_Content, String Setting_Name) {
 
   String Sub_Search_String = Setting_Name + ":";
@@ -300,32 +345,6 @@ int Find_Sub_Setting_Int(String Setting_Content, String Setting_Name) {
                                         ).toInt();
 
 } // Find_Setting_Int
-
-
-
-
-
-
-
-int Center_Text_Calc_X(String Text, int Button_Size) {
-
-	return Button_Size / 2 - Text.length() * (lcd.getFontXsize() / 2);
-
-} // Center_Text_Calc_X
-
-int Center_Text_Calc_X(String Text) { // Referance only
-	return Center_Text_Calc_X(Text, Draw_Size_X);
-} // Center_Text_Calc_X - Reff
-
-
-int Center_Text_Calc_Y(String Text, int Button_Size) {
-	return Button_Size / 2 - (lcd.getFontYsize() / 2);
-} // Center_Text_Calc_X
-
-int Center_Text_Calc_Y(String Text) { // Referance only
-	return Center_Text_Calc_Y(Text, Draw_Size_Y);
-} // Center_Text_Calc_Y - Reff
-
 
 
 // ---------------------------------- Draw ----------------------------------
@@ -437,7 +456,8 @@ void Draw_Page(String Page_Content) {
 
   Page_Content.replace("\r\nName = " + Find_Setting(Page_Content, "Name"), "");
 
-  for (int x = 0; x < Max_For_Loop_Runs; x++) {
+
+  for (int x = 0; x < Max_Pages + 1; x++) {
 
     // ---------------------------------- Matrix Button ----------------------------------
     if (Page_Content.indexOf("\r\nMatrix Button = ") != -1) {
@@ -447,11 +467,13 @@ void Draw_Page(String Page_Content) {
 
       String Button_Settings = Find_Setting(Page_Content, "Matrix Button");
 
-      Draw_Button_Matrix(
-                          Find_Sub_Setting(Button_Settings, "N"),
-                          Find_Sub_Setting_Int(Button_Settings, "X"),
-                          Find_Sub_Setting_Int(Button_Settings, "Y")
-      );
+      int Matrix_X = Find_Sub_Setting_Int(Button_Settings, "X");
+      int Matrix_Y = Find_Sub_Setting_Int(Button_Settings, "Y");
+
+      Page_X_Matrix_X[Matrix_X] = Matrix_Calc_X(Matrix_X);
+      Page_X_Matrix_Y[Matrix_Y] = Matrix_Calc_Y(Matrix_Y);
+
+      Draw_Button(Find_Sub_Setting(Button_Settings, "N"), Page_X_Matrix_X[Matrix_X], Page_X_Matrix_Y[Matrix_Y]);
 
       Page_Content.replace("\r\nMatrix Button = " + Button_Settings, ""); // Removed the entry that was just drawn
     } // Matrix Button
@@ -464,14 +486,21 @@ void Draw_Page(String Page_Content) {
 
       String Slider_Settings = Find_Setting(Page_Content, "Matrix Slider");
 
+      int Matrix_X = Find_Sub_Setting_Int(Slider_Settings, "X");
+      int Matrix_Y = Find_Sub_Setting_Int(Slider_Settings, "Y");
+
+      Page_X_Matrix_Y[Matrix_Y] = Matrix_Calc_Y(Matrix_Y);
+
       if (Find_Sub_Setting_Int(Slider_Settings, "X") == 0) {
         Draw_Size_X = lcd.getDisplayXSize() - Matrix_Spacing * 2;
+        Page_X_Matrix_X[Matrix_X] = Matrix_Calc_X(Matrix_X);
 
         Draw_Button_Matrix("", 1, Find_Sub_Setting_Int(Slider_Settings, "Y"));
       } // X == 0
 
       else { // X != 0
         Draw_Size_X = Button_Size_X;
+        Page_X_Matrix_X[Matrix_X] = Matrix_Calc_X(Matrix_X);
 
         Draw_Button_Matrix(
                             "",
@@ -480,6 +509,7 @@ void Draw_Page(String Page_Content) {
         );
       } // X != 0
 
+
       Page_Content.replace("\r\nMatrix Slider = " + Slider_Settings, ""); // Removed the entry that was just drawn
     } // Matrix Slider
 
@@ -487,7 +517,7 @@ void Draw_Page(String Page_Content) {
     // ---------------------------------- End of loop cheks ----------------------------------
     else if (Page_Content == "Settings:\r\n") break; // No entries left in file
 
-    else if (x == Max_For_Loop_Runs - 1) {
+    else if (x == Max_Pages) {
       Page_Content.replace("Settings:\r\n", "");
       Error_Mode(2, "Draw_Page, Settings left over:\r\n" + Page_Content);
       break; // Assuming error in page file
@@ -499,14 +529,12 @@ void Draw_Page(String Page_Content) {
 
 
 
-// -------------------------------------------- CanNet - URTouch --------------------------------------------
-
-
 
 
 // -------------------------------------------- Top_Bar --------------------------------------------
 void Top_Bar() {
 
+  // Reads the Page config file to variable
   Page_File_Content = Read_Conf_File(String(Page_File_Path) + "Page_" + Current_Page + ".txt", false);
 
   lcd.clrScr();
@@ -519,82 +547,69 @@ void Top_Bar() {
 
 } // Top_Bar
 
-
 void Top_Bar_Touch() {
 
   if (
       !touch.dataAvailable() || // Screen not pressed
       Touch_Input_Y == -1 || // Input off screen
       Touch_Input_Y > Top_Bar_Size || // Input not matching top bar
-      Top_Bar_Ignore_Input_Untill > millis() // Pressed to soon ignoreing input
+      Top_Bar_Ignore_Input_Until > millis() // Pressed to soon ignoreing input
   ) return; // No delaied output for Top_Bar_Touch
 
-  Serial.print("Touch_Input_Y: "); // rm
-  Serial.println(Touch_Input_Y); // rm
-  delay(100); // rm
+   // if (Touch_Input_Y > 0 && Touch_Input_Y < Top_Bar_Size) { // CHANGE ME - for the line below
+  else if (Touch_Input_Y > 0 && Touch_Input_Y < Top_Bar_Size) { // Y - Input matching top bar
 
-   if (Touch_Input_Y > 0 && Touch_Input_Y < Top_Bar_Size) { // CHANGE ME - for the line below
-  // else if (Touch_Input_Y > 0 && Touch_Input_Y < Top_Bar_Size) { // Y - Input matching top bar
-    Serial.println("MARKER 2"); // rm
-    delay(750); // rm
+    if (Top_Bar_Button_Spaceing == -1) {
+      Top_Bar_Button_Spaceing = lcd.getDisplayXSize() - Top_Bar_Button_Size * 2;
+    } // if (Top_Bar_Button_Spaceing == -1)
 
-    if (Touch_Input_X > 0 && Touch_Input_X < Top_Bar_Button_Size) { // X - Page Down
-      Top_Bar_Ignore_Input_Untill = millis() + Top_Bar_Ignore_Input_For;
+    else if (Touch_Input_X > 0 && Touch_Input_X < Top_Bar_Button_Size) { // X - Page Down
+      Top_Bar_Ignore_Input_Until = millis() + Top_Bar_Ignore_Input_For;
 
       if (Current_Page != 1) { // Ingnore input if you are at page 1
         Current_Page = Current_Page - 1;
         Top_Bar();
       } // if (Current_Page == 1)
+
     } // if (Touch_Input_X > 0 && Touch_Input_X < Top_Bar_Button_Size)
 
-    else if (Touch_Input_X > Top_Bar_Button_Size + Top_Bar_Button_Spaceing &&
-             Touch_Input_X < Top_Bar_Button_Size + Top_Bar_Button_Spaceing + Top_Bar_Button_Size
-    )
-    { // X - Page Up
-      Top_Bar_Ignore_Input_Untill = millis() + Top_Bar_Ignore_Input_For;
+    else if (Touch_Input_X > Top_Bar_Button_Size + Top_Bar_Button_Spaceing && // X - Page Up
+             Touch_Input_X < Top_Bar_Button_Size + Top_Bar_Button_Spaceing + Top_Bar_Button_Size ) {
+
+      Top_Bar_Ignore_Input_Until = millis() + Top_Bar_Ignore_Input_For;
 
       if (Current_Page != Last_Page) { // Ingnore input if you are at the last page
         Current_Page = Current_Page + 1;
         Top_Bar();
       } // if (Current_Page != Last_Page)
 
-  } // else if (Touch_Input_Y > 0 && Touch_Input_Y < _Top_Bar_Size)
+    } // else if (Touch_Input_Y > 0 && Touch_Input_Y < _Top_Bar_Size)
 
 
-  // if (Top_Bar_Ignore_Input_Untill > millis()) { // Pressed to soon ignoreing input
-  // if (Input_Y > Top_Bar_Size) { // Input not matching top bar
-  // }
-  //
-  // else if (Top_Bar_Ignore_Input_Untill > millis()) { // Pressed to soon ignoreing input
-  //   Top_Bar_Button_Pressed = 0;
-  // }
-  //
-  // else if (Input_Y > 0 && Input_Y < Top_Bar_Size) { // Y - Input matching top bar
-  //
-  //
-  //   if (Input_X > 0 && Input_X < Top_Bar_Button_Size) { // X - Page Down
-  //     Top_Bar_Ignore_Input_Untill = millis() + Top_Bar_Ignore_Input_For;
-  //     Top_Bar_Button_Pressed = 1;
-  //   }
-  //
-  //   else if (
-  //             Input_X > Top_Bar_Button_Size + Top_Bar_Button_Spaceing &&
-  //             Input_X < Top_Bar_Button_Size + Top_Bar_Button_Spaceing + Top_Bar_Button_Size
-  //           ) { // X - Page Up
-  //
-  //     Top_Bar_Ignore_Input_Untill = millis() + Top_Bar_Ignore_Input_For;
-  //     Top_Bar_Button_Pressed = 2;
-  //   }
-  //
-  // } // else if (Input_Y > 0 && Input_Y < _Top_Bar_Size)
-  //
-  // return Top_Bar_Button_Pressed;
-
-
-
-  } // else if (Touch_Input_Y > 0 && Touch_Input_Y < Top_Bar_Size)
+  } // else if (Touch_Input_X > Top_Bar_Button_Size + Top_Bar_Button_Spaceing && ...
 
 } // Top_Bar_Touch
+
+
+// -------------------------------------------- Page X Touch --------------------------------------------
+void Page_X_Touch() {
+
+  if (
+      !touch.dataAvailable() || // Screen not pressed
+      Touch_Input_Y == -1 || // Input off screen
+      Touch_Input_Y < Top_Bar_Size + Matrix_Spacing || // Input not matching top bar
+      Page_Ignore_Input_Until > millis() // Pressed to soon ignoreing input
+  ) return; // No delaied output for Top_Bar_Touch
+
+  Serial.println("MARKER"); // rm
+
+
+
+
+
+  Page_Ignore_Input_Until = millis() + Page_Ignore_Input_For;
+
+  } // Page_X_Touch
 
 
 // -------------------------------------------- Touch Check --------------------------------------------
@@ -612,21 +627,11 @@ void Touch_Check() {
     Touch_Input_Y = lcd.getDisplayYSize() - touch.getY();
   }
 
+  // if (myTouch.Stabilize_Input(Touch_Input_X, Touch_Input_Y) == 1)  return; // Touch input diviated to much returning
 
   Top_Bar_Touch();
 
-
-  // if (myTouch.Stabilize_Input(Touch_Input_X, Touch_Input_Y) == 1)  return; // Touch input diviated to much returning
-
-
-  // // --------------------------------------------- 1 - Main Page ---------------------------------------------
-  // if (Current_Page == 1) {
-  // // Main_Page_Touch();
-  // }
-  //
-  // // --------------------------------------------- 2 - Relay Page ---------------------------------------------
-  // else if (Current_Page == 2) { // CHANGE BELOW
-  // }
+  Page_X_Touch();
 
 } // Touch_Check
 
@@ -644,12 +649,6 @@ void setup() {
   }
 
 
-  // -------------------------------------------- SD Card --------------------------------------------
-  if (!SD.begin(53)) {
-    Error_Mode(1, "Initializing SD card");
-  }
-
-
   // -------------------------------------------- LCD --------------------------------------------
   lcd.InitLCD();
   lcd.setFont(GroteskBold16x32);
@@ -658,6 +657,12 @@ void setup() {
   // -------------------------------------------- Touch --------------------------------------------
   touch.InitTouch();
   touch.setPrecision(PREC_MEDIUM);
+
+
+  // -------------------------------------------- SD Card --------------------------------------------
+  if (!SD.begin(53)) {
+    Error_Mode(1, "Initializing SD card");
+  }
 
 
   // -------------------------------------------- Boot Message --------------------------------------------
@@ -707,6 +712,11 @@ void setup() {
     Flip_Touch = Find_Setting_Bool(File_Content, "Flip Touch");
   }
 
+  if (File_Content.indexOf("\r\nIgnore Input For = ") != -1) {
+      Page_Ignore_Input_For = Find_Setting_Int(File_Content, "Ignore Input For");
+  }
+
+
 
   // -------------------------------------------- Top Bar file import --------------------------------------------
   File_Content = Read_Conf_File(Top_Bar_File_Path);
@@ -723,16 +733,20 @@ void setup() {
     Top_Bar_Button_Size = Find_Setting_Int(File_Content, "Button Size");
   }
 
+  if (File_Content.indexOf("\r\nIgnore Input For = ") != -1) {
+    Top_Bar_Ignore_Input_For = Find_Setting_Int(File_Content, "Ignore Input For");
+  }
+
   File_Content = "";
 
 
   // -------------------------------------------- Page file import --------------------------------------------
-  for (int x = 1; x < Max_For_Loop_Runs; x++) {
+  for (int x = 1; x < Max_Pages + 1; x++) {
 
     if (SD.exists(String(Page_File_Path) + "Page_" + x + ".txt"));
 
-    else if (x == Max_For_Loop_Runs - 1) {
-      Error_Mode(2, "Page file import: for ran 100 loop");
+    else if (x == Max_Pages) {
+      Error_Mode(2, "Page file import: for ran 101 loop, only 100 pages allowed. Isent that enought? :-)");
     }
 
     else {
@@ -754,6 +768,7 @@ void setup() {
 
 } // setup
 
+// -------------------------------------------- Loop --------------------------------------------
 void loop() {
 
   // --------------------- REMOVE ME ---------------------------
@@ -762,7 +777,9 @@ void loop() {
     unsigned long mesurement = freeMemory();
 
     if (freeMemory_Last != mesurement) {
-      Serial.print("freeMemory()=");
+      Serial.print("Free memory changed from: ");
+      Serial.print(freeMemory_Last);
+      Serial.print(" to: ");
       Serial.println(mesurement);
       freeMemory_Last = mesurement;
     }
@@ -772,13 +789,7 @@ void loop() {
   // --------------------- REMOVE ME - End ---------------------------
 
 
-
   Touch_Check();
-
-
-
-
-
 
 } // loop
 
