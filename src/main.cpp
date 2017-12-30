@@ -102,6 +102,9 @@ int Draw_Size_Y;
 byte Draw_Edge_Size;
 
 
+// -------------------------------------------- CanNet - URTouch --------------------------------------------
+bool Flip_Touch = false;
+
 // -------------------------------------------- CanNet - MISC --------------------------------------------
 unsigned int hexToDec(String hexString) {
 
@@ -516,68 +519,80 @@ void Top_Bar() {
 
 } // Top_Bar
 
-byte Get_Top_Bar_Button_Number(int Input_X, int Input_Y) {
-
-	if (Input_Y > Top_Bar_Size) { // Input not matching top bar
-		Top_Bar_Button_Pressed = 0;
-	}
-
-	else if (Top_Bar_Ignore_Input_Untill > millis()) { // Pressed to soon ignoreing input
-		Top_Bar_Button_Pressed = 0;
-	}
-
-	else if (Input_Y > 0 && Input_Y < Top_Bar_Size) { // Y - Input matching top bar
-
-
-		if (Input_X > 0 && Input_X < Top_Bar_Button_Size) { // X - Page Down
-			Top_Bar_Ignore_Input_Untill = millis() + Top_Bar_Ignore_Input_For;
-			Top_Bar_Button_Pressed = 1;
-		}
-
-		else if (
-							Input_X > Top_Bar_Button_Size + Top_Bar_Button_Spaceing &&
-							Input_X < Top_Bar_Button_Size + Top_Bar_Button_Spaceing + Top_Bar_Button_Size
-						) { // X - Page Up
-
-			Top_Bar_Ignore_Input_Untill = millis() + Top_Bar_Ignore_Input_For;
-			Top_Bar_Button_Pressed = 2;
-		}
-
-	} // else if (Input_Y > 0 && Input_Y < _Top_Bar_Size)
-
-	return Top_Bar_Button_Pressed;
-
-}  // Get_Top_Bar_Button_Number
 
 void Top_Bar_Touch() {
 
-  if (!touch.dataAvailable() || Touch_Input_Y == -1) return;
+  if (
+      !touch.dataAvailable() || // Screen not pressed
+      Touch_Input_Y == -1 || // Input off screen
+      Touch_Input_Y > Top_Bar_Size || // Input not matching top bar
+      Top_Bar_Ignore_Input_Untill > millis() // Pressed to soon ignoreing input
+  ) return; // No delaied output for Top_Bar_Touch
 
-  else if (Get_Top_Bar_Button_Number(Touch_Input_X, Touch_Input_Y) != 0) {
+  Serial.print("Touch_Input_Y: "); // rm
+  Serial.println(Touch_Input_Y); // rm
+  delay(100); // rm
 
-    if (Top_Bar_Button_Pressed == 1) {
+   if (Touch_Input_Y > 0 && Touch_Input_Y < Top_Bar_Size) { // CHANGE ME - for the line below
+  // else if (Touch_Input_Y > 0 && Touch_Input_Y < Top_Bar_Size) { // Y - Input matching top bar
+    Serial.println("MARKER 2"); // rm
+    delay(750); // rm
 
-      Serial.println("Marker");
+    if (Touch_Input_X > 0 && Touch_Input_X < Top_Bar_Button_Size) { // X - Page Down
+      Top_Bar_Ignore_Input_Untill = millis() + Top_Bar_Ignore_Input_For;
 
-      if (Current_Page == 1); // Ingnore input if you are at page 1
-
-      else {
+      if (Current_Page != 1) { // Ingnore input if you are at page 1
         Current_Page = Current_Page - 1;
         Top_Bar();
-      } // else
-    }
+      } // if (Current_Page == 1)
+    } // if (Touch_Input_X > 0 && Touch_Input_X < Top_Bar_Button_Size)
 
-    else if (Top_Bar_Button_Pressed == 2) {
+    else if (Touch_Input_X > Top_Bar_Button_Size + Top_Bar_Button_Spaceing &&
+             Touch_Input_X < Top_Bar_Button_Size + Top_Bar_Button_Spaceing + Top_Bar_Button_Size
+    )
+    { // X - Page Up
+      Top_Bar_Ignore_Input_Untill = millis() + Top_Bar_Ignore_Input_For;
 
-      if (Current_Page == Last_Page); // Ingnore input if you are at the last page
-
-      else {
+      if (Current_Page != Last_Page) { // Ingnore input if you are at the last page
         Current_Page = Current_Page + 1;
         Top_Bar();
-      } // else
-    }
+      } // if (Current_Page != Last_Page)
 
-  } // else if
+  } // else if (Touch_Input_Y > 0 && Touch_Input_Y < _Top_Bar_Size)
+
+
+  // if (Top_Bar_Ignore_Input_Untill > millis()) { // Pressed to soon ignoreing input
+  // if (Input_Y > Top_Bar_Size) { // Input not matching top bar
+  // }
+  //
+  // else if (Top_Bar_Ignore_Input_Untill > millis()) { // Pressed to soon ignoreing input
+  //   Top_Bar_Button_Pressed = 0;
+  // }
+  //
+  // else if (Input_Y > 0 && Input_Y < Top_Bar_Size) { // Y - Input matching top bar
+  //
+  //
+  //   if (Input_X > 0 && Input_X < Top_Bar_Button_Size) { // X - Page Down
+  //     Top_Bar_Ignore_Input_Untill = millis() + Top_Bar_Ignore_Input_For;
+  //     Top_Bar_Button_Pressed = 1;
+  //   }
+  //
+  //   else if (
+  //             Input_X > Top_Bar_Button_Size + Top_Bar_Button_Spaceing &&
+  //             Input_X < Top_Bar_Button_Size + Top_Bar_Button_Spaceing + Top_Bar_Button_Size
+  //           ) { // X - Page Up
+  //
+  //     Top_Bar_Ignore_Input_Untill = millis() + Top_Bar_Ignore_Input_For;
+  //     Top_Bar_Button_Pressed = 2;
+  //   }
+  //
+  // } // else if (Input_Y > 0 && Input_Y < _Top_Bar_Size)
+  //
+  // return Top_Bar_Button_Pressed;
+
+
+
+  } // else if (Touch_Input_Y > 0 && Touch_Input_Y < Top_Bar_Size)
 
 } // Top_Bar_Touch
 
@@ -587,8 +602,16 @@ void Touch_Check() {
 
   touch.read();
 
-  Touch_Input_X = touch.getX();
-  Touch_Input_Y = touch.getY();
+  if (Flip_Touch == false) {
+    Touch_Input_X = touch.getX();
+    Touch_Input_Y = touch.getY();
+  }
+
+  else { // Flip_Touch = true
+    Touch_Input_X = lcd.getDisplayXSize() - touch.getX();
+    Touch_Input_Y = lcd.getDisplayYSize() - touch.getY();
+  }
+
 
   Top_Bar_Touch();
 
@@ -614,7 +637,7 @@ void setup() {
   // -------------------------------------------- Serial --------------------------------------------
   Serial.begin(115200);
 
-  if (!Serial) { // REMOVE ME
+  if (!Serial) { // rm
     for (int x = 0; x < 10; x++) {
       delay(100);
     }
@@ -680,6 +703,10 @@ void setup() {
     Button_Size_Y = Find_Setting_Int(File_Content, "Button Size Y");
   }
 
+  if (File_Content.indexOf("\r\nFlip Touch = ") != -1) {
+    Flip_Touch = Find_Setting_Bool(File_Content, "Flip Touch");
+  }
+
 
   // -------------------------------------------- Top Bar file import --------------------------------------------
   File_Content = Read_Conf_File(Top_Bar_File_Path);
@@ -730,7 +757,7 @@ void setup() {
 void loop() {
 
   // --------------------- REMOVE ME ---------------------------
-  if (freeMemory_Delay_Until < millis()) { // REMOVE ME
+  if (freeMemory_Delay_Until < millis()) { // rm
 
     unsigned long mesurement = freeMemory();
 
@@ -1084,13 +1111,13 @@ void loop() {
 // // void UTFT::Page_Add_Button(byte Page_Number, byte Button_ID, String Button_Text, int Position_X, int Position_Y) {
 // //
 // // 	// if (Page_Buttons[Page_Number].indexOf(String(Page_Number) + ";") != -1) {
-// // 	// 	Serial.println("Button exists, removing then addidng"); // REMOVE ME
+// // 	// 	Serial.println("Button exists, removing then addidng"); // rm
 // // 	// 	Page_Remove_Button(Page_Number, Button_ID);
-// // 	// 	Serial.println("Add button again"); // REMOVE ME
+// // 	// 	Serial.println("Add button again"); // rm
 // // 	// }
 // //   //
 // // 	// else {
-// // 	// 	Serial.println("Adding"); // REMOVE ME
+// // 	// 	Serial.println("Adding"); // rm
 // //   //
 // // 	// 	Page_Buttons[Page_Number] =
 // // 	// 															Page_Buttons[Page_Number] + ";-" +
@@ -1131,6 +1158,6 @@ void loop() {
 // // // ----------------------------------------- Page_Draw -------------------------------------------
 // // void UTFT::Page_Draw(byte Page_Number) {
 // //
-// // 	Serial.println("Page_Draw"); // REMOVE ME
+// // 	Serial.println("Page_Draw"); // rm
 // //
 // // };
