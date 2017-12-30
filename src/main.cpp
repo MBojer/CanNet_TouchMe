@@ -30,8 +30,9 @@
 
 
 // -------------------------------------------- Files --------------------------------------------
+String File_Content;
+
 #define Setting_File_Path "/TouchMe/Settings.txt"
-String Settings_File_Content;
 
 #define Top_Bar_File_Path "/TouchMe/Top_Bar.txt"
 String Top_Bar_File_Content;
@@ -52,7 +53,8 @@ URTouch myTouch( 6, 5, 4, 3, 2);
 
 
 // -------------------------------------------- MISC --------------------------------------------
-int Current_Page;
+int Current_Page = 1;
+int Last_Page;
 
 
 // --------------------- REMOVE ME ---------------------------
@@ -61,6 +63,151 @@ unsigned long freeMemory_Delay_Until;
 #define freeMemory_Delay_For 2000
 // --------------------- REMOVE ME - End ---------------------
 
+
+// -------------------------------------------- CanNet - UTFT --------------------------------------------
+word Text_Color;
+word Button_Color;
+
+byte Edge_Size;
+word Edge_Color;
+
+bool Button_Center_Text = true;
+
+int Top_Bar_Size;
+int Top_Bar_Button_Size;
+
+
+// --------------------- Draw_Button ---------------------
+int Button_Size_X;
+int Button_Size_Y;
+
+byte Button_Edge_Size;
+
+
+
+int Center_Text_Calc_X(String Text, int Button_Size) {
+
+	return Button_Size / 2 - Text.length() * (lcd.getFontXsize() / 2);
+
+} // END MARKER - Center_Text_Calc_X
+
+int Center_Text_Calc_X(String Text) { // Referance only
+	return Center_Text_Calc_X(Text, Button_Size_X);
+} // END MARKER - Center_Text_Calc_X - Reff
+
+
+int Center_Text_Calc_Y(String Text, int Button_Size) {
+	return Button_Size / 2 - (lcd.getFontYsize() / 2);
+} // END MARKER - Center_Text_Calc_X
+
+int Center_Text_Calc_Y(String Text) { // Referance only
+	return Center_Text_Calc_Y(Text, Button_Size_Y);
+} // END MARKER - Center_Text_Calc_Y - Reff
+
+
+
+// ---------------------------------- Draw ----------------------------------
+void Draw_Button(String Button_Text, int Start_X, int Start_Y) {
+
+	if (true) { // Edge
+		lcd.setColor(Edge_Color);
+
+		if (Edge_Size == 0);
+
+		else if (Edge_Size == 1) {
+			lcd.drawRoundRect(Start_X, Start_Y, Start_X + Button_Size_X, Start_Y + Button_Size_Y);
+		}
+
+		else {
+			lcd.fillRoundRect (Start_X, Start_Y, Start_X + Button_Size_X, Start_Y + Button_Size_Y);
+		}
+  } // Edge
+
+	if (true) { // Button
+		lcd.setColor(Button_Color);
+		lcd.fillRoundRect (
+										Start_X + Edge_Size,
+										Start_Y + Edge_Size,
+										Start_X + Button_Size_X - Edge_Size,
+										Start_Y + Button_Size_Y - Edge_Size
+									);
+  } // Button
+
+	if (Button_Text != "") { // Text
+		lcd.setColor(Text_Color);
+		lcd.setBackColor(Button_Color);
+
+			if (Button_Center_Text == true) {
+				lcd.print(
+					Button_Text,
+					Start_X + Center_Text_Calc_X(Button_Text),
+					Start_Y + Center_Text_Calc_Y(Button_Text)
+				);
+			}
+
+			else {
+				lcd.print( // CHANGE ME TO SOMETHING USEFUL
+					Button_Text,
+					Start_X + 15,
+					Start_Y + 15
+				);
+        Serial.println("MARKER"); // REMOVE ME
+			}
+  } // END MARKER - if (Button_Text != "")
+
+} // END MARKER - Draw_Button
+
+void Draw_Top_Bar(String Top_Bar_Text) {
+
+	Button_Size_X = lcd.getDisplayXSize() - 1;
+	Button_Size_Y = Top_Bar_Size;
+
+	Button_Edge_Size = 0;
+
+  lcd.setColor(Button_Color);
+	lcd.setBackColor(Button_Color);
+
+	Draw_Button(Top_Bar_Text, 0, 0);
+
+  Button_Edge_Size = Edge_Size;
+
+  // Draw_Button(Top_Bar_Text, 0, 0);
+
+
+  	//-------------------------------------------------- Drws Page up / Page down --------------------------------------------------
+    Button_Size_X = Top_Bar_Button_Size;
+  	Button_Edge_Size = Edge_Size;
+
+    if (Current_Page < 9) {
+  		Button_Size_X = 5 * lcd.getFontXsize();
+  	}
+
+  	else {
+  		Button_Size_X = 6 * lcd.getFontXsize();
+  	}
+
+
+  	if (Current_Page != 1) {
+  		String Page_Number_Text = "<< " + String(Current_Page - 1);
+
+  		Draw_Button(Page_Number_Text, 0, 0);
+  	}
+
+  	if (Current_Page != Last_Page) {
+  		String Page_Number_Text = String(Current_Page + 1) + " >>";
+
+  		Draw_Button(Page_Number_Text, lcd.getDisplayXSize() - 1 - Button_Size_X, 0);
+  	}
+
+
+} // END MARKER - Draw_Top_Bar
+
+
+
+// -------------------------------------------- CanNet - URTouch --------------------------------------------
+
+
+// -------------------------------------------- CanNet - MISC --------------------------------------------
 unsigned int hexToDec(String hexString) {
 
   unsigned int decValue = 0;
@@ -95,6 +242,7 @@ String decToHex(byte decValue, byte desiredStringLength) {
 }
 
 
+
 void Error_Mode(byte Error_Type, String Error_Text) {
 
   // ADD ME - Support for write log file to sd if avalible
@@ -124,10 +272,11 @@ void Error_Mode(byte Error_Type, String Error_Text) {
 } // END MARKER - Error_Mode
 
 
+// -------------------------------------------- CanNet - File Management --------------------------------------------
 String Read_Conf_File(String File_Path, bool Error_Message) {
 
     File Temp_File;
-    String File_Content;
+    File_Content = "";
 
     // Checks if the file exists
     if (SD.exists(File_Path) == false) {
@@ -160,38 +309,38 @@ String Read_Conf_File(String File_Path) { // Referance only
 } // END MARKER - Read_Conf_File
 
 
-String Find_Setting(String &Settings_File_Content, String Setting_Name) {
+String Find_Setting(String &File_Content, String Setting_Name) {
 
   String Search_String = "\r\n" + Setting_Name + " = ";
 
-  if (Settings_File_Content.indexOf(Search_String) == -1) {
+  if (File_Content.indexOf(Search_String) == -1) {
     return "";
   }
 
 
 
-  int Settings_Position = Settings_File_Content.indexOf(Search_String) + Search_String.length();
+  int Settings_Position = File_Content.indexOf(Search_String) + Search_String.length();
 
-  return Settings_File_Content.substring(
+  return File_Content.substring(
                                           Settings_Position,
-                                          Settings_File_Content.indexOf("\r\n", Settings_Position)
+                                          File_Content.indexOf("\r\n", Settings_Position)
                                         );
 
 } // END MARKER - Find_Setting
 
-word Find_Setting_Color(String &Settings_File_Content, String Setting_Name) {
+word Find_Setting_Word(String &File_Content, String Setting_Name) {
 
   String Search_String = "\r\n" + Setting_Name + " = ";
 
-  if (Settings_File_Content.indexOf(Search_String) == -1) {
+  if (File_Content.indexOf(Search_String) == -1) {
     return -1;
   }
 
-  int Settings_Position = Settings_File_Content.indexOf(Search_String) + Search_String.length();
+  int Settings_Position = File_Content.indexOf(Search_String) + Search_String.length();
 
-  String Temp_String = Settings_File_Content.substring(
+  String Temp_String = File_Content.substring(
                                           Settings_Position,
-                                          Settings_File_Content.indexOf("\r\n", Settings_Position)
+                                          File_Content.indexOf("\r\n", Settings_Position)
                                         );
 
   Temp_String.replace("0x", "");
@@ -202,11 +351,19 @@ word Find_Setting_Color(String &Settings_File_Content, String Setting_Name) {
 
 } // END MARKER - Find_Setting
 
-int Find_Setting_Int(String &Settings_File_Content, String Setting_Name) {
+int Find_Setting_Int(String &File_Content, String Setting_Name) {
 
-  Setting_Name = Find_Setting(Settings_File_Content, Setting_Name);
+  Setting_Name = Find_Setting(File_Content, Setting_Name);
 
   return Setting_Name.toInt();
+
+} // END MARKER - Find_Setting
+
+bool Find_Setting_Bool(String &File_Content, String Setting_Name) {
+
+  Setting_Name = Find_Setting(File_Content, Setting_Name);
+
+  return Setting_Name;
 
 } // END MARKER - Find_Setting
 
@@ -217,7 +374,7 @@ void Top_Bar() {
   lcd.clrScr();
 
   if (Top_Bar_File_Content != "") {
-    lcd.Draw_Top_Bar(Find_Setting(Page_File_Content[lcd.Current_Page], "Name"));
+    Draw_Top_Bar(Find_Setting(Page_File_Content[Current_Page], "Name"));
   }
 
 
@@ -265,57 +422,57 @@ void setup() {
   delay(500);
 
 
-  // -------------------------------------------- Files --------------------------------------------
+  // -------------------------------------------- Settings file import --------------------------------------------
+  File_Content = Read_Conf_File(Setting_File_Path);
 
-  Serial.print("Before: "); // REMOVE ME
-  Serial.println(freeMemory()); // REMOVE ME
 
-  Settings_File_Content = Read_Conf_File(Setting_File_Path);
+  if (File_Content.indexOf("\r\nText Color = ") != -1) {
+    Text_Color = Find_Setting_Word(File_Content, "Text Color");
+  }
 
-  Serial.print("Settings File: "); // REMOVE ME
-  Serial.println(freeMemory()); // REMOVE ME
+  if (File_Content.indexOf("\r\nEdge Color = ") != -1) {
+    Edge_Color = Find_Setting_Word(File_Content, "Edge Color");
+  }
 
+  if (File_Content.indexOf("\r\nButton Color = ") != -1) {
+    Button_Color = Find_Setting_Word(File_Content, "Button Color");
+  }
+
+  if (File_Content.indexOf("\r\nEdge Size = ") != -1) {
+    Edge_Size = Find_Setting_Int(File_Content, "Edge Size");
+  }
+
+  if (File_Content.indexOf("\r\nButton Center Text = ") != -1) {
+    Button_Center_Text = Find_Setting_Bool(File_Content, "Button Center Text");
+  }
+
+  File_Content = "";
+
+
+  // -------------------------------------------- Top Bar file import --------------------------------------------
   Top_Bar_File_Content = Read_Conf_File(Top_Bar_File_Path);
 
-  Serial.print("Top Bar: "); // REMOVE ME
-  Serial.println(freeMemory()); // REMOVE ME
 
+  if (Top_Bar_File_Content.indexOf("\r\nSize = ") != -1) {
+    Top_Bar_Size = Find_Setting_Int(Top_Bar_File_Content, "Size");
+  }
+
+  if (Top_Bar_File_Content.indexOf("\r\nButton Size = ") != -1) {
+    Top_Bar_Button_Size = Find_Setting_Int(Top_Bar_File_Content, "Button Size");
+  }
+
+
+
+  // -------------------------------------------- Page file import --------------------------------------------
   for (int x = 1; x < Max_Number_Of_Pages; x++) {
 
     Page_File_Content[x] = Read_Conf_File(String(Page_File_Path) + "Page_" + x + ".txt", false);
 
-    if (Page_File_Content[x] == "") break;
-  }
+    if (Page_File_Content[x] == "") {
+      Last_Page = x - 1;
+      break;
+    }
 
-  Serial.print("Pages: "); // REMOVE ME
-  Serial.println(freeMemory()); // REMOVE ME
-
-
-  // -------------------------------------------- Settings file import --------------------------------------------
-  if (Settings_File_Content.indexOf("\r\nText Color = ") != -1) {
-    lcd.Text_Color = Find_Setting_Color(Settings_File_Content, "Text Color");
-  }
-
-  if (Settings_File_Content.indexOf("\r\nEdge Color = ") != -1) {
-    lcd.Edge_Color = Find_Setting_Color(Settings_File_Content, "Edge Color");
-  }
-
-  if (Settings_File_Content.indexOf("\r\nEdge Size = ") != -1) {
-    lcd.Edge_Size = Find_Setting_Int(Settings_File_Content, "Edge Size");
-  }
-
-  if (Settings_File_Content.indexOf("\r\nButton Center Text = ") != -1) {
-    lcd.Button_Center_Text = Find_Setting_Int(Settings_File_Content, "Button Center Text");
-  }
-
-
-  // -------------------------------------------- Top Bar file import --------------------------------------------
-  if (Top_Bar_File_Content.indexOf("\r\nSize = ") != -1) {
-    lcd.Top_Bar_Size = Find_Setting_Int(Top_Bar_File_Content, "Size");
-  }
-
-  if (Top_Bar_File_Content.indexOf("\r\nButton Size = ") != -1) {
-    lcd.Top_Bar_Button_Size = Find_Setting_Int(Top_Bar_File_Content, "Button Size");
   }
 
 
@@ -330,9 +487,17 @@ void setup() {
 } // END MARKER - setup
 
 void loop() {
+  // --------------------- REMOVE ME ---------------------------
+  if (freeMemory_Delay_Until < millis()) { // REMOVE ME
+    Serial.print("freeMemory()=");
+    Serial.println(freeMemory());
 
+    // myGLCD.Draw_Button_Matrix(String(freeMemory()), 2, 2);
 
-} // END MARKER - loop
+    freeMemory_Delay_Until = millis() + freeMemory_Delay_For;
+  }
+  // --------------------- REMOVE ME - End ---------------------------
+}
 
 
 // // --------------------------------------------------------------------------------------------
@@ -471,7 +636,7 @@ void loop() {
 //
 // 	Draw_Button(Top_Bar_Text, 0, 0);
 // 	// Draw_Button(String Button_Text, int Start_X, int Start_Y);
-// 	// Find_Setting(String &Settings_File_Content, String Setting_Name)
+// 	// Find_Setting(String &File_Content, String Setting_Name)
 //
 //
 //   //
