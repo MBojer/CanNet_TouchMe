@@ -32,7 +32,7 @@
 
 ------------------------------ Page_"X".txt ------------------------------
 
-	Settings set in this file will overrider settings from "Settings.txt" - NOT IMPLAMENTED YET
+	Settings set in this file will overwrites settings from "Settings.txt" - NOT IMPLAMENTED YET
 
 
 	"X"
@@ -69,3 +69,32 @@
 
 		Example:
 			Matrix Slider = Y:1 X:0
+
+
+
+
+
+
+// REMOVE ME - Below
+
+int Page_X_Matrix[Max_Matrix_X][Max_Matrix_Y][4];
+
+
+      /* Page_X_Matrix[X][Y][?]
+        ?:
+          0 = X Begin
+          1 = X End
+
+          2 = Y Begin
+          3 = X End
+
+          4 = Matrix_X_Last
+
+
+          #define Begin_X 0
+          #define End_X 1
+
+          #define Begin_Y 2
+          #define End_Y 3
+
+          #define Matrix_X_Last 4

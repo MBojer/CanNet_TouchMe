@@ -22,8 +22,21 @@
 
 #include <Arduino.h>
 
-#define Max_Pages 100
-#define Max_Touch_Object 100
+#define Max_Pages 50
+
+#define Max_Matrix_X 10
+#define Max_Matrix_Y 5
+
+#define Max_Touch_Object 50
+
+
+#define Begin_X 0
+#define Begin_Y 1
+
+#define End_X 2
+#define End_Y 3
+
+#define Matrix_X_Last 4
 
 
 // -------------------------------------------- SD Card --------------------------------------------
@@ -62,8 +75,18 @@ byte Top_Bar_Button_Pressed;
 
 
 // -------------------------------------------- Touch - Page X - Matrix --------------------------------------------
-int Page_X_Matrix_X[Max_Touch_Object];
-int Page_X_Matrix_Y[Max_Touch_Object];
+int Page_X_Matrix[Max_Matrix_X][Max_Matrix_Y][4];
+    /* Page_X_Matrix[X][Y][?]
+      ?:
+        0 = X Begin
+        1 = Y Begin
+
+        2 = X End
+        3 = Y End
+    */
+
+byte Page_X_Matrix_X_Last[Max_Matrix_X + 1];
+byte Page_X_Matrix_Y_Last[Max_Matrix_Y + 1];
 
 
 // -------------------------------------------- Touch - Ignore input - Millis --------------------------------------------
@@ -83,7 +106,7 @@ int Last_Page = 1;
 #include <MemoryFree.h>
 unsigned long freeMemory_Last;
 unsigned long freeMemory_Delay_Until;
-#define freeMemory_Delay_For 2000
+#define freeMemory_Delay_For 250
 // --------------------- REMOVE ME - End ---------------------
 
 
@@ -168,21 +191,27 @@ int Center_Text_Calc_Y(String Text) { // Referance only
 	return Center_Text_Calc_Y(Text, Draw_Size_Y);
 } // Center_Text_Calc_Y - Reff
 
-int Matrix_Calc_X(int X_Number) {
-  return Matrix_Spacing * X_Number + Draw_Size_X * (X_Number - 1);
-} // Matrix_Calc_X
+void Matrix_Calc(int X_Number, int Y_Number) {
 
-int Matrix_Calc_Y(int Y_Number) {
-  return Top_Bar_Size + Matrix_Spacing * Y_Number + Draw_Size_Y * (Y_Number - 1);
-} // Matrix_Calc_Y
+  // ---------- X ----------
+  Page_X_Matrix[X_Number][Y_Number][Begin_X] = Matrix_Spacing * X_Number + Draw_Size_X * (X_Number - 1);
+  Page_X_Matrix[X_Number][Y_Number][End_X] = Matrix_Spacing * X_Number + Draw_Size_X * X_Number;
 
-int Matrix_Calc_Y() {
+  // ---------- Y ----------
+  Page_X_Matrix[X_Number][Y_Number][Begin_Y] = Top_Bar_Size + Matrix_Spacing * Y_Number + Draw_Size_Y * (Y_Number - 1);
+  Page_X_Matrix[X_Number][Y_Number][End_Y] = Top_Bar_Size + Matrix_Spacing * Y_Number + Draw_Size_Y * Y_Number;
+
+
+  // ---------- Last ----------
+  Page_X_Matrix_X_Last[X_Number] = max(Page_X_Matrix_X_Last[X_Number], X_Number);
+  Page_X_Matrix_Y_Last[Y_Number] = max(Page_X_Matrix_Y_Last[Y_Number], Y_Number);
+
+} // Matrix_Calc
 
 
 
-  return 0; // CHANGE ME
-} //
-
+// -------------------------------------------- CanNet - Calculator - Stolen --------------------------------------------
+// https://github.com/benrugg/Arduino-Hex-Decimal-Conversion/blob/master/hex_dec.ino
 unsigned int hexToDec(String hexString) {
 
   unsigned int decValue = 0;
@@ -397,13 +426,61 @@ void Draw_Button(String Button_Text, int Start_X, int Start_Y) {
 
 } // Draw_Button
 
-void Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y) {
+void Draw_Button_Matrix(String Button_Text, int X_Number, int Y_Number) {
 
-  Draw_Button(
-              Button_Text,
-              Matrix_Spacing * Button_Number_X + Draw_Size_X * (Button_Number_X - 1),
-        	    Top_Bar_Size + Matrix_Spacing * Button_Number_Y + Draw_Size_Y * (Button_Number_Y - 1)
-  );
+	if (true) { // Edge
+		lcd.setColor(Edge_Color);
+
+		if (Draw_Edge_Size == 0);
+
+
+
+		else if (Draw_Edge_Size == 1) {
+			lcd.drawRoundRect(Page_X_Matrix[X_Number][Y_Number][Begin_X],
+                        Page_X_Matrix[X_Number][Y_Number][Begin_Y],
+                        Page_X_Matrix[X_Number][Y_Number][End_X],
+                        Page_X_Matrix[X_Number][Y_Number][End_Y]
+      );
+		}
+
+		else {
+			lcd.fillRoundRect(Page_X_Matrix[X_Number][Y_Number][Begin_X],
+                        Page_X_Matrix[X_Number][Y_Number][Begin_Y],
+                        Page_X_Matrix[X_Number][Y_Number][End_X],
+                        Page_X_Matrix[X_Number][Y_Number][End_Y]
+      );
+		}
+  } // Edge
+
+	if (true) { // Button
+		lcd.setColor(Button_Color);
+		lcd.fillRoundRect(Page_X_Matrix[X_Number][Y_Number][Begin_X] + Draw_Edge_Size,
+                      Page_X_Matrix[X_Number][Y_Number][Begin_Y] + Draw_Edge_Size,
+                      Page_X_Matrix[X_Number][Y_Number][End_X] - Draw_Edge_Size,
+                      Page_X_Matrix[X_Number][Y_Number][End_Y] - Draw_Edge_Size
+    );
+  } // Button
+
+	if (Button_Text != "") { // Text
+		lcd.setColor(Text_Color);
+		lcd.setBackColor(Button_Color);
+
+			if (Button_Center_Text == true) {
+				lcd.print(
+					Button_Text,
+					Page_X_Matrix[X_Number][Y_Number][Begin_X] + Center_Text_Calc_X(Button_Text),
+					Page_X_Matrix[X_Number][Y_Number][Begin_Y] + Center_Text_Calc_Y(Button_Text)
+				);
+			}
+
+			else {
+				lcd.print( // CHANGE ME TO SOMETHING USEFUL
+					Button_Text,
+					Page_X_Matrix[X_Number][Y_Number][Begin_X] + 15,
+					Page_X_Matrix[X_Number][Y_Number][Begin_Y] + 15
+				);
+			}
+  } // if (Button_Text != "")
 
 } // Draw_Button_Matrix
 
@@ -470,10 +547,9 @@ void Draw_Page(String Page_Content) {
       int Matrix_X = Find_Sub_Setting_Int(Button_Settings, "X");
       int Matrix_Y = Find_Sub_Setting_Int(Button_Settings, "Y");
 
-      Page_X_Matrix_X[Matrix_X] = Matrix_Calc_X(Matrix_X);
-      Page_X_Matrix_Y[Matrix_Y] = Matrix_Calc_Y(Matrix_Y);
+      Matrix_Calc(Matrix_X, Matrix_Y);
 
-      Draw_Button(Find_Sub_Setting(Button_Settings, "N"), Page_X_Matrix_X[Matrix_X], Page_X_Matrix_Y[Matrix_Y]);
+      Draw_Button_Matrix(Find_Sub_Setting(Button_Settings, "N"), Matrix_X, Matrix_Y);
 
       Page_Content.replace("\r\nMatrix Button = " + Button_Settings, ""); // Removed the entry that was just drawn
     } // Matrix Button
@@ -489,26 +565,18 @@ void Draw_Page(String Page_Content) {
       int Matrix_X = Find_Sub_Setting_Int(Slider_Settings, "X");
       int Matrix_Y = Find_Sub_Setting_Int(Slider_Settings, "Y");
 
-      Page_X_Matrix_Y[Matrix_Y] = Matrix_Calc_Y(Matrix_Y);
-
       if (Find_Sub_Setting_Int(Slider_Settings, "X") == 0) {
         Draw_Size_X = lcd.getDisplayXSize() - Matrix_Spacing * 2;
-        Page_X_Matrix_X[Matrix_X] = Matrix_Calc_X(Matrix_X);
-
-        Draw_Button_Matrix("", 1, Find_Sub_Setting_Int(Slider_Settings, "Y"));
+        Matrix_X = 1;
       } // X == 0
 
       else { // X != 0
         Draw_Size_X = Button_Size_X;
-        Page_X_Matrix_X[Matrix_X] = Matrix_Calc_X(Matrix_X);
-
-        Draw_Button_Matrix(
-                            "",
-                            Find_Sub_Setting_Int(Slider_Settings, "X"),
-                            Find_Sub_Setting_Int(Slider_Settings, "Y")
-        );
       } // X != 0
 
+      Matrix_Calc(Matrix_X, Matrix_Y);
+
+      Draw_Button_Matrix("", Matrix_X, Matrix_Y);
 
       Page_Content.replace("\r\nMatrix Slider = " + Slider_Settings, ""); // Removed the entry that was just drawn
     } // Matrix Slider
@@ -526,7 +594,6 @@ void Draw_Page(String Page_Content) {
   }
 
 } // Draw_Page
-
 
 
 
@@ -597,17 +664,241 @@ void Page_X_Touch() {
   if (
       !touch.dataAvailable() || // Screen not pressed
       Touch_Input_Y == -1 || // Input off screen
-      Touch_Input_Y < Top_Bar_Size + Matrix_Spacing || // Input not matching top bar
+      Touch_Input_Y < Top_Bar_Size + Matrix_Spacing || // Input not matching first button
       Page_Ignore_Input_Until > millis() // Pressed to soon ignoreing input
   ) return; // No delaied output for Top_Bar_Touch
 
-  Serial.println("MARKER"); // rm
+  // int Match_X;
+  int Match_Y;
+
+
+  for (byte i = 1; i < Max_Matrix_Y + 1; i++) {
+
+
+
+    if (Page_X_Matrix_Y_Last[i] == 0) {
+      Serial.print("i: "); // rm
+      Serial.println(i); // rm
+      Serial.print("Page_X_Matrix_Y_Last[i]: "); // rm
+      Serial.println(Page_X_Matrix_Y_Last[i]); // rm
+      Serial.println("BREAK MARKER"); // rm
+      delay(2500); // rm
+      break;
+    }
+
+    Serial.print("Test: "); // rm
+    Serial.println(Touch_Input_Y); // rm
+    Serial.println(Page_X_Matrix_Y_Last[i]); // rm
+    Serial.println(Page_X_Matrix[Page_X_Matrix_Y_Last[i]][i][Begin_Y]); // rm
+
+    if (Touch_Input_Y > Page_X_Matrix[Page_X_Matrix_Y_Last[i]][i][Begin_Y] &&
+      // else if (Touch_Input_Y > Page_X_Matrix[Page_X_Matrix_Y_Last[i]][i][Begin_Y] &&
+      Touch_Input_Y < Page_X_Matrix[Page_X_Matrix_Y_Last[i]][i][End_Y])
+      {
+        Match_Y = i;
+
+        Serial.print("HIT Y: "); // rm
+        Serial.println(Match_Y); // rm
+        delay(2500); // rm
+        break; // REMOVE ME
+
+      }
+
+
+    }
+
+
+
+  // int Match_X;
+  // int Match_Y;
+  //
+  // for (int Y = 0; Y < Max_Matrix_Y + 1; Y++) {
+  //   if (Touch_Input_Y > Page_X_Matrix[Max_Matrix_X][Y][Begin_Y] && Touch_Input_Y < Page_X_Matrix[Max_Matrix_X][Y][End_Y]) {
+  //
+  //     Match_Y = Y;
+  //
+  //     for (int X = 0; X < Max_Matrix_X + 1; X++) {
+  //       if (Touch_Input_X > Page_X_Matrix[X][Y][Begin_Y] && Touch_Input_X < Page_X_Matrix[X][Y][End_Y]) {
+  //
+  //         Match_X = X;
+  //
+  //       }
+  //     }
+  //
+  //         Serial.print("Match_X: "); // rm
+  //         Serial.println(Match_X); // rm
+  //
+  //         Serial.print("Match_Y: "); // rm
+  //         Serial.println(Match_Y); // rm
+  //
+  //     // int Page_X_Matrix[Max_Matrix_X][Max_Matrix_Y][4];
+  //
+  //   }
+  //
+  // }
+  //
+  //
+  //
+
+
+
+
+  // byte URTouch::Get_Button_Matrix_Number(bool X_Y, int Input, bool Use_Button_Size_2) {
+  //
+  // 	if (X_Y == false) { // false = X
+  //
+  // 		if (Input - Button_Matrix_Spacing < 0) { // Input before first button
+  // 			return 0;
+  // 		}
+  //
+  // 		if (Use_Button_Size_2 == false) { // Button_Size
+  // 			Button_Size = Button_Size_X;
+  // 		} // END MARKER - if (Use_Button_Size_2 == false)
+  //
+  // 		else { // Button_Size
+  // 			Button_Size = Button_Size_2_X;
+  // 		} // END MARKER - else
+  //
+  // 	} // END MARKER - if (X_Y == false)
+  //
+  //
+  // 	else { // true = Y
+  // 		if (Input - Top_Bar_Size - Button_Matrix_Spacing < 0) { // Input before first button
+  // 			return 0;
+  // 		}
+  //
+  // 		if (Use_Button_Size_2 == false) { // Button_Size
+  // 			Button_Size = Button_Size_Y;
+  // 		} // END MARKER - if (Use_Button_Size_2 == false)
+  //
+  // 		else { // Button_Size
+  // 			Button_Size = Button_Size_2_Y;
+  // 		} // END MARKER - else
+  //
+  // 	} // END MARKER - else
+  //
+  //
+  // 	for (int x = 1; x < 100; x++) {
+  //
+  // 		int Temp_Int = Input - Button_Matrix_Spacing * x;
+  //
+  // 		if (x != 1) {
+  // 			Temp_Int = Temp_Int - Button_Size * (x - 1);
+  // 		}
+  //
+  // 		if (X_Y == true) { // true = Y
+  //
+  // 			Temp_Int = Temp_Int - Top_Bar_Size;
+  //
+  // 		} // END MARKER - if (X_Y == true)
+  //
+  // 		if (Temp_Int < 0) {
+  // 			Serial.println("MARKER"); // REMOVE ME
+  // 			Serial.println(x); // REMOVE ME
+  // 			return 0;
+  // 		}
+  //
+  // 		if (Temp_Int < Button_Size && Temp_Int > 0) {
+  // 			return x;
+  // 		}
+  //
+  // 	} // END MARKER - for "loop"
+  //
+  // 	return 0;
+  // }  // End Marker - Get_Button_Matrix_Number
 
 
 
 
 
-  Page_Ignore_Input_Until = millis() + Page_Ignore_Input_For;
+
+
+
+  // for (int y = 1; y < Page_X_Matrix_Y_Last + 1; y++) { // rm
+  //
+  //   if (Touch_Input_X > Page_X_Matrix[Max_Matrix_X][y][Begin_Y] &&
+  //       Touch_Input_X < Page_X_Matrix[Max_Matrix_X][y][End_Y]
+  //   ) { // Y - Input matching Matrix
+  //
+  //   }
+  //
+  // }
+
+
+
+  // Page_X_Matrix[X_Number][Y_Number][Matrix_X_Last]
+
+
+
+
+
+
+    //
+    // Serial.print("Touch_Input_Y: "); // rm
+    // Serial.println(Touch_Input_Y); // rm
+    //
+    // int test_int = Touch_Input_Y - Top_Bar_Size - Matrix_Spacing;
+    //
+    // Serial.print("Test Cacl: "); // rm
+    // Serial.println(test_int); // rm
+    //
+
+    //
+    //
+    // if (Touch_Input_X > Page_X_Matrix[Max_Matrix_X][y][Begin_Y] &&
+    //     Touch_Input_X < Page_X_Matrix[Max_Matrix_X][y][End_Y]
+    // ) { // Y - Input matching Matrix
+
+
+    // int Page_X_Matrix[Max_Matrix_X][Max_Matrix_Y][4];
+    //
+    //
+    // Serial.print("Test Cacl2: "); // rm
+    // Serial.println(test_int / x); // rm
+
+
+
+
+
+
+
+
+
+
+  // delay(250); // rm
+
+
+  // for (int x = 1; x < Page_X_Matrix_X_Last + 1; x++) { // X
+  //
+  //   if (Touch_Input_X > Page_X_Matrix[x][0] && Touch_Input_X < Page_X_Matrix[x][1]) { // Y - Input matching top bar
+  //
+  //     Serial.print("Touch_Input_X: "); // rm
+  //     Serial.println(Touch_Input_X); // rm
+  //     Serial.print("HIT - Matrix - X: "); // rm
+  //     Serial.println(x); // rm
+  //
+  //     Match_X = x;
+  //
+  //   } // if
+  //
+  // } // For loop
+  //
+  // for (int y = 1; y < Page_X_Matrix_Y_Last + 1; y++) { // Y
+  //
+  //   if (Touch_Input_Y > Page_X_Matrix[y][0] && Touch_Input_Y < Page_X_Matrix_Y[y][1]) { // Y - Input matching top bar
+  //
+  //     Serial.print("Touch_Input_Y: "); // rm
+  //     Serial.println(Touch_Input_Y); // rm
+  //     Serial.print("HIT - Matrix - Y: "); // rm
+  //     Serial.println(y); // rm
+  //
+  //     Match_Y = y;
+  //
+  //   } // if
+  //
+  // } // For loop
+
+  // Page_Ignore_Input_Until = millis() + Page_Ignore_Input_For; // UNCOMMENT ME
 
   } // Page_X_Touch
 
@@ -746,7 +1037,10 @@ void setup() {
     if (SD.exists(String(Page_File_Path) + "Page_" + x + ".txt"));
 
     else if (x == Max_Pages) {
-      Error_Mode(2, "Page file import: for ran 101 loop, only 100 pages allowed. Isent that enought? :-)");
+      String Temp_String = "Page file import: for ran " + String(Max_Pages + 1) + " times.\r\nOnly " +
+                            Max_Pages + "100 pages allowed. Isent that enought? :-)";
+
+      Error_Mode(2, Temp_String);
     }
 
     else {
