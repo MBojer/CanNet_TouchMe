@@ -274,27 +274,18 @@ bool Matrix_Calc_Pos(int X_Input, int Y_Input) {
 
 
   // -------------------------------------------- X - Normal Button --------------------------------------------
-  if (Matrix_Object_List(Matrix_Button) != ":") {
+  else if (Matrix_Object_List(Matrix_Button) != ":") {
     X_Input = X_Input - Matrix_Spacing;
 
     for (int Loop_Count = 1; Loop_Count < Max_Touch_Object + 1; Loop_Count++) {
 
       if (X_Input < 0) { // No Match = return
-        Serial.println("X_Input < 0"); // rm
         return false;
       }
 
       else if (X_Input > 0 && X_Input < Button_Size_X) { // Match
 
-        Serial.print("X_Input:"); // rm
-        Serial.println(X_Input); // rm
-
-        Serial.print("Matrix_Object_List(Matrix_Button):"); // rm
-        Serial.println(Matrix_Object_List(Matrix_Button)); // rm
-
-
         if (Matrix_Object_List(Matrix_Button).indexOf(":" + String(Loop_Count) + "-" + String(Y_Input) + ":") == -1) { // Match Check
-          Serial.println("return false"); // rm
           return false;
         }
 
@@ -306,7 +297,6 @@ bool Matrix_Calc_Pos(int X_Input, int Y_Input) {
 
       else if (Loop_Count == Max_Touch_Object) { // Max_Touch_Object reached = Touch is DISABLED
         Error_Mode(2, "For loop X_Input ran till end.\r\nTouch is disabled due to this.\r\nTo resolve this, either increase Max_Touch_Object or remove some buttons from the page config file.");
-        Serial.println("Loop_Count"); // rm
         return false;
       }
 
@@ -317,7 +307,6 @@ bool Matrix_Calc_Pos(int X_Input, int Y_Input) {
 
 
   // ----------------------------- Match Found -----------------------------
-  Serial.println("MATCH"); // rm
   Matrix_Calc_Pos_X = X_Input;
   Matrix_Calc_Pos_Y = Y_Input;
 
