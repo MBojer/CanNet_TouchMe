@@ -71,6 +71,8 @@ unsigned long Top_Bar_Ignore_Input_Until;
 int Page_Ignore_Input_For = 500;
 unsigned long Page_Ignore_Input_Until;
 
+#define Slider_Dont_Move_For 100
+unsigned long Slider_Dont_Move_Until;
 
 // -------------------------------------------- Matrix Calc --------------------------------------------
 int Matrix_Calc_Array[4];
@@ -132,8 +134,13 @@ int Draw_Size_Y;
 byte Draw_Edge_Size;
 
 
-// -------------------------------------------- CanNet - Draw_Page --------------------------------------------
+// -------------------------------------------- CanNet - Draw Slider Matrix --------------------------------------------
 int Full_Screen_Button_Size = 0;
+
+#define Slider_Size_X 10
+
+int Slider_Last_Position = -1;
+
 
 
 // -------------------------------------------- CanNet - URTouch --------------------------------------------
@@ -146,6 +153,13 @@ String _Matrix_Object_List[2];
 // Name of lists:
 #define Matrix_Button 0
 #define Matrix_Slider 1
+
+
+
+// -------------------------------------------- CanNet - MISC --------------------------------------------
+String _Slider_Last_Position;
+
+
 
 
 
@@ -208,6 +222,44 @@ void Matrix_Object_List_Reset() {
 } // Matrix_Object_List_Reset
 
 
+void Slider_Last_Position_Set(int &X_Position) {
+
+  String Search_For = ":" + String(Matrix_Calc_Pos_X) + "-" + String(Matrix_Calc_Pos_Y);
+
+  if (_Slider_Last_Position.indexOf(Search_For + "-") != -1) { // Value alreay on list
+
+    int Temp_Int = _Slider_Last_Position.indexOf(Search_For);
+
+    String Replace_String = _Slider_Last_Position.substring(Temp_Int, _Slider_Last_Position.indexOf(":", Temp_Int + 1) + 1);
+
+    _Slider_Last_Position.replace(Replace_String , Search_For + "-" + X_Position + ":");
+
+  } // Value alreay on list
+
+
+  else { // Not on list
+    _Slider_Last_Position = _Slider_Last_Position + Search_For + "-" + X_Position + ":";
+  } // Not on list
+
+
+}
+
+int Slider_Last_Position_Get() {
+
+  String Temp_String = ":" + String(Matrix_Calc_Pos_X) + "-" + String(Matrix_Calc_Pos_Y) + "-";
+
+  int Temp_Int = _Slider_Last_Position.indexOf(Temp_String);
+
+  if (Temp_Int != -1) { // Value on list
+
+    Temp_String = _Slider_Last_Position.substring(Temp_Int + Temp_String.length(), _Slider_Last_Position.indexOf(":", Temp_Int + 1));
+
+    Slider_Last_Position = Temp_String.toInt();
+    return Slider_Last_Position;
+
+  }
+  return -1;
+} // Slider_Last_Position
 
 
 // -------------------------------------------- CanNet - Calculator --------------------------------------------
@@ -241,6 +293,14 @@ void Matrix_Calc(int X_Number, int Y_Number) {
   Matrix_Calc_Array[Y_End] = Top_Bar_Size + Matrix_Spacing * Y_Number + Draw_Size_Y * Y_Number;
 
 } // Matrix_Calc
+
+int Matrix_Calc_X(int X_Number) {
+  return Matrix_Spacing * X_Number + Draw_Size_X * (X_Number - 1);
+} // Matrix_Calc_X
+
+int Matrix_Calc_Y(int Y_Number) {
+  return Top_Bar_Size + Matrix_Spacing * Y_Number + Draw_Size_Y * (Y_Number - 1);
+} // Matrix_Calc_Y
 
 bool Matrix_Calc_Pos(int X_Input, int Y_Input) {
 
@@ -754,6 +814,68 @@ void Draw_Page(String Page_Content) {
 
 } // Draw_Page
 
+void Draw_Slider_Marker_Matrix(byte Y_Matrix_Position) {
+
+	if (Slider_Dont_Move_Until > millis()) return;
+
+  // --------------------------  Full Screen Slider --------------------------
+  if (Matrix_Calc_Pos_X == 0) {
+
+    int Slider_Y_Axis = Matrix_Calc_Y(Matrix_Calc_Pos_Y);
+    int Slider_Size_Y = Button_Size_X - Edge_Size - 2;
+    int X_Position = Touch_Input_X;
+
+
+    // Left of button
+    if (X_Position < Matrix_Spacing + Edge_Size + 1) {
+  		X_Position = Matrix_Spacing + Edge_Size + 1;
+  	}
+
+    // Right of button
+  	// else if (X_Position > Slider_Restrict_X_End) {
+  	// 	X_Position = Slider_Restrict_X_End - Slider_Size_X * 10 - Slider_Spacing;
+  	// }
+
+
+  	// ************ Removing the old slider ************
+  	if (Slider_Last_Position_Get() != -1) {
+
+  		lcd.setColor(Button_Color);
+  		lcd.fillRoundRect(
+  									Slider_Last_Position,											// x1
+  									Slider_Y_Axis,															// y1
+  									Slider_Last_Position + Slider_Size_X,			// x2
+  									Slider_Y_Axis + Slider_Size_Y	); 							// y2
+
+  	} // Removing the old slider
+
+
+  	// ************ Draws the new slider ************
+  	lcd.setColor(Edge_Color);
+  	lcd.fillRoundRect(
+  								X_Position,											// x1
+  								Slider_Y_Axis,									// y1
+  								X_Position + Slider_Size_X,			// x2
+  								Slider_Y_Axis + Slider_Size_Y );	 	// y2
+
+
+    Slider_Last_Position_Set(X_Position);
+    Slider_Dont_Move_Until = millis() + Slider_Dont_Move_For;
+
+  } // if (Matrix_Calc_Pos_X == 0) - Full Screen Slider
+
+  // --------------------------  Normal Slider --------------------------
+  else {
+
+    // ADD ME - Funcunality for this
+    Error_Mode(2, "No support for none fullscreen slider aka 0-Y"); // CHANGE ME
+
+  } // else - Normal Slider
+
+
+
+} // Draw_Slider
+
 
 
 
@@ -872,63 +994,19 @@ void Page_X_Touch() {
 
           }
 
-          Serial.print("Slider_Value: "); // rm
-          Serial.println(Slider_Value); // rm
 
 
+          Draw_Slider_Marker_Matrix(Slider_Value);
 
 
 
         }
 
-        // // // -------------------------- Slider --------------------------
-        // // void UTFT::Draw_Slider(int Potition_X) {
-        // //
-        // // 	int x = Potition_X;
-        // //
-        // // 	if (_Slider_Dont_Move_Until > millis()) return;
-        // //
-        // // 	if (x < Slider_Restrict_X_Begin) {
-        // // 		x = Slider_Restrict_X_Begin;
-        // // 	}
-        // //
-        // // 	else if (x > Slider_Restrict_X_End) {
-        // // 		x = Slider_Restrict_X_End - Slider_Size_X * 10 - Slider_Spacing;
-        // // 	}
-        // //
-        // // 	// ************ Removing the old slider ************
-        // // 	if (_Slider_Last_Position == -9999); // -9999 = No marker present
-        // //
-        // // 	else {
-        // // 		setColor(Slider_Color_Replace);
-        // // 		fillRoundRect(
-        // // 									_Slider_Last_Position,											// x1
-        // // 									Slider_Y_Axis,															// y1
-        // // 									_Slider_Last_Position + Slider_Size_X,			// x2
-        // // 									Slider_Y_Axis + Slider_Size_Y	 							// y2
-        // // 									);
-        // //
-        // // 	} // else
-        // //
-        // //
-        // // 	// ************ Draws the new slider ************
-        // // 	setColor(Slider_Color);
-        // // 	fillRoundRect(
-        // // 								x,											// x1
-        // // 								Slider_Y_Axis,									// y1
-        // // 								x + Slider_Size_X,			// x2
-        // // 								Slider_Y_Axis + Slider_Size_Y	 	// y2
-        // // 								);
-        // //
-        // // 	_Slider_Last_Position = x;
-        // // 	_Slider_Dont_Move_Until = millis() + Slider_Dont_Move_For;
-        // //
-        // // } // Draw_Slider
-        // //
-
-        else { // Normal Slider
+        // --------------------------  Normal Slider --------------------------
+        else {
 
           // ADD ME - Funcunality for this
+          Error_Mode(2, "No support for none fullscreen slider aka 0-Y"); // CHANGE ME
 
         }
 
