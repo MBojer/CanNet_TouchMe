@@ -26,8 +26,6 @@
 
 #define Max_Touch_Object 50
 
-
-
 // -------------------------------------------- SD Card --------------------------------------------
 #include <SD.h>
 
@@ -52,7 +50,7 @@ extern uint8_t GroteskBold16x32[];
 
 // -------------------------------------------- Touch --------------------------------------------
 #include <URTouch.h>
-URTouch touch( 6, 5, 4, 3, 2);
+URTouch touch(6, 5, 4, 3, 2);
 
 int Touch_Input_X;
 int Touch_Input_Y;
@@ -353,8 +351,8 @@ String Read_Conf_File(String File_Path, bool Error_Message) {
 
     File_Content = File_Content.substring(0, File_Content.indexOf("Comments:"));
 
-    while (true) {
-      if (File_Content.indexOf("\r\n\r\n") == -1) break;
+    while (File_Content.indexOf("\r\n\r\n") != -1) {
+      // if (File_Content.indexOf("\r\n\r\n") == -1) break; // REMOVE ME - Testing
       File_Content.replace("\r\n\r\n", "\r\n");
     }
 
@@ -1013,6 +1011,16 @@ void Touch_Check() {
 // -------------------------------------------- Setup --------------------------------------------
 void setup() {
 
+  // -------------------------------------------- LCD --------------------------------------------
+  lcd.InitLCD();
+  lcd.setFont(GroteskBold16x32);
+
+
+  // -------------------------------------------- Touch --------------------------------------------
+  touch.InitTouch();
+  touch.setPrecision(PREC_MEDIUM);
+
+
   // -------------------------------------------- Serial --------------------------------------------
   Serial.begin(115200);
 
@@ -1022,15 +1030,9 @@ void setup() {
     }
   }
 
-
-  // -------------------------------------------- LCD --------------------------------------------
-  lcd.InitLCD();
-  lcd.setFont(GroteskBold16x32);
-
-
-  // -------------------------------------------- Touch --------------------------------------------
-  touch.InitTouch();
-  touch.setPrecision(PREC_MEDIUM);
+  if (Serial) { // rm
+    delay(250);
+  }
 
 
   // -------------------------------------------- SD Card --------------------------------------------
@@ -1049,47 +1051,48 @@ void setup() {
   // -------------------------------------------- Settings file import --------------------------------------------
   File_Content = Read_Conf_File(Setting_File_Path);
 
+  if (File_Content != "") {
 
-  if (File_Content.indexOf("\r\nText Color = ") != -1) {
-    Text_Color = Find_Setting_Word(File_Content, "Text Color");
+    if (File_Content.indexOf("\r\nText Color = ") != -1) {
+      Text_Color = Find_Setting_Word(File_Content, "Text Color");
+    }
+
+    if (File_Content.indexOf("\r\nEdge Color = ") != -1) {
+      Edge_Color = Find_Setting_Word(File_Content, "Edge Color");
+    }
+
+    if (File_Content.indexOf("\r\nButton Color = ") != -1) {
+      Button_Color = Find_Setting_Word(File_Content, "Button Color");
+    }
+
+    if (File_Content.indexOf("\r\nEdge Size = ") != -1) {
+      Edge_Size = Find_Setting_Int(File_Content, "Edge Size");
+    }
+
+    if (File_Content.indexOf("\r\nButton Center Text = ") != -1) {
+      Button_Center_Text = Find_Setting_Bool(File_Content, "Button Center Text");
+    }
+
+    if (File_Content.indexOf("\r\nMatrix Spacing = ") != -1) {
+      Matrix_Spacing = Find_Setting_Int(File_Content, "Matrix Spacing");
+    }
+
+    if (File_Content.indexOf("\r\nButton Size X = ") != -1) {
+      Button_Size_X = Find_Setting_Int(File_Content, "Button Size X");
+    }
+
+    if (File_Content.indexOf("\r\nButton Size Y = ") != -1) {
+      Button_Size_Y = Find_Setting_Int(File_Content, "Button Size Y");
+    }
+
+    if (File_Content.indexOf("\r\nFlip Touch = ") != -1) {
+      Flip_Touch = Find_Setting_Bool(File_Content, "Flip Touch");
+    }
+
+    if (File_Content.indexOf("\r\nIgnore Input For = ") != -1) {
+        Page_Ignore_Input_For = Find_Setting_Int(File_Content, "Ignore Input For");
+    }
   }
-
-  if (File_Content.indexOf("\r\nEdge Color = ") != -1) {
-    Edge_Color = Find_Setting_Word(File_Content, "Edge Color");
-  }
-
-  if (File_Content.indexOf("\r\nButton Color = ") != -1) {
-    Button_Color = Find_Setting_Word(File_Content, "Button Color");
-  }
-
-  if (File_Content.indexOf("\r\nEdge Size = ") != -1) {
-    Edge_Size = Find_Setting_Int(File_Content, "Edge Size");
-  }
-
-  if (File_Content.indexOf("\r\nButton Center Text = ") != -1) {
-    Button_Center_Text = Find_Setting_Bool(File_Content, "Button Center Text");
-  }
-
-  if (File_Content.indexOf("\r\nMatrix Spacing = ") != -1) {
-    Matrix_Spacing = Find_Setting_Int(File_Content, "Matrix Spacing");
-  }
-
-  if (File_Content.indexOf("\r\nButton Size X = ") != -1) {
-    Button_Size_X = Find_Setting_Int(File_Content, "Button Size X");
-  }
-
-  if (File_Content.indexOf("\r\nButton Size Y = ") != -1) {
-    Button_Size_Y = Find_Setting_Int(File_Content, "Button Size Y");
-  }
-
-  if (File_Content.indexOf("\r\nFlip Touch = ") != -1) {
-    Flip_Touch = Find_Setting_Bool(File_Content, "Flip Touch");
-  }
-
-  if (File_Content.indexOf("\r\nIgnore Input For = ") != -1) {
-      Page_Ignore_Input_For = Find_Setting_Int(File_Content, "Ignore Input For");
-  }
-
 
 
   // -------------------------------------------- Top Bar file import --------------------------------------------
@@ -1097,21 +1100,21 @@ void setup() {
 
   if (File_Content != "") {
     Top_Bar_Present = true;
-  }
 
-  if (File_Content.indexOf("\r\nSize = ") != -1) {
-    Top_Bar_Size = Find_Setting_Int(File_Content, "Size");
-  }
+    if (File_Content.indexOf("\r\nSize = ") != -1) {
+      Top_Bar_Size = Find_Setting_Int(File_Content, "Size");
+    }
 
-  if (File_Content.indexOf("\r\nButton Size = ") != -1) {
-    Top_Bar_Button_Size = Find_Setting_Int(File_Content, "Button Size");
-  }
+    if (File_Content.indexOf("\r\nButton Size = ") != -1) {
+      Top_Bar_Button_Size = Find_Setting_Int(File_Content, "Button Size");
+    }
 
-  if (File_Content.indexOf("\r\nIgnore Input For = ") != -1) {
-    Top_Bar_Ignore_Input_For = Find_Setting_Int(File_Content, "Ignore Input For");
-  }
+    if (File_Content.indexOf("\r\nIgnore Input For = ") != -1) {
+      Top_Bar_Ignore_Input_For = Find_Setting_Int(File_Content, "Ignore Input For");
+    }
 
-  File_Content = "";
+    File_Content = "";
+  }
 
 
   // -------------------------------------------- Page file import --------------------------------------------
@@ -1121,8 +1124,7 @@ void setup() {
 
     else if (x == Max_Pages) {
       String Temp_String = "Page file import: for ran " + String(Max_Pages + 1) + " times.\r\nOnly " +
-                            Max_Pages + "100 pages allowed. Isent that enought? :-)";
-
+                            Max_Pages + " pages allowed. Isent that enought? :-)";
       Error_Mode(2, Temp_String);
     }
 
@@ -1131,8 +1133,7 @@ void setup() {
       break;
     }
 
-
-  }
+  } // for (int x = 1; x < Max_Pages + 1; x++)
 
 
   // -------------------------------------------- Boot Message - End --------------------------------------------
