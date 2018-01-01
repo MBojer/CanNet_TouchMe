@@ -245,6 +245,7 @@ bool Matrix_Calc_Pos(int X_Input, int Y_Input) {
 
   bool Match_Found = false;
 
+  // -------------------------------------------- Y --------------------------------------------
   for (int Loop_Count = 1; Loop_Count < Max_Touch_Object + 1; Loop_Count++) {
 
     if (Y_Input < 0) { // No Match = return
@@ -267,6 +268,7 @@ bool Matrix_Calc_Pos(int X_Input, int Y_Input) {
 
 
   // -------------------------------------------- X - Matrix Slider --------------------------------------------
+  // Has to be furst due to "X_Input = 0" it will get a false negative below
   if (Matrix_Object_List(Matrix_Slider) != ":") {
     if (Matrix_Object_List(Matrix_Slider).indexOf(":0-" + String(Y_Input) + ":") != -1) { // Full Screen Button
       X_Input = 0;
@@ -292,15 +294,9 @@ bool Matrix_Calc_Pos(int X_Input, int Y_Input) {
           return false;
         }
 
-
-          Serial.print("X_Input: "); // rm
-          Serial.println(X_Input); // rm
-
-          Serial.print("Loop_Count: "); // rm
-          Serial.println(Loop_Count); // rm
-
         X_Input = Loop_Count;
         Matrix_Calc_Pos_List = Matrix_Button;
+        Match_Found = true;
 
         break;
       } // else if (X_Input > 0 && X_Input < Button_Size_X)
@@ -312,20 +308,18 @@ bool Matrix_Calc_Pos(int X_Input, int Y_Input) {
 
       X_Input = X_Input - Button_Size_X - Matrix_Spacing;
 
-    } // for - X
-  }
+    } // for X
+
+  } // if (Matrix_Object_List(Matrix_Button)
 
 
   // ----------------------------- Match Found -----------------------------
-
-  delay(1000); // rm
-
   Matrix_Calc_Pos_X = X_Input;
   Matrix_Calc_Pos_Y = Y_Input;
 
   return true;
 
-} // Matrix_Calc
+} // Matrix_Calc_Pos
 
 
 
@@ -820,25 +814,24 @@ void Page_X_Touch() {
       Page_Ignore_Input_Until > millis() // Pressed to soon ignoreing input
   ) return; // No delaied output for Top_Bar_Touch
 
-    if (Matrix_Calc_Pos(Touch_Input_X, Touch_Input_Y) == true) { // Match found
-
-      // Serial.print("Matrix_Calc_Pos_X: "); // rm
-      // Serial.println(Matrix_Calc_Pos_X); // rm
-      // Serial.print("Matrix_Calc_Pos_Y: "); // rm
-      // Serial.println(Matrix_Calc_Pos_Y); // rm
-
+  if (Matrix_Calc_Pos(Touch_Input_X, Touch_Input_Y) == true) { // Match found
 
     String Action = Find_Matrix_Action(Matrix_Calc_Pos_X, Matrix_Calc_Pos_Y, "A");
+
+    Serial.print("Matrix_Calc_Pos_List: "); // rm
+    Serial.println(Matrix_Calc_Pos_List); // rm
 
     Serial.print("Action: "); // rm
     Serial.println(Action); // rm
 
+
     if (Action == "") return; // No action found returning
+
 
     switch (Matrix_Calc_Pos_List) {
 
       // ----------------------------------------------------
-      case Matrix_Button:
+      case Matrix_Button: {
         Serial.print("ADD ME - Queue Action: "); // rm
         Serial.println(Action); // rm
 
@@ -846,21 +839,20 @@ void Page_X_Touch() {
 
         Page_Ignore_Input_Until = millis() + Page_Ignore_Input_For;
         break;
+        }
 
 
       // ----------------------------------------------------
-      case Matrix_Slider:
+      case Matrix_Slider: {
         Serial.print("X: "); // rm
         Serial.println(Touch_Input_X); // rm
-        break;
 
-      default:
-        Serial.print("Switch NO MATCH"); // rm
         break;
+        }
+
+      default: break;
+
     } // switch (Matrix_Calc_Pos_List)
-
-
-
 
   } // if (Matrix_Calc_Pos(Touch_Input_X, Touch_Input_Y) == true)
 
