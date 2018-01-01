@@ -82,6 +82,16 @@ int Matrix_Calc_Array[4];
 #define Y_End 3
 
 
+// -------------------------------------------- Matrix Calc Pos --------------------------------------------
+int Matrix_Calc_Pos_X;
+int Matrix_Calc_Pos_Y;
+int Matrix_Calc_Pos_List;
+
+
+// -------------------------------------------- Find Matrix Action --------------------------------------------
+String Find_Matrix_Action_Line;
+
+
 // -------------------------------------------- MISC --------------------------------------------
 int Current_Page = 1;
 int Last_Page = 1;
@@ -113,8 +123,6 @@ int Button_Size_X;
 int Button_Size_Y;
 
 
-// -------------------------------------------- CanNet - UTFT - Draw Page --------------------------------------------
-String Matrix_Object_list;
 
 
 // --------------------- Draw_Button ---------------------
@@ -128,7 +136,12 @@ byte Draw_Edge_Size;
 bool Flip_Touch = false;
 
 
+// -------------------------------------------- CanNet - Matrix_Object_List --------------------------------------------
+String _Matrix_Object_List[2];
 
+// Name of lists:
+#define Matrix_Button 0
+#define Matrix_Slider 1
 
 
 
@@ -170,6 +183,27 @@ void Error_Mode(byte Error_Type, String Error_Text) {
 
 } // Error_Mode
 
+void Matrix_Object_List(byte List, int X_Matrix, int Y_Matrix) {
+
+  _Matrix_Object_List[List] = _Matrix_Object_List[List] + X_Matrix + "-" + Y_Matrix + ":";
+
+} // Matrix_Object_List
+
+String Matrix_Object_List(byte List) {
+
+  return _Matrix_Object_List[List];
+
+} // Matrix_Object_List
+
+void Matrix_Object_List_Reset() {
+
+  // CHANGE ME - to a loop
+
+  _Matrix_Object_List[Matrix_Button] = ":";
+  _Matrix_Object_List[Matrix_Slider] = ":";
+} // Matrix_Object_List_Reset
+
+
 
 
 // -------------------------------------------- CanNet - Calculator --------------------------------------------
@@ -191,6 +225,7 @@ int Center_Text_Calc_Y(String Text) { // Referance only
 	return Center_Text_Calc_Y(Text, Draw_Size_Y);
 } // Center_Text_Calc_Y - Reff
 
+
 void Matrix_Calc(int X_Number, int Y_Number) {
 
   // ---------- X ----------
@@ -203,89 +238,90 @@ void Matrix_Calc(int X_Number, int Y_Number) {
 
 } // Matrix_Calc
 
-
 bool Matrix_Calc_Pos(int X_Input, int Y_Input) {
 
-  // ---------- X ----------
-  Serial.println("---------- Matrix_Calc_Pos ----------"); // rm
-
-  Serial.print("X_Input: "); // rm
-  Serial.println(X_Input); // rm
-
-  Serial.print("Y_Input: "); // rm
-  Serial.println(Y_Input); // rm
-
-  Serial.println("---------- After changes ----------"); // rm
-
-
-  // -------------------- Y --------------------
+  // -------------------------------------------- Y --------------------------------------------
   Y_Input = Y_Input - Top_Bar_Size - Matrix_Spacing;
 
   for (int Loop_Count = 1; Loop_Count < Max_Touch_Object + 1; Loop_Count++) {
 
     if (Y_Input < 0) { // No Match = return
-      Serial.println("No Match Y"); // rm
       return false;
     }
 
-    if (Y_Input > 0 && Y_Input < Button_Size_Y) { // Match
-
-      Serial.print("Match Y: "); // rm
-      Serial.println(Loop_Count); // rm
-
-      Y_Input = Loop_Count * -1;
+    else if (Y_Input > 0 && Y_Input < Button_Size_Y) { // Match
+      Y_Input = Loop_Count;
       break;
     }
 
-    Y_Input = Y_Input - Button_Size_Y - Matrix_Spacing;
-
-    if (Loop_Count == Max_Touch_Object) { // Max_Touch_Object reached = Touch is DISABLED
+    else if (Loop_Count == Max_Touch_Object) { // Max_Touch_Object reached = Touch is DISABLED
       Error_Mode(2, "For loop Y_Input ran till end.\r\nTouch is disabled due to this.\r\nTo resolve this, either increase Max_Touch_Object or remove some buttons from the page config file.");
       return false;
     }
 
+    Y_Input = Y_Input - Button_Size_Y - Matrix_Spacing;
+
   } // for - Y
 
 
-  // Matrix_Spacing
-  // Button_Size_X
-  // Button_Size_Y
+  // -------------------------------------------- X - Matrix Slider --------------------------------------------
+  if (Matrix_Object_List(Matrix_Slider) != ":") {
+    if (Matrix_Object_List(Matrix_Slider).indexOf(":0-" + String(Y_Input) + ":") != -1) { // Full Screen Button
+      X_Input = 0;
+      Matrix_Calc_Pos_List = Matrix_Slider;
+    }
+  } // if (Matrix_Object_List_[1] != "")
 
 
-  // -------------------- X --------------------
-  if (Y_Input < 0) {
-     Serial.println("Y Hit"); // rm
-     return true; // rm
+  // -------------------------------------------- X - Normal Button --------------------------------------------
+  if (Matrix_Object_List(Matrix_Button) != ":") {
+    X_Input = X_Input - Matrix_Spacing;
+
+    for (int Loop_Count = 1; Loop_Count < Max_Touch_Object + 1; Loop_Count++) {
+
+      if (X_Input < 0) { // No Match = return
+        Serial.println("X_Input < 0"); // rm
+        return false;
+      }
+
+      else if (X_Input > 0 && X_Input < Button_Size_X) { // Match
+
+        Serial.print("X_Input:"); // rm
+        Serial.println(X_Input); // rm
+
+        Serial.print("Matrix_Object_List(Matrix_Button):"); // rm
+        Serial.println(Matrix_Object_List(Matrix_Button)); // rm
+
+
+        if (Matrix_Object_List(Matrix_Button).indexOf(":" + String(Loop_Count) + "-" + String(Y_Input) + ":") == -1) { // Match Check
+          Serial.println("return false"); // rm
+          return false;
+        }
+
+        X_Input = Loop_Count;
+        Matrix_Calc_Pos_List = Matrix_Button;
+
+        break;
+      } // else if (X_Input > 0 && X_Input < Button_Size_X)
+
+      else if (Loop_Count == Max_Touch_Object) { // Max_Touch_Object reached = Touch is DISABLED
+        Error_Mode(2, "For loop X_Input ran till end.\r\nTouch is disabled due to this.\r\nTo resolve this, either increase Max_Touch_Object or remove some buttons from the page config file.");
+        Serial.println("Loop_Count"); // rm
+        return false;
+      }
+
+      X_Input = X_Input - Button_Size_X - Matrix_Spacing;
+
+    } // for - X
   }
 
 
+  // ----------------------------- Match Found -----------------------------
+  Serial.println("MATCH"); // rm
+  Matrix_Calc_Pos_X = X_Input;
+  Matrix_Calc_Pos_Y = Y_Input;
 
-
-  // for (int Loop_Count = 1; Loop_Count < Max_Touch_Object + 1; Loop_Count++) {
-  //   X_Input = X_Input - Matrix_Spacing * Loop_Count;
-  //
-  //   Serial.print("X_Input: "); // rm
-  //   Serial.println(X_Input); // rm
-  //
-  //   if (X_Input > 0 && X_Input < ???)
-  //
-  //   if (X_Input < 0) {
-  //     break;
-  //   }
-  //
-  //   delay(750); // rm
-  // }
-
-
-
-  // Matrix_Calc_Array[X_Begin] = Matrix_Spacing * X_Number + Draw_Size_X * (X_Number - 1);
-  // Matrix_Calc_Array[X_End] = Matrix_Spacing * X_Number + Draw_Size_X * X_Number;
-  //
-  // // ---------- Y ----------
-  // Matrix_Calc_Array[Y_Begin] = Top_Bar_Size + Matrix_Spacing * Y_Number + Draw_Size_Y * (Y_Number - 1);
-  // Matrix_Calc_Array[Y_End] = Top_Bar_Size + Matrix_Spacing * Y_Number + Draw_Size_Y * Y_Number;
-
-  return false; //  CHANGE ME
+  return true;
 
 } // Matrix_Calc
 
@@ -456,6 +492,43 @@ int Find_Sub_Setting_Int(String Setting_Content, String Setting_Name) {
 
 } // Find_Setting_Int
 
+String Find_Matrix_Action(int X_MPos, int Y_MPos, String Setting_Name) {
+
+  String Find_Matrix_Action_Content = Page_File_Content;
+
+  Find_Matrix_Action_Content.replace("Settings:\r\n", "");
+
+  for (int Line_Number = 0; Line_Number < Max_Touch_Object; Line_Number++) {
+    Find_Matrix_Action_Line = Find_Matrix_Action_Content.substring(0, Find_Matrix_Action_Content.indexOf("\r\n"));
+
+    if (Find_Matrix_Action_Line.indexOf("X:" + String(X_MPos)) != -1) { // Match X
+
+        if (Find_Matrix_Action_Line.indexOf("Y:" + String(Y_MPos)) != -1) { // Match Y
+          return Find_Sub_Setting(Find_Matrix_Action_Line, Setting_Name);
+        }
+
+    }  // Match X
+
+    else if (Find_Matrix_Action_Line.indexOf("N:") != -1) { // Line contains "Name" discarding line
+      Line_Number--;
+    }
+
+    Find_Matrix_Action_Content.replace(Find_Matrix_Action_Line + "\r\n", "");
+
+    if (Find_Matrix_Action_Content.length() == 0) {
+      return "";
+    }
+
+  } // for Line_Number
+
+} // Find_Matrix_Action
+
+String Find_Matrix_Action(String Setting_Name) {
+
+  return Find_Sub_Setting(Find_Matrix_Action_Line, Setting_Name);
+
+} // Find_Matrix_Action(String Setting_Name)
+
 
 // ---------------------------------- Draw ----------------------------------
 void Draw_Button(String Button_Text, int Start_X, int Start_Y) {
@@ -609,10 +682,9 @@ void Draw_Page(String Page_Content) {
 
   if (Page_Content == "") return; // Nothing in the file so nothing to do
 
-  Matrix_Object_list = ":";
-
   Page_Content.replace("\r\nName = " + Find_Setting(Page_Content, "Name"), "");
 
+  Matrix_Object_List_Reset();
 
   for (int x = 0; x < Max_Pages + 1; x++) {
 
@@ -627,7 +699,7 @@ void Draw_Page(String Page_Content) {
       int Matrix_X = Find_Sub_Setting_Int(Button_Settings, "X");
       int Matrix_Y = Find_Sub_Setting_Int(Button_Settings, "Y");
 
-      Matrix_Object_list = Matrix_Object_list + Matrix_X + "-" + Matrix_Y + ":";
+      Matrix_Object_List(Matrix_Button, Matrix_X, Matrix_Y);
 
       Draw_Button_Matrix(Find_Sub_Setting(Button_Settings, "N"), Matrix_X, Matrix_Y);
 
@@ -645,7 +717,7 @@ void Draw_Page(String Page_Content) {
       int Matrix_X = Find_Sub_Setting_Int(Slider_Settings, "X");
       int Matrix_Y = Find_Sub_Setting_Int(Slider_Settings, "Y");
 
-      Matrix_Object_list = Matrix_Object_list + Matrix_X + "-" + Matrix_Y + ":";
+      Matrix_Object_List(Matrix_Slider, Matrix_X, Matrix_Y);
 
       if (Find_Sub_Setting_Int(Slider_Settings, "X") == 0) {
         Draw_Size_X = lcd.getDisplayXSize() - Matrix_Spacing * 2;
@@ -740,249 +812,51 @@ void Top_Bar_Touch() {
 void Page_X_Touch() {
 
   if (
-      // !touch.dataAvailable() || // Screen not pressed
       Touch_Input_X == -1 || // Invalid Input - REMOVEM ME when delaied input needs to run
       Touch_Input_Y == -1 || // Invalid Input - REMOVEM ME when delaied input needs to run
-      // Touch_Input_Y < Top_Bar_Size + Matrix_Spacing || // Input not matching first button
+      Touch_Input_Y < Top_Bar_Size + Matrix_Spacing || // Input not matching first button
       Page_Ignore_Input_Until > millis() // Pressed to soon ignoreing input
   ) return; // No delaied output for Top_Bar_Touch
 
+    if (Matrix_Calc_Pos(Touch_Input_X, Touch_Input_Y) == true) { // Match found
 
-  Matrix_Calc_Pos(Touch_Input_X, Touch_Input_Y);
+    String Action = Find_Matrix_Action(Matrix_Calc_Pos_X, Matrix_Calc_Pos_Y, "A");
 
+    Serial.print("Action: "); // rm
+    Serial.println(Action); // rm
 
+    if (Action == "") return; // No action found returning
 
+    switch (Matrix_Calc_Pos_List) {
 
+      // ----------------------------------------------------
+      case Matrix_Button:
+        Serial.print("ADD ME - Queue Action: "); // rm
+        Serial.println(Action); // rm
 
+        // ADD ME - Queue Action
 
-
-
-  Page_Ignore_Input_Until = millis() + Page_Ignore_Input_For; // UNCOMMENT ME
-
-
-  // int Match_X;
-  // int Match_Y;
-  // for (byte i = 1; i < Max_Matrix_Y + 1; i++) {
-  //
-  //
-  //
-  //   if (Page_X_Matrix_Y_Last[i] == 0) {
-  //     Serial.print("i: "); // rm
-  //     Serial.println(i); // rm
-  //     Serial.print("Page_X_Matrix_Y_Last[i]: "); // rm
-  //     Serial.println(Page_X_Matrix_Y_Last[i]); // rm
-  //     Serial.println("BREAK MARKER"); // rm
-  //     delay(2500); // rm
-  //     break;
-  //   }
-  //
-  //   Serial.print("Test: "); // rm
-  //   Serial.println(Touch_Input_Y); // rm
-  //   Serial.println(Page_X_Matrix_Y_Last[i]); // rm
-  //   Serial.println(Page_X_Matrix[Page_X_Matrix_Y_Last[i]][i][Begin_Y]); // rm
-  //
-  //   if (Touch_Input_Y > Page_X_Matrix[Page_X_Matrix_Y_Last[i]][i][Begin_Y] &&
-  //     // else if (Touch_Input_Y > Page_X_Matrix[Page_X_Matrix_Y_Last[i]][i][Begin_Y] &&
-  //     Touch_Input_Y < Page_X_Matrix[Page_X_Matrix_Y_Last[i]][i][End_Y])
-  //     {
-  //       Match_Y = i;
-  //
-  //       Serial.print("HIT Y: "); // rm
-  //       Serial.println(Match_Y); // rm
-  //       delay(2500); // rm
-  //       break; // REMOVE ME
-  //
-  //     }
-    //
-    //
-    // }
-    //
-    //
-
-    //
-  // int Match_X;
-  // int Match_Y;
-  //
-  // for (int Y = 0; Y < Max_Matrix_Y + 1; Y++) {
-  //   if (Touch_Input_Y > Page_X_Matrix[Max_Matrix_X][Y][Begin_Y] && Touch_Input_Y < Page_X_Matrix[Max_Matrix_X][Y][End_Y]) {
-  //
-  //     Match_Y = Y;
-  //
-  //     for (int X = 0; X < Max_Matrix_X + 1; X++) {
-  //       if (Touch_Input_X > Page_X_Matrix[X][Y][Begin_Y] && Touch_Input_X < Page_X_Matrix[X][Y][End_Y]) {
-  //
-  //         Match_X = X;
-  //
-  //       }
-  //     }
-  //
-  //         Serial.print("Match_X: "); // rm
-  //         Serial.println(Match_X); // rm
-  //
-  //         Serial.print("Match_Y: "); // rm
-  //         Serial.println(Match_Y); // rm
-  //
-  //     // int Page_X_Matrix[Max_Matrix_X][Max_Matrix_Y][4];
-  //
-  //   }
-  //
-  // }
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  // byte URTouch::Get_Button_Matrix_Number(bool X_Y, int Input, bool Use_Button_Size_2) {
-  //
-  // 	if (X_Y == false) { // false = X
-  //
-  // 		if (Input - Button_Matrix_Spacing < 0) { // Input before first button
-  // 			return 0;
-  // 		}
-  //
-  // 		if (Use_Button_Size_2 == false) { // Button_Size
-  // 			Button_Size = Button_Size_X;
-  // 		} // END MARKER - if (Use_Button_Size_2 == false)
-  //
-  // 		else { // Button_Size
-  // 			Button_Size = Button_Size_2_X;
-  // 		} // END MARKER - else
-  //
-  // 	} // END MARKER - if (X_Y == false)
-  //
-  //
-  // 	else { // true = Y
-  // 		if (Input - Top_Bar_Size - Button_Matrix_Spacing < 0) { // Input before first button
-  // 			return 0;
-  // 		}
-  //
-  // 		if (Use_Button_Size_2 == false) { // Button_Size
-  // 			Button_Size = Button_Size_Y;
-  // 		} // END MARKER - if (Use_Button_Size_2 == false)
-  //
-  // 		else { // Button_Size
-  // 			Button_Size = Button_Size_2_Y;
-  // 		} // END MARKER - else
-  //
-  // 	} // END MARKER - else
-  //
-  //
-  // 	for (int x = 1; x < 100; x++) {
-  //
-  // 		int Temp_Int = Input - Button_Matrix_Spacing * x;
-  //
-  // 		if (x != 1) {
-  // 			Temp_Int = Temp_Int - Button_Size * (x - 1);
-  // 		}
-  //
-  // 		if (X_Y == true) { // true = Y
-  //
-  // 			Temp_Int = Temp_Int - Top_Bar_Size;
-  //
-  // 		} // END MARKER - if (X_Y == true)
-  //
-  // 		if (Temp_Int < 0) {
-  // 			Serial.println("MARKER"); // REMOVE ME
-  // 			Serial.println(x); // REMOVE ME
-  // 			return 0;
-  // 		}
-  //
-  // 		if (Temp_Int < Button_Size && Temp_Int > 0) {
-  // 			return x;
-  // 		}
-  //
-  // 	} // END MARKER - for "loop"
-  //
-  // 	return 0;
-  // }  // End Marker - Get_Button_Matrix_Number
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  // for (int y = 1; y < Page_X_Matrix_Y_Last + 1; y++) { // rm
-  //
-  //   if (Touch_Input_X > Page_X_Matrix[Max_Matrix_X][y][Begin_Y] &&
-  //       Touch_Input_X < Page_X_Matrix[Max_Matrix_X][y][End_Y]
-  //   ) { // Y - Input matching Matrix
-  //
-  //   }
-  //
-  // }
-  //
-  //
-  //
-  // Page_X_Matrix[X_Number][Y_Number][Matrix_X_Last]
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-    // Serial.print("Touch_Input_Y: "); // rm
-    // Serial.println(Touch_Input_Y); // rm
-    //
-    // int test_int = Touch_Input_Y - Top_Bar_Size - Matrix_Spacing;
-    //
-    // Serial.print("Test Cacl: "); // rm
-    // Serial.println(test_int); // rm
-    //
-    //
-    //
-    //
-    // if (Touch_Input_X > Page_X_Matrix[Max_Matrix_X][y][Begin_Y] &&
-    //     Touch_Input_X < Page_X_Matrix[Max_Matrix_X][y][End_Y]
-    // ) { // Y - Input matching Matrix
-    //
-    //
-    // int Page_X_Matrix[Max_Matrix_X][Max_Matrix_Y][4];
-    //
-    //
-  //   Serial.print("Test Cacl2: "); // rm
-  //   Serial.println(test_int / x); // rm
-  //
-  // delay(250); // rm
-  //
-  //
-  // for (int x = 1; x < Page_X_Matrix_X_Last + 1; x++) { // X
-  //
-  //   if (Touch_Input_X > Page_X_Matrix[x][0] && Touch_Input_X < Page_X_Matrix[x][1]) { // Y - Input matching top bar
-  //
-  //     Serial.print("Touch_Input_X: "); // rm
-  //     Serial.println(Touch_Input_X); // rm
-  //     Serial.print("HIT - Matrix - X: "); // rm
-  //     Serial.println(x); // rm
-  //
-  //     Match_X = x;
-  //
-  //   } // if
-  //
-  // } // For loop
-  //
-  // for (int y = 1; y < Page_X_Matrix_Y_Last + 1; y++) { // Y
-  //
-  //   if (Touch_Input_Y > Page_X_Matrix[y][0] && Touch_Input_Y < Page_X_Matrix_Y[y][1]) { // Y - Input matching top bar
-  //
-  //     Serial.print("Touch_Input_Y: "); // rm
-  //     Serial.println(Touch_Input_Y); // rm
-  //     Serial.print("HIT - Matrix - Y: "); // rm
-  //     Serial.println(y); // rm
-  //
-  //     Match_Y = y;
-  //
-  //   } // if
-  //
-  // } // For loop
-  //
+        Page_Ignore_Input_Until = millis() + Page_Ignore_Input_For;
+        break;
 
 
-  } // Page_X_Touch
+      // ----------------------------------------------------
+      case Matrix_Slider:
+        Serial.print("X: "); // rm
+        Serial.println(Touch_Input_X); // rm
+        break;
+
+      default:
+        Serial.print("Switch NO MATCH"); // rm
+        break;
+    } // switch (Matrix_Calc_Pos_List)
+
+
+
+
+  } // if (Matrix_Calc_Pos(Touch_Input_X, Touch_Input_Y) == true)
+
+} // Page_X_Touch
 
 
 // -------------------------------------------- Touch Check --------------------------------------------
@@ -1003,7 +877,10 @@ void Touch_Check() {
 
   Top_Bar_Touch();
 
-  Page_X_Touch();
+  if (Matrix_Object_List(Matrix_Button) != ":" || Matrix_Object_List(Matrix_Slider) != ":" ) {
+    Page_X_Touch();
+  }
+
 
 } // Touch_Check
 
