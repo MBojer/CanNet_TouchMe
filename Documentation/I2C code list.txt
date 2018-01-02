@@ -1,0 +1,34 @@
+#################### I2C Code List ####################
+
+-------------------- T1 - Relay --------------------
+
+V1 = ON
+V2 = OFF
+V3 = Flip State
+
+V4 = State Request
+V40 = State ON
+V41 = State is OFF
+
+V99 = ERROR
+
+Example = T1N1V1
+
+-------------------- T2 - Dimmer --------------------
+
+V = Value: ###
+	0 = OFF
+	255 = MAX
+
+-------------------- T51 - Voltmeter --------------------
+
+V1 = Request value
+V2 = Value: ##.##
+V99 = ERROR
+
+
+-------------------- T52 - Ultrasonic Distance --------------------
+
+V1 = Request value
+V2 = Value: ##.##
+V99 = ERROR

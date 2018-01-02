@@ -22,23 +22,23 @@ MB_Queue::MB_Queue(int Max_Queue_Length) {
 
 void MB_Queue::Push(String Push_String, bool Add_To_Front_Of_Queue) {
 
-  if (_Queue_Is_Empthy == true) {
+  if (Queue_Is_Empthy == true) {
     _Queue_String = Push_String + ";";
     _Queue_Length = 1;
-    _Queue_Is_Empthy = false;
+    Queue_Is_Empthy = false;
   }
 
   else {
     _Queue_String = _Queue_String + Push_String + ";";
     _Queue_Length++;
-    _Queue_Is_Empthy = false;
+    Queue_Is_Empthy = false;
   }
 
   if (_Queue_Length >= _Max_Queue_Length) {
     // CHANGE ME - Error reporting !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     _Queue_String = ";";
     _Queue_Length = 0;
-    _Queue_Is_Empthy = true;
+    Queue_Is_Empthy = true;
   }
 
 } // End Marker for Push
@@ -51,7 +51,7 @@ String MB_Queue::Pop() {
 
   String Pop_String;
 
-  if (_Queue_Is_Empthy == true) {
+  if (Queue_Is_Empthy == true) {
     return ";";
   }
 
@@ -64,7 +64,7 @@ String MB_Queue::Pop() {
     if (_Queue_String.length() <= 3 || _Queue_Length < 1) {
       _Queue_String = ";";
       _Queue_Length = 0;
-      _Queue_Is_Empthy = true;
+      Queue_Is_Empthy = true;
     }
 
     return Pop_String;
@@ -92,14 +92,10 @@ int MB_Queue::Length() {
   return _Queue_Length;
 }
 
-int MB_Queue::Is_Empthy() {
-  return _Queue_Is_Empthy;
-}
-
 void MB_Queue::Clear() {
   _Queue_String = ";";
   _Queue_Length = 0;
-  _Queue_Is_Empthy = true;
+  Queue_Is_Empthy = true;
 }
 
 String MB_Queue::Search_Peek(String Search_String) {
@@ -150,7 +146,7 @@ String MB_Queue::Search_Pop(String Search_String, bool Delete_All_Matches) {
     if (_Queue_String.length() <= 3 || _Queue_Length < 1) {
       _Queue_String = ";";
       _Queue_Length = 0;
-      _Queue_Is_Empthy = true;
+      Queue_Is_Empthy = true;
     }
 
     return Search_Pop_String;
