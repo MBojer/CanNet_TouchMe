@@ -22,7 +22,7 @@
 
 #include <Arduino.h>
 
-#define Max_Pages 50 
+#define Max_Pages 50
 
 #define Max_Touch_Object 50
 
