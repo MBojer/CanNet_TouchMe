@@ -1,0 +1,71 @@
+
+------------------------------ General Information ------------------------------
+
+  All file have to be stored in "\TouchMe\"
+
+	All files below have to "Settings:" and "Comments:"
+	The script uses them as markers
+
+	So an empty file HAVE to look like this:
+
+	------------------------------------------------------------
+	Settings:
+
+	Comments:
+
+	------------------------------------------------------------
+
+
+------------------------------ Settings.txt ------------------------------
+
+	This file contains general settings
+
+	"Matrix Spacing = "
+		Size between objects in the matrix
+
+
+
+------------------------------ Top_Bar.txt ------------------------------
+
+	If this file is not present no Top Bar will be drawn
+
+
+------------------------------ Page_"X".txt ------------------------------
+
+	Settings set in this file will overwrites settings from "Settings.txt" - NOT IMPLAMENTED YET
+
+
+	"X"
+		Page number, page number has be to sequential starting from 1
+		Page number 0 is reserver for a admin page - NOT IMPLAMENTED YET
+
+
+	"Name = "
+		Text displayed in the Top Bar
+
+
+	"Matrix Button = "
+		Draws a Button based on matrix coordinates
+		Remember to set "Matrix Spacing" in "Settings.txt"
+
+			"N:"
+				Name of the button
+				Has to start with "N:" and end with ":N"
+
+			"X:" & "Y:"
+				Matrix coordinates for button
+
+			Example:
+				Matrix Button = N:Old Lights:N Y:1 X:1
+
+
+	"Matrix Slider = "
+		Draws a Sider based on matrix coordinates
+		Remember to set "Matrix Spacing" in "Settings.txt"
+
+		"X:" & "Y:"
+				Matrix coordinates for button
+				If X=0 the slider x size will be (Screen Size X - Matrix Spacing * 2)
+
+		Example:
+			Matrix Slider = Y:1 X:0
