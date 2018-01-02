@@ -138,6 +138,7 @@ byte Draw_Edge_Size;
 int Full_Screen_Button_Size = 0;
 
 #define Slider_Size_X 10
+#define Slider_Spazing 2
 
 int Slider_Last_Position = -1;
 
@@ -821,8 +822,8 @@ void Draw_Slider_Marker_Matrix(byte Y_Matrix_Position) {
   // --------------------------  Full Screen Slider --------------------------
   if (Matrix_Calc_Pos_X == 0) {
 
-    int Slider_Y_Axis = Matrix_Calc_Y(Matrix_Calc_Pos_Y);
-    int Slider_Size_Y = Button_Size_X - Edge_Size - 2;
+    int Slider_Y_Axis = Matrix_Calc_Y(Matrix_Calc_Pos_Y) + Edge_Size + Slider_Spazing;
+    int Slider_Size_Y = Button_Size_Y - Edge_Size * 2 - Slider_Spazing * 2;
     int X_Position = Touch_Input_X;
 
 
@@ -832,9 +833,9 @@ void Draw_Slider_Marker_Matrix(byte Y_Matrix_Position) {
   	}
 
     // Right of button
-  	// else if (X_Position > Slider_Restrict_X_End) {
-  	// 	X_Position = Slider_Restrict_X_End - Slider_Size_X * 10 - Slider_Spacing;
-  	// }
+  	else if (X_Position > Matrix_Spacing + Full_Screen_Button_Size - Edge_Size - Slider_Spazing - Slider_Size_X) {
+  		X_Position = Matrix_Spacing + Full_Screen_Button_Size - Edge_Size - Slider_Spazing - Slider_Size_X;
+  	}
 
 
   	// ************ Removing the old slider ************
@@ -843,9 +844,9 @@ void Draw_Slider_Marker_Matrix(byte Y_Matrix_Position) {
   		lcd.setColor(Button_Color);
   		lcd.fillRoundRect(
   									Slider_Last_Position,											// x1
-  									Slider_Y_Axis,															// y1
+  									Slider_Y_Axis,														// y1
   									Slider_Last_Position + Slider_Size_X,			// x2
-  									Slider_Y_Axis + Slider_Size_Y	); 							// y2
+  									Slider_Y_Axis + Slider_Size_Y	); 					// y2
 
   	} // Removing the old slider
 
@@ -963,13 +964,13 @@ void Page_X_Touch() {
         // ADD ME - Queue Action
 
         Page_Ignore_Input_Until = millis() + Page_Ignore_Input_For;
-        break;
+        break; // Matrix_Button
 
 
       // ----------------------------------------------------
       case Matrix_Slider:
 
-      byte Slider_Value;
+        byte Slider_Value;
 
         // --------------------------  Full Screen Slider --------------------------
         if (Matrix_Calc_Pos_X == 0) {
@@ -989,9 +990,7 @@ void Page_X_Touch() {
           }
 
           else { // Anything else
-
             Slider_Value = float((Touch_Input_X - Matrix_Spacing) / (float(Full_Screen_Button_Size) / 255.00));
-
           }
 
 
@@ -1000,20 +999,17 @@ void Page_X_Touch() {
 
 
 
-        }
+        } // Full Screen Slider
 
         // --------------------------  Normal Slider --------------------------
         else {
 
           // ADD ME - Funcunality for this
-          Error_Mode(2, "No support for none fullscreen slider aka 0-Y"); // CHANGE ME
+          Error_Mode(2, "None fullscreen slider not supported"); // CHANGE ME
 
         }
 
-
-
-
-        break;
+        break; // Matrix_Slider
 
 
       // ----------------------------------------------------
