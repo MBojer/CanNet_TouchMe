@@ -941,6 +941,10 @@ void Top_Bar_Touch() {
 // -------------------------------------------- Page X Touch --------------------------------------------
 void Page_X_Touch() {
 
+
+
+
+
   if (
       Touch_Input_X == -1 || // Invalid Input - REMOVEM ME when delaied input needs to run
       Touch_Input_Y == -1 || // Invalid Input - REMOVEM ME when delaied input needs to run
@@ -993,20 +997,15 @@ void Page_X_Touch() {
             Slider_Value = float((Touch_Input_X - Matrix_Spacing) / (float(Full_Screen_Button_Size) / 255.00));
           }
 
-
-
           Draw_Slider_Marker_Matrix(Slider_Value);
-
-
 
         } // Full Screen Slider
 
+
         // --------------------------  Normal Slider --------------------------
         else {
-
           // ADD ME - Funcunality for this
           Error_Mode(2, "None fullscreen slider not supported"); // CHANGE ME
-
         }
 
         break; // Matrix_Slider
