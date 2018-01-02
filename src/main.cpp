@@ -56,12 +56,16 @@ int Touch_Input_X;
 int Touch_Input_Y;
 
 
+// -------------------------------------------- Queue --------------------------------------------
+#include <MB_Queue.h>
+
+#define Max_Queue_Size 15
+MB_Queue Send_Queue(Max_Queue_Size);
+MB_Queue Receive_Queue(Max_Queue_Size);
+
+
 // -------------------------------------------- Touch - Top Bar --------------------------------------------
 int Top_Bar_Button_Spaceing = -1;
-
-
-// -------------------------------------------- Touch - Page X - Matrix --------------------------------------------
-
 
 
 // -------------------------------------------- Touch - Ignore input - Millis --------------------------------------------
@@ -71,8 +75,9 @@ unsigned long Top_Bar_Ignore_Input_Until;
 int Page_Ignore_Input_For = 500;
 unsigned long Page_Ignore_Input_Until;
 
-#define Slider_Dont_Move_For 100
-unsigned long Slider_Dont_Move_Until;
+int Slider_Ignore_Input_For = 100;
+unsigned long Slider_Ignore_Input_Until;
+
 
 // -------------------------------------------- Matrix Calc --------------------------------------------
 int Matrix_Calc_Array[4];
@@ -125,8 +130,6 @@ int Button_Size_X;
 int Button_Size_Y;
 
 
-
-
 // --------------------- Draw_Button ---------------------
 int Draw_Size_X;
 int Draw_Size_Y;
@@ -141,7 +144,6 @@ int Full_Screen_Button_Size = 0;
 #define Slider_Spazing 2
 
 int Slider_Last_Position = -1;
-
 
 
 // -------------------------------------------- CanNet - URTouch --------------------------------------------
@@ -161,9 +163,8 @@ String _Matrix_Object_List[2];
 String _Slider_Last_Position;
 
 
-
-
-
+// -------------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------------------
 
 
@@ -263,7 +264,7 @@ int Slider_Last_Position_Get() {
 } // Slider_Last_Position
 
 
-// -------------------------------------------- CanNet - Calculator --------------------------------------------
+// -------------------------------------------- CanNet - Calculators --------------------------------------------
 int Center_Text_Calc_X(String Text, int Button_Size) {
 
 	return Button_Size / 2 - Text.length() * (lcd.getFontXsize() / 2);
@@ -817,7 +818,7 @@ void Draw_Page(String Page_Content) {
 
 void Draw_Slider_Marker_Matrix(byte Y_Matrix_Position) {
 
-	if (Slider_Dont_Move_Until > millis()) return;
+	if (Slider_Ignore_Input_Until > millis()) return;
 
   // --------------------------  Full Screen Slider --------------------------
   if (Matrix_Calc_Pos_X == 0) {
@@ -861,7 +862,7 @@ void Draw_Slider_Marker_Matrix(byte Y_Matrix_Position) {
 
 
     Slider_Last_Position_Set(X_Position);
-    Slider_Dont_Move_Until = millis() + Slider_Dont_Move_For;
+    Slider_Ignore_Input_Until = millis() + Slider_Ignore_Input_For;
 
   } // if (Matrix_Calc_Pos_X == 0) - Full Screen Slider
 
@@ -876,8 +877,6 @@ void Draw_Slider_Marker_Matrix(byte Y_Matrix_Position) {
 
 
 } // Draw_Slider
-
-
 
 
 // -------------------------------------------- Top_Bar --------------------------------------------
@@ -941,10 +940,6 @@ void Top_Bar_Touch() {
 // -------------------------------------------- Page X Touch --------------------------------------------
 void Page_X_Touch() {
 
-
-
-
-
   if (
       Touch_Input_X == -1 || // Invalid Input - REMOVEM ME when delaied input needs to run
       Touch_Input_Y == -1 || // Invalid Input - REMOVEM ME when delaied input needs to run
@@ -962,10 +957,6 @@ void Page_X_Touch() {
 
       // ----------------------------------------------------
       case Matrix_Button:
-        Serial.print("ADD ME - Queue Action: "); // rm
-        Serial.println(Action); // rm
-
-        // ADD ME - Queue Action
 
         Page_Ignore_Input_Until = millis() + Page_Ignore_Input_For;
         break; // Matrix_Button
@@ -978,12 +969,6 @@ void Page_X_Touch() {
 
         // --------------------------  Full Screen Slider --------------------------
         if (Matrix_Calc_Pos_X == 0) {
-
-          // ADD ME - Queue Action
-          // ADD ME - Queue Action
-          // ADD ME - Queue Action
-          // ADD ME - Queue Action
-
 
           if (Touch_Input_X <= Matrix_Spacing) { // OFF - Space left of button
             Slider_Value = 0;
@@ -998,6 +983,8 @@ void Page_X_Touch() {
           }
 
           Draw_Slider_Marker_Matrix(Slider_Value);
+
+          Send_Queue.Push(Action + ":" + Slider_Value);
 
         } // Full Screen Slider
 
@@ -1071,7 +1058,7 @@ void setup() {
   }
 
   if (Serial) { // rm
-    delay(250);
+    delay(1000);
   }
 
 
@@ -1130,8 +1117,13 @@ void setup() {
     }
 
     if (File_Content.indexOf("\r\nIgnore Input For = ") != -1) {
-        Page_Ignore_Input_For = Find_Setting_Int(File_Content, "Ignore Input For");
+      Page_Ignore_Input_For = Find_Setting_Int(File_Content, "Ignore Input For");
     }
+
+    if (File_Content.indexOf("\r\nIgnore Input Slider For = ") != -1) {
+      Slider_Ignore_Input_For = Find_Setting_Int(File_Content, "Ignore Input Slider For");
+    }
+
   }
 
 
@@ -1186,11 +1178,15 @@ void setup() {
 
 } // setup
 
+
 // -------------------------------------------- Loop --------------------------------------------
 void loop() {
 
   // --------------------- REMOVE ME ---------------------------
   if (freeMemory_Delay_Until < millis()) { // rm
+
+    Serial.print("Send_Queue: ");
+    Serial.println(Send_Queue.Peek_Queue());
 
     unsigned long mesurement = freeMemory();
 
@@ -1210,339 +1206,3 @@ void loop() {
   Touch_Check();
 
 } // loop
-
-
-
-
-// // --------------------------------------------------------------------------------------------
-// // ------------------------------------------ CanNet - UTFT.h ------------------------------------------
-// // --------------------------------------------------------------------------------------------
-//
-// public:
-//
-// 	void Draw_Button(String Button_Text, int Start_X, int Start_Y);
-// 	int Draw_Size_X;
-// 	int Draw_Size_Y;
-//
-// 	word Button_Color;
-// 	// word Button_Text_Color;
-//
-// 	word Button_Edge_Color;
-// 	int Draw_Edge_Size;
-//
-//
-// 	bool Button_Center_Text = true;
-//
-//
-// 	int Center_Text_Calc_X(String Text, int Button_Size);
-// 	int Center_Text_Calc_X(String Text);
-//
-// 	int Center_Text_Calc_Y(String Text, int Button_Size);
-// 	int Center_Text_Calc_Y(String Text);
-//
-//
-// 	// ------------------------------------------ Settings File ------------------------------------------
-// 	word Text_Color;
-//
-// 	word Edge_Color;
-// 	byte Edge_Size;
-//
-//
-// 	// ------------------------------------------ Top Bar ------------------------------------------
-// 	void Draw_Top_Bar(String Top_Bar_Text);
-//
-// 	int Top_Bar_Size;
-// 	int Top_Bar_Button_Size;
-//
-//
-// 	// ------------------------------------------ MISC ------------------------------------------
-// 	int Current_Page = 1;
-//
-//
-//
-// // --------------------------------------------------------------------------------------------
-// // ------------------------------------------ CanNet - UFTF.cpp ------------------------------------------
-// // --------------------------------------------------------------------------------------------
-//
-// void UTFT::Draw_Button(String Button_Text, int Start_X, int Start_Y) {
-//
-// 	// Edge
-// 		setColor(Button_Edge_Color);
-//
-// 		if (Draw_Edge_Size == 0);
-//
-// 		else if (Draw_Edge_Size == 1) {
-// 			drawRoundRect(Start_X, Start_Y, Start_X + Draw_Size_X, Start_Y + Draw_Size_Y);
-// 		}
-//
-// 		else {
-// 			fillRoundRect (Start_X, Start_Y, Start_X + Draw_Size_X, Start_Y + Draw_Size_Y);
-// 		}
-//
-//
-// 	// Button
-// 		setColor(Button_Color);
-// 		fillRoundRect (
-// 										Start_X + Draw_Edge_Size,
-// 										Start_Y + Draw_Edge_Size,
-// 										Start_X + Draw_Size_X - Draw_Edge_Size,
-// 										Start_Y + Draw_Size_Y - Draw_Edge_Size
-// 									);
-//
-// 	// Text
-// 	if (Button_Text != "") {
-// 		setColor(Text_Color);
-// 		setBackColor(Button_Color);
-//
-// 			if (Button_Center_Text == true) {
-// 				print(
-// 					Button_Text,
-// 					Start_X + Center_Text_Calc_X(Button_Text),
-// 					Start_Y + Center_Text_Calc_Y(Button_Text)
-// 				);
-// 			}
-//
-// 			else {
-// 				print( // CHANGE ME TO SOMETHING USEFUL
-// 					Button_Text,
-// 					Start_X + 15,
-// 					Start_Y + 15
-// 				);
-// 			}
-//   } // if (Button_Text != "")
-//
-// } // Draw_Button
-//
-//
-//
-//
-// int UTFT::Center_Text_Calc_X(String Text, int Button_Size) {
-//
-// 	return Button_Size / 2 - Text.length() * (getFontXsize() / 2);
-//
-// } // Center_Text_Calc_X
-//
-// int UTFT::Center_Text_Calc_X(String Text) { // Referance only
-// 	return Center_Text_Calc_X(Text, Draw_Size_X);
-// } // Center_Text_Calc_X - Reff
-//
-//
-// int UTFT::Center_Text_Calc_Y(String Text, int Button_Size) {
-// 	return Button_Size / 2 - (getFontYsize() / 2);
-// } // Center_Text_Calc_X
-//
-// int UTFT::Center_Text_Calc_Y(String Text) { // Referance only
-// 	return Center_Text_Calc_Y(Text, Draw_Size_Y);
-// } // Center_Text_Calc_Y - Reff
-//
-//
-// // ------------------------------------------ Top Bar ------------------------------------------
-// void UTFT::Draw_Top_Bar(String Top_Bar_Text) {
-//
-// 	Draw_Size_X = getDisplayXSize() - 1;
-// 	Draw_Size_Y = Top_Bar_Size;
-//
-// 	Draw_Edge_Size = 0;
-//
-// 	setColor(Button_Color);
-// 	setBackColor(Button_Color);
-//
-//
-// 	Draw_Button(Top_Bar_Text, 0, 0);
-// 	// Draw_Button(String Button_Text, int Start_X, int Start_Y);
-// 	// Find_Setting(String &File_Content, String Setting_Name)
-//
-//
-//   //
-//   //
-// 	// //-------------------------------------------------- Drws Page up / Page down --------------------------------------------------
-// 	// if (Top_Bar_Page_Number < 9) {
-// 	// 	Button_Size_2_X = 5 * getFontXsize();
-// 	// 	Button_Size_2_Y = Top_Bar_Size;
-// 	// }
-//   //
-// 	// else {
-// 	// 	Button_Size_2_X = 6 * getFontXsize();
-// 	// 	Button_Size_2_Y = Top_Bar_Size;
-// 	// }
-//   //
-// 	// Draw_Edge_Size = Top_Bar_Draw_Edge_Size;
-//   //
-// 	// if (Top_Bar_Page_Number != 1) {
-// 	// 	String Page_Number_Text = "<< " + String(Top_Bar_Page_Number - 1);
-//   //
-// 	// 	Draw_Button(Page_Number_Text, 0, 0, true); // Button_Size_2
-// 	// }
-//   //
-// 	// if (Top_Bar_Page_Number != Top_Bar_Page_Number_Last) {
-// 	// 	String Page_Number_Text = String(Top_Bar_Page_Number + 1) + " >>";
-//   //
-// 	// 	Draw_Button(Page_Number_Text, getDisplayXSize() - 1 - Button_Size_2_X, 0, true); // Button_Size_2
-// 	// }
-//
-// } // Draw_Top_Bar
-//
-//
-//
-// //
-// //
-// //
-// // // void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y, bool Use_Button_Size_2) {
-// // //
-// // //
-// // // 		Draw_Button(
-// // // 	    Button_Matrix_Spacing * Button_Number_X + Draw_Size_X * (Button_Number_X - 1),
-// // // 	    Top_Bar_Size + Button_Matrix_Spacing * Button_Number_Y + Draw_Size_Y * (Button_Number_Y - 1)
-// // // 		);
-// // //
-// // //
-// // //
-// // //
-// // // } // Draw_Button_Matrix
-// // //
-// // // void UTFT::Draw_Button_Matrix(String Button_Text, byte Button_Number_X, byte Button_Number_Y) { // Referance only
-// // //
-// // // 	Draw_Button_Matrix(Button_Text, Button_Number_X, Button_Number_Y, false);
-// // //
-// // // } // Draw_Button_Matrix
-// //
-// //
-// //
-// //
-// // // -----------------------------------------------------------------------------------------------------------------
-// // // ---------------------------------------------------- Top Bar ----------------------------------------------------
-// // // -----------------------------------------------------------------------------------------------------------------
-// //
-// // // void UTFT::Draw_Top_Bar() {
-// // //
-// //   //
-// // 	// //-------------------------------------------------- Drws the top bar --------------------------------------------------
-// // 	// Draw_Size_X = getDisplayXSize() - 1;
-// // 	// Draw_Size_Y = Top_Bar_Size;
-// // 	// Draw_Edge_Size = 0;
-// //   //
-// // 	// Draw_Button(_Top_Bar_Text_Array[Top_Bar_Page_Number - 1], 0, 0);
-// //   //
-// //   //
-// // 	// //-------------------------------------------------- Drws Page up / Page down --------------------------------------------------
-// // 	// if (Top_Bar_Page_Number < 9) {
-// // 	// 	Button_Size_2_X = 5 * getFontXsize();
-// // 	// 	Button_Size_2_Y = Top_Bar_Size;
-// // 	// }
-// //   //
-// // 	// else {
-// // 	// 	Button_Size_2_X = 6 * getFontXsize();
-// // 	// 	Button_Size_2_Y = Top_Bar_Size;
-// // 	// }
-// //   //
-// // 	// Draw_Edge_Size = Top_Bar_Draw_Edge_Size;
-// //   //
-// // 	// if (Top_Bar_Page_Number != 1) {
-// // 	// 	String Page_Number_Text = "<< " + String(Top_Bar_Page_Number - 1);
-// //   //
-// // 	// 	Draw_Button(Page_Number_Text, 0, 0, true); // Button_Size_2
-// // 	// }
-// //   //
-// // 	// if (Top_Bar_Page_Number != Top_Bar_Page_Number_Last) {
-// // 	// 	String Page_Number_Text = String(Top_Bar_Page_Number + 1) + " >>";
-// //   //
-// // 	// 	Draw_Button(Page_Number_Text, getDisplayXSize() - 1 - Button_Size_2_X, 0, true); // Button_Size_2
-// // 	// }
-// // //
-// // // } // Draw_Top_Bar
-// //
-// //
-// // // void UTFT::Set_Top_Bar_Text(String Top_Bar_Text) {
-// // //
-// // // 	Top_Bar_Page_Number_Last = 0;
-// // //
-// // // 	for (int x = 0; x < 15; x++) {
-// // //
-// // // 		Top_Bar_Page_Number_Last = Top_Bar_Text.indexOf(";", Top_Bar_Page_Number_Last + 1);
-// // //
-// // // 		if (Top_Bar_Page_Number_Last == -1 || Top_Bar_Text.length() == 0) {
-// // // 			Top_Bar_Page_Number_Last = x;
-// // // 			break;
-// // // 		}
-// // //
-// // // 		_Top_Bar_Text_Array[x] = Top_Bar_Text.substring(0, Top_Bar_Text.indexOf(";"));
-// // //
-// // // 		Top_Bar_Text.replace(_Top_Bar_Text_Array[x] + ";", "");
-// // //
-// // // 	} // for loop
-// // //
-// // // } // Set_Top_Bar_Text
-// //
-// // // String UTFT::Get_Top_Bar_Text() {
-// // //
-// // // 	String Return_String;
-// // //
-// // // 	for (int x = 0; x < Top_Bar_Page_Number_Last; x++) {
-// // //
-// // // 		Return_String = Return_String + _Top_Bar_Text_Array[x] + ";";
-// // //
-// // // 	} // for loop
-// // //
-// // // 	return Return_String;
-// // //
-// // // } // Get_Top_Bar_Text
-// //
-// //
-// //
-// //
-// //
-// //
-// // // ----------------------------------------- Page_Add_Button -------------------------------------------
-// // void UTFT::Page_Add_Button(byte Page_Number, byte Button_ID, String Button_Text, int Position_X, int Position_Y) {
-// //
-// // 	// if (Page_Buttons[Page_Number].indexOf(String(Page_Number) + ";") != -1) {
-// // 	// 	Serial.println("Button exists, removing then addidng"); // rm
-// // 	// 	Page_Remove_Button(Page_Number, Button_ID);
-// // 	// 	Serial.println("Add button again"); // rm
-// // 	// }
-// //   //
-// // 	// else {
-// // 	// 	Serial.println("Adding"); // rm
-// //   //
-// // 	// 	Page_Buttons[Page_Number] =
-// // 	// 															Page_Buttons[Page_Number] + ";-" +
-// // 	// 															Page_Number + ";" +
-// // 	// 															Button_Text + ";" +
-// // 	// 															Position_X + ";" +
-// // 	// 															Position_Y +
-// // 	// 															"-;";
-// //   //
-// //   //
-// //   //
-// //   //
-// //   //
-// //   //
-// // 	// }
-// //
-// // 	// ID;;Text;;Position_X;;Position_Y
-// // 	// ;-01;;Button 1;;400;;200-;
-// //
-// // };
-// //
-// //
-// // // ----------------------------------------- Page_Enable_Button -------------------------------------------
-// // void UTFT::Page_Enable_Button(byte Page_Number, byte Button_ID) {
-// //
-// // };
-// //
-// // // ----------------------------------------- Page_Disable_Button -------------------------------------------
-// // void UTFT::Page_Disable_Button(byte Page_Number, byte Button_ID) {
-// //
-// // };
-// //
-// // // ----------------------------------------- Page_Remove_Button -------------------------------------------
-// // void UTFT::Page_Remove_Button(byte Page_Number, byte Button_ID) {
-// //
-// // };
-// //
-// // // ----------------------------------------- Page_Draw -------------------------------------------
-// // void UTFT::Page_Draw(byte Page_Number) {
-// //
-// // 	Serial.println("Page_Draw"); // rm
-// //
-// // };
