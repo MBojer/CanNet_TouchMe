@@ -818,8 +818,6 @@ void Draw_Page(String Page_Content) {
 
 void Draw_Slider_Marker_Matrix(byte Y_Matrix_Position) {
 
-	if (Slider_Ignore_Input_Until > millis()) return;
-
   // --------------------------  Full Screen Slider --------------------------
   if (Matrix_Calc_Pos_X == 0) {
 
@@ -862,7 +860,6 @@ void Draw_Slider_Marker_Matrix(byte Y_Matrix_Position) {
 
 
     Slider_Last_Position_Set(X_Position);
-    Slider_Ignore_Input_Until = millis() + Slider_Ignore_Input_For;
 
   } // if (Matrix_Calc_Pos_X == 0) - Full Screen Slider
 
@@ -943,8 +940,7 @@ void Page_X_Touch() {
   if (
       Touch_Input_X == -1 || // Invalid Input - REMOVEM ME when delaied input needs to run
       Touch_Input_Y == -1 || // Invalid Input - REMOVEM ME when delaied input needs to run
-      Touch_Input_Y < Top_Bar_Size + Matrix_Spacing || // Input not matching first button
-      Page_Ignore_Input_Until > millis() // Pressed to soon ignoreing input
+      Touch_Input_Y < Top_Bar_Size + Matrix_Spacing // Input not matching first button
   ) return; // No delaied output for Top_Bar_Touch
 
   if (Matrix_Calc_Pos(Touch_Input_X, Touch_Input_Y) == true) { // Match found
@@ -957,6 +953,10 @@ void Page_X_Touch() {
 
       // ----------------------------------------------------
       case Matrix_Button:
+
+        if (Page_Ignore_Input_Until > millis()) return; // Pressed to soon ignoreing input
+
+        Send_Queue.Push(Action);
 
         Page_Ignore_Input_Until = millis() + Page_Ignore_Input_For;
         break; // Matrix_Button
