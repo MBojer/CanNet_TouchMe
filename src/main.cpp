@@ -56,12 +56,15 @@ int Touch_Input_X;
 int Touch_Input_Y;
 
 
-// -------------------------------------------- Queue --------------------------------------------
+// -------------------------------------------- Queue's --------------------------------------------
 #include <MB_Queue.h>
+#include <MB_Queue_Delay.h>
 
 #define Max_Queue_Size 15
 MB_Queue Send_Queue(Max_Queue_Size);
 MB_Queue Receive_Queue(Max_Queue_Size);
+
+MB_Queue_Delay Delay_Queue;
 
 
 // -------------------------------------------- Touch - Top Bar --------------------------------------------
@@ -984,7 +987,7 @@ void Page_X_Touch() {
 
           Draw_Slider_Marker_Matrix(Slider_Value);
 
-          Send_Queue.Push(Action + ":" + Slider_Value);
+          Delay_Queue.Push(Action + "V" + Slider_Value, Slider_Ignore_Input_For);
 
         } // Full Screen Slider
 
@@ -1185,8 +1188,13 @@ void loop() {
   // --------------------- REMOVE ME ---------------------------
   if (freeMemory_Delay_Until < millis()) { // rm
 
-    Serial.print("Send_Queue: ");
-    Serial.println(Send_Queue.Peek_Queue());
+    if (Delay_Queue.Peek() != "") {
+
+      Serial.print("Delay_Queue.Pop(): ");
+      Serial.println(Delay_Queue.Pop());
+
+    }
+
 
     unsigned long mesurement = freeMemory();
 
